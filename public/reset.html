@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca Digital — Recuperar senha</title>
+    <link rel="shortcut icon" href="./images/icon.svg" type="image/x-icon" />
+    <link rel="stylesheet" href="./assets/css/login.css" />
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-brand">
+          <span class="login-icon">🔑</span>
+          <h1>Recuperar senha</h1>
+          <p>Enviaremos um link para seu email</p>
+        </div>
+
+        <div id="reset-msg"   class="login-success" style="display:none"></div>
+        <div id="reset-error" class="login-error"   style="display:none"></div>
+
+        <div class="login-form">
+          <div class="field">
+            <label>Email</label>
+            <input id="reset-email" type="email" placeholder="seu@email.com" />
+          </div>
+          <button class="btn-login" onclick="resetPassword()">Enviar link</button>
+        </div>
+
+        <div class="login-footer">
+          <a href="/login.html">← Voltar ao login</a>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./assets/js/firebase-reset.js"></script>
+  </body>
+</html>

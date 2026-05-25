@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca Digital — Login</title>
+    <link rel="shortcut icon" href="./images/icon.svg" type="image/x-icon" />
+    <link rel="stylesheet" href="./assets/css/login.css" />
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-brand">
+          <span class="login-icon">📚</span>
+          <h1>Biblioteca Digital</h1>
+          <p>Acesse seu acervo pessoal</p>
+        </div>
+
+        <div id="login-error" class="login-error" style="display:none"></div>
+
+        <div class="login-form">
+          <div class="field">
+            <label>Email</label>
+            <input id="l-email" type="email" placeholder="seu@email.com" />
+          </div>
+          <div class="field">
+            <label>Senha</label>
+            <input id="l-password" type="password" placeholder="••••••••" />
+          </div>
+          <button class="btn-login" onclick="loginEmail()">Entrar</button>
+        </div>
+
+        <div class="login-divider"><span>ou</span></div>
+
+        <button class="btn-google" onclick="loginGoogle()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+          Entrar com Google
+        </button>
+
+        <div class="login-footer">
+          <a href="/register.html">Criar conta</a>
+          <span>·</span>
+          <a href="/reset.html">Esqueci a senha</a>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./assets/js/firebase-login.js"></script>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca Digital — Criar conta</title>
+    <link rel="shortcut icon" href="./images/icon.svg" type="image/x-icon" />
+    <link rel="stylesheet" href="./assets/css/login.css" />
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-brand">
+          <span class="login-icon">📚</span>
+          <h1>Criar conta</h1>
+          <p>Comece a registrar suas leituras</p>
+        </div>
+
+        <div id="register-error" class="login-error" style="display:none"></div>
+
+        <div class="login-form">
+          <div class="field">
+            <label>Nome</label>
+            <input id="r-name" type="text" placeholder="Seu nome" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input id="r-email" type="email" placeholder="seu@email.com" />
+          </div>
+          <div class="field">
+            <label>Senha</label>
+            <input id="r-password" type="password" placeholder="Mínimo 6 caracteres" />
+          </div>
+          <button class="btn-login" onclick="register()">Criar conta</button>
+        </div>
+
+        <div class="login-divider"><span>ou</span></div>
+
+        <button class="btn-google" onclick="loginGoogle()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+          Criar conta com Google
+        </button>
+
+        <div class="login-footer">
+          <a href="/login.html">← Voltar ao login</a>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./assets/js/firebase-register.js"></script>
+  </body>
+</html>
