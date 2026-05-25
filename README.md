@@ -4,7 +4,7 @@ Sistema pessoal de gerenciamento de acervo literário desenvolvido para substitu
 
 ## 🖥️ Demonstração
 
-![Dashboard](./images/dashboard.jpeg)
+![Dashboard](./public/images/dashboard.jpeg)
 
 ## 💡 Motivação
 
