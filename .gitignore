@@ -1,0 +1,33 @@
+# Dependências
+node_modules/
+.vscode/
+
+# Banco de dados local (não sobe pro GitHub)
+*.db
+*.sqlite
+*.db-shm
+*.db-wal
+
+
+# Variáveis de ambiente
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operacional
+Thumbs.db
+.DS_Store
+
+#Outros arquivos
+cloudflared.deb
+*.deb
+
+# Firebase Admin (chave privada — NUNCA subir)
+server/firebase-admin-key.json
+public/assets/js/firebase-config.js
+
+# Dados dos usuários
+server/data/
