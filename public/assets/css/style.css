@@ -1085,6 +1085,12 @@ nav a .ico {
   text-overflow: ellipsis;
 }
 
+.sidebar-user-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
 .btn-logout {
   background: none;
   border: 1px solid var(--border);
@@ -1094,13 +1100,30 @@ nav a .ico {
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.15s;
-  width: 100%;
+  flex: 1;
   text-align: left;
 }
 
 .btn-logout:hover {
   border-color: var(--red);
   color: var(--red);
+}
+
+.btn-settings {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--muted);
+  padding: 7px 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-settings:hover {
+  border-color: var(--gold);
+  color: var(--gold);
 }
 /* ── Year panel user info ── */
 .year-panel-user {
@@ -1133,6 +1156,56 @@ nav a .ico {
 .year-panel-logout:hover {
   border-color: var(--red);
   color: var(--red);
+}
+/* ── User Panel (mobile) ── */
+#user-panel-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 150;
+}
+
+#user-panel {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 240px;
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 151;
+  padding: 24px 16px;
+  transition: right 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#user-panel.open {
+  right: 0;
+}
+
+#user-panel-overlay.open {
+  display: block;
+}
+
+.user-panel-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.user-panel-icon {
+  font-size: 1.2rem;
+}
+
+#user-nav-btn {
+  display: none;
 }
 
 /* ══════════════════════════════════════
@@ -1333,7 +1406,9 @@ nav a .ico {
     padding: 7px 10px;
     font-size: 0.82rem;
   }
-
+  #user-nav-btn {
+    display: flex;
+  }
   /* ── Filter bar ── */
   .filter-bar {
     flex-direction: column;

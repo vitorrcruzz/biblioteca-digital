@@ -254,6 +254,21 @@ async function saveYear() {
     alert("Erro ao salvar: " + err.message);
   }
 }
+// ═══════════════════════════════════════════════════
+//  USER PANEL (mobile)
+// ═══════════════════════════════════════════════════
+function openUserPanel() {
+  const nameEl = document.getElementById("user-name-panel");
+  const userName = document.getElementById("user-name");
+  if (nameEl && userName) nameEl.textContent = userName.textContent;
+  document.getElementById("user-panel").classList.add("open");
+  document.getElementById("user-panel-overlay").classList.add("open");
+}
+
+function closeUserPanel() {
+  document.getElementById("user-panel").classList.remove("open");
+  document.getElementById("user-panel-overlay").classList.remove("open");
+}
 
 // ═══════════════════════════════════════════════════
 //  DASHBOARD
@@ -700,6 +715,9 @@ async function init() {
     await loadBooks();
     renderYearList();
     renderDashboard();
+    // Verifica se deve abrir o acervo direto
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("page") === "acervo") goTo("acervo");
   } catch (err) {
     console.error("Erro ao carregar dados:", err);
     document.getElementById("stats-grid").innerHTML =

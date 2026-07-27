@@ -6,30 +6,46 @@
     <title>Minha Biblioteca</title>
     <link rel="shortcut icon" href="./images/icon.svg" type="image/x-icon" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-    <script src="https://kit.fontawesome.com/36e64f3fff.js" crossorigin="anonymous"></script>
+    <script
+      src="https://kit.fontawesome.com/36e64f3fff.js"
+      crossorigin="anonymous"
+    ></script>
     <link rel="stylesheet" href="./assets/css/style.css" />
   </head>
   <body>
     <!-- Painel de anos (mobile) -->
     <div id="year-panel-overlay" onclick="closeYearPanel()"></div>
     <div id="year-panel">
-  <div class="year-panel-header">
-    <span>📅 Ano</span>
-    <button onclick="closeYearPanel()">✕</button>
-  </div>
+      <div class="year-panel-header">
+        <span>📅 Ano</span>
+        <button onclick="closeYearPanel()">✕</button>
+      </div>
 
-  <!-- Info do usuário no painel mobile -->
-  <div class="year-panel-user">
-    <span>👤</span>
-    <span id="user-name-mobile"></span>
-  </div>
-  <button class="year-panel-logout" onclick="logout()">🚪 Sair</button>
-
-  <button class="year-panel-new-btn" onclick="openYearModalFromPanel()">
-    ＋ Novo ano
-  </button>
-  <div id="year-panel-list"></div>
-</div>
+      <!-- Info do usuário no painel mobile -->
+      <button class="year-panel-new-btn" onclick="openYearModalFromPanel()">
+        ＋ Novo ano
+      </button>
+      <div id="year-panel-list"></div>
+    </div>
+    <!-- Painel de usuário (mobile) -->
+    <div id="user-panel-overlay" onclick="closeUserPanel()"></div>
+    <div id="user-panel">
+      <div class="year-panel-header">
+        <span>👤 Conta</span>
+        <button onclick="closeUserPanel()">✕</button>
+      </div>
+      <div class="user-panel-info">
+        <span class="user-panel-icon">👤</span>
+        <span id="user-name-panel"></span>
+      </div>
+      <button
+        class="year-panel-new-btn"
+        onclick="window.location.href = '/account.html'"
+      >
+        ⚙️ Configurações
+      </button>
+      <button class="year-panel-logout" onclick="logout()">🚪 Sair</button>
+    </div>
     <!-- Sidebar -->
     <aside id="sidebar">
       <div class="brand">
@@ -49,26 +65,31 @@
         <a onclick="openModal()">
           <span class="ico">＋</span><span>Adicionar</span>
         </a>
+        <a id="user-nav-btn" onclick="openUserPanel()">
+          <span class="ico">👤</span><span>Conta</span>
+        </a>
       </nav>
-      <div class="sidebar-user" id="sidebar-user">
+      <div class="sidebar-year">
+        <div class="sidebar-year-header">
+          <p>Ano</p>
+        </div>
+        <div id="year-list"></div>
+      </div>
+      <div class="sidebar-user">
         <div class="user-info">
           <span class="user-icon">👤</span>
           <span id="user-name" class="user-name"></span>
         </div>
-        <button class="btn-logout" onclick="logout()">Sair</button>
-      </div>
-      <div class="sidebar-year">
-        <div class="sidebar-year-header">
-          <p>Ano</p>
+        <div class="sidebar-user-actions">
+          <button class="btn-logout" onclick="logout()">Sair</button>
           <button
-            class="btn-new-year"
-            onclick="openYearModal()"
-            title="Novo ano"
+            class="btn-settings"
+            onclick="window.location.href = '/account.html'"
+            title="Configurações"
           >
-            ＋
+            ⚙️
           </button>
         </div>
-        <div id="year-list"></div>
       </div>
     </aside>
 

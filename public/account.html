@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca Digital — Minha Conta</title>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="stylesheet" href="./assets/css/account.css" />
+  </head>
+  <body>
+    <!-- Painel de anos (mobile) -->
+    <div id="year-panel-overlay" onclick="closeYearPanel()"></div>
+    <div id="year-panel">
+      <div class="year-panel-header">
+        <span>📅 Ano</span>
+        <button onclick="closeYearPanel()">✕</button>
+      </div>
+      <button class="year-panel-new-btn" onclick="openYearModalFromPanel()">
+        ＋ Novo ano
+      </button>
+      <div id="year-panel-list"></div>
+    </div>
+    <!-- Painel de usuário (mobile) -->
+    <div id="user-panel-overlay" onclick="closeUserPanel()"></div>
+    <div id="user-panel">
+      <div class="year-panel-header">
+        <span>👤 Conta</span>
+        <button onclick="closeUserPanel()">✕</button>
+      </div>
+      <div class="user-panel-info">
+        <span class="user-panel-icon">👤</span>
+        <span id="user-name-panel"></span>
+      </div>
+      <button
+        class="year-panel-new-btn"
+        onclick="window.location.href = '/account.html'"
+      >
+        ⚙️ Configurações
+      </button>
+      <button class="year-panel-logout" onclick="logout()">🚪 Sair</button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="brand">
+        <h1>📚 Biblioteca</h1>
+        <p>Acervo pessoal</p>
+      </div>
+      <nav>
+        <a onclick="window.location.href = '/'">
+          <span class="ico">🏠</span><span>Dashboard</span>
+        </a>
+        <a onclick="window.location.href = '/?page=acervo'">
+          <span class="ico">📖</span><span>Acervo</span>
+        </a>
+        <a id="year-nav-btn" onclick="openYearPanel()">
+          <span class="ico">📅</span><span>Ano</span>
+        </a>
+        <a onclick="window.location.href = '/'">
+          <span class="ico">＋</span><span>Adicionar</span>
+        </a>
+        <a id="user-nav-btn" onclick="openUserPanel()">
+          <span class="ico">👤</span><span>Conta</span>
+        </a>
+      </nav>
+      <div class="sidebar-year">
+        <div class="sidebar-year-header">
+          <p>Ano</p>
+        </div>
+        <div id="year-list"></div>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-info">
+          <span class="user-icon">👤</span>
+          <span id="user-name" class="user-name"></span>
+        </div>
+        <div class="sidebar-user-actions">
+          <button class="btn-logout" onclick="logout()">Sair</button>
+          <button
+            class="btn-settings"
+            onclick="window.location.href = '/account.html'"
+            title="Configurações"
+          >
+            ⚙️
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main id="main">
+      <div class="page-header">
+        <h2>⚙️ Minha Conta</h2>
+        <p>Gerencie suas informações e preferências</p>
+      </div>
+
+      <!-- Perfil -->
+      <div class="account-section">
+        <h3 class="account-section-title">👤 Perfil</h3>
+        <div class="account-card">
+          <div class="account-field">
+            <label>Nome</label>
+            <div class="account-input-row">
+              <input id="a-name" type="text" placeholder="Seu nome" />
+              <button class="btn-save" onclick="saveName()">Salvar</button>
+            </div>
+          </div>
+          <div class="account-field">
+            <label>Email</label>
+            <div class="account-input-row">
+              <input id="a-email" type="email" placeholder="novo@email.com" />
+              <button class="btn-save" onclick="saveEmail()">Salvar</button>
+            </div>
+            <p class="account-hint">
+              Ao alterar o email você precisará fazer login novamente.
+            </p>
+          </div>
+          <div class="account-field">
+            <label>Senha</label>
+            <button class="btn-outline-full" onclick="sendPasswordReset()">
+              📧 Enviar email de redefinição de senha
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meta do ano -->
+      <div class="account-section">
+        <h3 class="account-section-title">🎯 Meta de leitura</h3>
+        <div class="account-card">
+          <div class="account-field">
+            <label>Meta para <span id="current-year-label"></span></label>
+            <div class="account-input-row">
+              <input
+                id="a-goal"
+                type="number"
+                min="1"
+                placeholder="Ex: 20 livros"
+              />
+              <button class="btn-save" onclick="saveGoal()">Salvar</button>
+            </div>
+            <p class="account-hint" id="goal-hint"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zona de perigo -->
+      <div class="account-section">
+        <h3 class="account-section-title danger-title">⚠️ Zona de perigo</h3>
+        <div class="account-card danger-card">
+          <div class="danger-item">
+            <div>
+              <p class="danger-label">Excluir todos os livros</p>
+              <p class="danger-desc">
+                Remove permanentemente todos os livros e metas do seu acervo.
+                Esta ação não pode ser desfeita.
+              </p>
+            </div>
+            <button class="btn-danger-action" onclick="confirmDeleteBooks()">
+              Excluir acervo
+            </button>
+          </div>
+          <div class="danger-divider"></div>
+          <div class="danger-item">
+            <div>
+              <p class="danger-label">Excluir conta</p>
+              <p class="danger-desc">
+                Remove permanentemente sua conta e todos os dados associados.
+                Esta ação não pode ser desfeita.
+              </p>
+            </div>
+            <button class="btn-danger-action" onclick="confirmDeleteAccount()">
+              Excluir conta
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal Confirmar Exclusão -->
+    <div class="overlay" id="confirm-overlay">
+      <div class="modal" style="max-width: 420px">
+        <button class="confirm-close" onclick="closeConfirm()">✕</button>
+        <div class="confirm-icon">⚠️</div>
+        <h3 id="confirm-title">Confirmar</h3>
+        <p id="confirm-msg" class="confirm-msg"></p>
+        <div
+          class="modal-actions"
+          style="justify-content: center; gap: 16px; margin-top: 28px"
+        >
+          <button class="btn-outline" onclick="closeConfirm()">Cancelar</button>
+          <button class="btn-danger-lg" id="confirm-yes">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast">✔ Salvo com sucesso!</div>
+
+    <script src="./assets/js/firebase-config.js"></script>
+    <script type="module" src="./assets/js/app-init.js"></script>
+    <script src="./assets/js/account.js"></script>
+  </body>
+</html>
