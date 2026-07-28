@@ -9,7 +9,8 @@
   <img src="https://img.shields.io/badge/Status-Em%20desenvolvimento-yellow" />
 </p>
 
-> **Sistema Pessoal de Gerenciamento de Acervo Literário** > Migração de controle legada em Excel para ecossistema web full-stack, operando em infraestrutura self-hosted com segurança Zero Trust via Tailscale VPN.
+> **Sistema Pessoal de Gerenciamento de Acervo Literário**
+> Migração de controle legada em Excel para ecossistema web full-stack, operando em infraestrutura self-hosted com segurança Zero Trust via Tailscale VPN.
 
 ---
 
@@ -17,7 +18,7 @@
 
 A **Biblioteca Digital** é uma aplicação projetada para centralizar, catalogar e monitorar hábitos de leitura. O sistema substitui o controle manual de planilhas eletrônicas por uma interface rica, fornecendo relatórios analíticos, controle de metas dinâmicas e isolamento lógico de dados, permitindo que múltiplos usuários gerenciem seus acervos de forma totalmente independente.
 
-O core da aplicação roda sob o princípio de infraestrutura caseira (*self-hosting*), utilizando um terminal Tanca reutilizado como servidor Linux. A arquitetura de rede foi estruturada de forma a não expor nenhuma porta de serviço para a internet pública, restringindo o perímetro de acesso a uma rede privada virtual.
+O core da aplicação roda sob o princípio de infraestrutura caseira (*self-hosting*), utilizando um terminal Tanca reutilizado como servidor Linux. A arquitetura de rede foi estruturada de forma a não expor nenhuma porta de serviço para a internet pública, restringindo o perímetro de acesso a uma rede privada virtual — com opção de acesso público via Tailscale Funnel.
 
 ### ✨ Funcionalidades
 
@@ -25,24 +26,13 @@ O core da aplicação roda sob o princípio de infraestrutura caseira (*self-hos
 - 🎯 **Gestão de Metas:** Monitoramento de objetivos literários anuais com barras de progresso adaptativas.
 - 👥 **Multi-tenant Isolado:** Cada conta criada possui e gerencia uma base de dados SQLite dedicada e isolada.
 - ⭐ **Avaliação Granular:** Classificação de títulos por estrelas com suporte a frações (meias estrelas).
-- 🔄 **Controle de Releituras:** Marcadores específicos para identificar e contabilizar releituras de obras do acervo.
-- 📱 **Interface Responsiva:** Frontend Vanilla ES6 limpo e otimizado para dispositivos móveis e desktop.
+- 🔄 **Controle de Releituras:** Marcadores específicos para identificar releituras de obras do acervo.
+- 🗂️ **Gerenciamento de Anos:** Criação de anos com metas opcionais e filtros por período.
+- 📱 **Interface Responsiva:** Frontend Vanilla ES6 otimizado para dispositivos móveis e desktop.
 - 🔐 **Autenticação Avançada:** Login seguro por e-mail/senha ou Provedor Google via Firebase Authentication.
-
----
-
-## 🖼️ Screenshots
-
-### Dashboard principal
-
-<img width="900" height="650" alt="Dashboard da Biblioteca" src="./public/images/dashboard.jpeg" />
-
-### Alertas de metas e status
-| Componente | Comportamento |
-|---|---|
-| Progress Bar | Renderização dinâmica da meta com base nas páginas/livros concluídos |
-| Tag de Releitura | Marcador visual no card do livro indicando leituras recorrentes |
-| Filtro de Acervo | Refinamento instantâneo por ano específico, categoria ou status atual |
+- 🔑 **Recuperação de Senha:** Redefinição de senha via link enviado ao e-mail cadastrado.
+- ⚙️ **Página de Conta:** Gerenciamento de perfil, alteração de nome, e-mail, senha e meta de leitura do ano atual.
+- 🌐 **Acesso Público:** Exposição segura via Tailscale Funnel com HTTPS automático sem domínio próprio.
 
 ---
 
@@ -51,14 +41,14 @@ O core da aplicação roda sob o princípio de infraestrutura caseira (*self-hos
 ```
 Dispositivo do Usuário (Navegador / Mobile)
         │
-        ▼  Conexão Criptografada (HTTPS/UDP)
-  Tailscale VPN Mesh Overlay
+        ▼  Conexão Criptografada (HTTPS)
+  Tailscale Funnel (Acesso público sem domínio)
         │
-        ▼  Encaminhamento Interno
+        ▼  ou Tailscale VPN (Acesso privado)
   Nginx Proxy Reverso (Porta 80)
         │
         ▼  Localhost Loopback
-  Node.js + Express API (Porta 3000)
+  Node.js + Express API (Porta 3000 — apenas 127.0.0.1)
    ├── Firebase Admin SDK ──→ Validação JWT
    └── SQLite Driver       ──→ Instância por Usuário
 ```
@@ -69,48 +59,56 @@ Dispositivo do Usuário (Navegador / Mobile)
 
 ```
 biblioteca-digital/
-├── package.json                    # Manifesto e dependências do ecossistema
+├── package.json
 │
-├── public/                         # Camada de apresentação (Frontend Estático)
-│   ├── index.html                  # View principal (Dashboard & Core)
-│   ├── login.html                  # View de autenticação
-│   ├── register.html               # View de cadastro de usuários
-│   ├── reset.html                  # View de recuperação de senha
+├── public/                         # Frontend Estático
+│   ├── index.html                  # App principal (Dashboard & Acervo)
+│   ├── login.html                  # Tela de login
+│   ├── register.html               # Tela de cadastro
+│   ├── reset.html                  # Recuperação de senha
+│   ├── account.html                # Página de conta e configurações
 │   ├── assets/
 │   │   ├── css/
-│   │   │   ├── style.css           # Estilos estruturais da aplicação
-│   │   │   └── login.css           # Estilos das interfaces de acesso
+│   │   │   ├── style.css           # Estilos da aplicação
+│   │   │   ├── login.css           # Estilos das telas de autenticação
+│   │   │   └── account.css        # Estilos da página de conta
 │   │   └── js/
-│   │       ├── script.js           # Orquestração e lógica de renderização
-│   │       ├── app-init.js         # Inicialização do cliente Firebase
-│   │       ├── firebase-auth.js    # Abstração de chamadas de autenticação
-│   │       ├── firebase-config.js  # ⚠️ Configurações do cliente (Ignorado no Git)
-│   │       └── [modulos-firebase].js # Controladores específicos de views
-│   └── images/                     # Ativos gráficos e capturas de tela
+│   │       ├── script.js           # Lógica principal do app
+│   │       ├── app-init.js         # Inicialização Firebase + proteção de rota
+│   │       ├── account.js          # Lógica da página de conta
+│   │       ├── firebase-auth.js    # Config e funções base do Firebase
+│   │       ├── firebase-app.js     # Firebase para o app principal
+│   │       ├── firebase-login.js   # Lógica da tela de login
+│   │       ├── firebase-register.js# Lógica da tela de cadastro
+│   │       ├── firebase-reset.js   # Lógica de recuperação de senha
+│   │       └── firebase-config.js  # ⚠️ Ignorado no Git — credenciais locais
+│   └── images/
 │
-├── server/                         # Camada de aplicação (Backend)
-│   ├── index.js                    # Ponto de entrada do servidor Express
-│   ├── database.js                 # Camada de abstração e isolamento do SQLite
-│   ├── auth.js                     # Middleware interceptor de tokens JWT
-│   ├── migrate.js                  # Script utilitário de ETL (Migração do Excel)
-│   ├── firebase-admin-key.json     # ⚠️ Chave privada do SDK (Ignorado no Git)
+├── server/                         # Backend
+│   ├── index.js                    # Servidor Express
+│   ├── database.js                 # Banco isolado por usuário (SQLite)
+│   ├── auth.js                     # Middleware de validação JWT
+│   ├── migrate.js                  # Script de migração do Excel para SQLite
+│   ├── firebase-admin-key.json     # ⚠️ Ignorado no Git — chave privada
 │   └── routes/
-│       ├── books.js                # API REST: Endpoints de gerenciamento de obras
-│       └── goals.js                # API REST: Endpoints de metas literárias
+│       ├── books.js                # API REST de livros
+│       ├── goals.js                # API REST de metas
+│       └── account.js              # API REST de conta e perfil
 ```
 
 ---
 
 ## 🔧 Infraestrutura de Hospedagem
 
-| Atributo | Componente | Configuração / Papel |
+| Atributo | Componente | Papel |
 |---|---|---|
-| Hardware | Terminal Tanca | Equipamento reaproveitado para servidor dedicado *on-premises* |
-| Sistema Operacional | Ubuntu Server 24.04 LTS | Sistema operacional base do host |
-| Proxy Web | Nginx | Terminação de requisições e segurança de borda |
-| VPN Overlay | Tailscale | Rede mesh criptografada eliminando port-forwarding no roteador |
-| Firewall Host | UFW | Políticas estritas (Bloqueio total, liberado apenas portas de VPN/SSH) |
-| Process Manager | PM2 | Monitoramento de runtime, restart automático e persistência pós-reboot |
+| Hardware | Terminal Tanca | Servidor dedicado reaproveitado *on-premises* |
+| Sistema Operacional | Ubuntu Server 24.04 LTS | Base do servidor |
+| Proxy Web | Nginx | Proxy reverso e segurança de borda |
+| Acesso Privado | Tailscale VPN | Rede mesh criptografada sem port-forwarding |
+| Acesso Público | Tailscale Funnel | HTTPS automático sem domínio próprio |
+| Firewall | UFW | Bloqueio total exceto portas VPN e SSH |
+| Process Manager | PM2 | Restart automático e persistência pós-reboot |
 
 ---
 
@@ -119,7 +117,6 @@ biblioteca-digital/
 ### Pré-requisitos
 
 - [Node.js](https://nodejs.org/) versão 20.x LTS ou superior
-- [NPM](https://www.npmjs.com/) integrado ao Node
 
 ### Passo a passo
 
@@ -128,13 +125,14 @@ biblioteca-digital/
 git clone https://github.com/vitorrcruzz/biblioteca-digital.git
 cd biblioteca-digital
 
-# 2. Instale as dependências locais
+# 2. Instale as dependências
 npm install
 ```
 
 ### Configuração de credenciais
 
-Crie o arquivo `public/assets/js/firebase-config.js` com os dados do seu app:
+Crie o arquivo `public/assets/js/firebase-config.js` com os dados do seu projeto Firebase:
+
 ```javascript
 window.__firebaseConfig = {
   apiKey: "SUA_API_KEY",
@@ -146,13 +144,13 @@ window.__firebaseConfig = {
 };
 ```
 
-Adicione o arquivo contendo a chave privada gerada no Console do Firebase em `server/firebase-admin-key.json`.
+Adicione a chave privada do Firebase Admin em `server/firebase-admin-key.json`.
 
 ```bash
-# 3. Inicialize o servidor em ambiente local
+# 3. Inicie o servidor
 npm start
 
-# 4. Acesse a aplicação localmente
+# 4. Acesse
 http://localhost:3000
 ```
 
@@ -160,35 +158,36 @@ http://localhost:3000
 
 ## 🌐 API REST
 
-| Método | Rota | Descrição | Cabeçalho requerido |
+| Método | Rota | Descrição | Auth |
 |---|---|---|---|
-| GET | `/` | Servir frontend estático | Nenhum |
-| GET | `/api/books` | Lista obras do usuário autenticado | `Authorization: Bearer <JWT>` |
-| POST | `/api/books` | Cadastra um novo título no acervo | `Authorization: Bearer <JWT>` |
-| PUT | `/api/books/<id>` | Atualiza metadados ou status do livro | `Authorization: Bearer <JWT>` |
-| DELETE | `/api/books/<id>` | Remove permanentemente um livro | `Authorization: Bearer <JWT>` |
-| GET | `/api/goals` | Recupera histórico e metas vigentes | `Authorization: Bearer <JWT>` |
+| GET | `/api/books` | Lista livros do usuário | ✅ |
+| POST | `/api/books` | Cadastra novo livro | ✅ |
+| PUT | `/api/books/:id` | Atualiza livro | ✅ |
+| DELETE | `/api/books/:id` | Remove livro | ✅ |
+| GET | `/api/goals` | Lista metas | ✅ |
+| POST | `/api/goals` | Cria ou atualiza meta | ✅ |
+| DELETE | `/api/goals/:year` | Remove meta do ano | ✅ |
+| GET | `/api/account` | Dados do usuário | ✅ |
+| PUT | `/api/account/name` | Atualiza nome | ✅ |
+| PUT | `/api/account/email` | Atualiza email | ✅ |
+| PUT | `/api/account/goal` | Define meta do ano atual | ✅ |
+| DELETE | `/api/account/books` | Exclui todo o acervo | ✅ |
+| DELETE | `/api/account` | Exclui conta | ✅ |
 
 ---
 
 ## 🔐 Modelo de Segurança
 
-- **Zero Exposição Pública:** O serviço Express escuta estritamente no endereço de loopback `127.0.0.1:3000`. O tráfego externo é controlado pelo Nginx e condicionado à validação de chaves criptográficas na interface de rede virtual do Tailscale.
-- **Isolamento de Tenant:** O backend extrai o ID único do token verificado via Firebase Admin SDK. O arquivo do banco de dados SQLite correspondente (`server/database/<UID>.db`) é carregado dinamicamente, impedindo vazamento de dados entre usuários.
-- **Sanitização de Versionamento:** Credenciais críticas de infraestrutura e tokens privados estão devidamente blindados fora da árvore de commits através do arquivo `.gitignore`.
+- **Zero Exposição Direta:** O Express escuta em `127.0.0.1:3000`. O tráfego externo passa pelo Nginx e pela VPN Tailscale.
+- **Isolamento por Usuário:** O UID extraído do JWT define qual banco SQLite é carregado — nenhum usuário acessa dados de outro.
+- **Credenciais fora do Git:** `firebase-config.js` e `firebase-admin-key.json` estão no `.gitignore` e nunca são versionados.
+- **Firewall UFW:** Apenas portas 80 e 22 liberadas via range Tailscale (`100.0.0.0/8`).
 
 ---
 
-## 📊 Estratégia de Migração de Dados
+## 📊 Origem dos dados
 
-Para assegurar a manutenção dos registros efetuados na planilha Excel desde o ano de 2022, o script `server/migrate.js` pode ser executado para realizar o pipeline de migração automatizada, convertendo linhas de planilhas formatadas diretamente em instâncias estruturadas na base relacional SQLite.
-
----
-
-## 🔄 Roadmap de Evolução
-
-- [ ] Script de automação cron para backup periódico e compactação das bases SQLite.
-- [ ] Implementação de cluster de alta disponibilidade com failover utilizando um segundo nó de hardware Tanca.
+O sistema foi migrado de uma planilha Excel com registros desde 2022. O script `server/migrate.js` realizou a importação automática de todos os livros para o banco SQLite, preservando títulos, autores, categorias, páginas, datas e avaliações.
 
 ---
 
