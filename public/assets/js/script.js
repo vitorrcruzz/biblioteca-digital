@@ -109,15 +109,19 @@ function booksForYear(y) {
 function starsHtml(r) {
   if (r === null || r === undefined || r === 0)
     return '<span style="color:var(--muted);font-size:.8rem">—</span>';
+
   let h = "";
   for (let i = 1; i <= 5; i++) {
-    if (r >= i) h += "★";
-    else if (r >= i - 0.5) h += "⯪";
-    else h += "☆";
+    if (r >= i) {
+      h += `<span style="color:var(--gold);font-size:inherit">★</span>`;
+    } else if (r >= i - 0.5) {
+      h += `<span class="star-half-wrap"><span class="star-bg">★</span><span class="star-fg">★</span></span>`;
+    } else {
+      h += `<span style="color:var(--border);font-size:inherit">★</span>`;
+    }
   }
   return `<span class="stars">${h}</span>`;
 }
-
 function badgeHtml(cat, sub) {
   if (!cat) return "";
   const c = cat
@@ -555,8 +559,19 @@ function closeModalOutside(e) {
 
 function setStar(v) {
   currentRating = v;
-  document.querySelectorAll(".star-btn").forEach((b) => {
-    b.classList.toggle("on", v !== null && parseFloat(b.dataset.v) <= v);
+  document.querySelectorAll(".star-btn").forEach((btn) => {
+    const val    = parseFloat(btn.dataset.v);
+    const isHalf = btn.classList.contains("half-btn");
+    const isOn   = v !== null && val <= v;
+
+    btn.classList.toggle("on", isOn);
+
+    if (isHalf) {
+      const starFg = btn.querySelector(".star-fg");
+      if (starFg) {
+        starFg.style.color = isOn ? "var(--gold)" : "var(--border)";
+      }
+    }
   });
   document.getElementById("star-label").textContent = v ? `${v} ★` : "Sem nota";
 }

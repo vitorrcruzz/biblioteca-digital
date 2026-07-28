@@ -1257,6 +1257,84 @@ nav a .ico {
   opacity: 0.8;
   margin-left: 3px;
 }
+/* ── Estrelas ── */
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--border);
+  transition: color 0.1s;
+  padding: 0;
+  line-height: 1;
+}
+
+.star-btn.on {
+  color: var(--gold);
+}
+
+.star-btn:hover {
+  color: var(--gold);
+}
+
+/* Botão de meia estrela */
+.half-btn {
+  position: relative;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
+/* Estrela de fundo — cinza completa */
+.half-btn .star-bg {
+  color: var(--border);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Metade esquerda dourada — clip na metade direita */
+.half-btn .star-fg {
+  color: var(--border);
+  position: absolute;
+  top: 0;
+  left: 0;
+  clip-path: inset(0 50% 0 0);
+  transition: color 0.1s;
+}
+
+.half-btn.on .star-fg,
+.half-btn:hover .star-fg {
+  color: var(--gold);
+}
+
+/* ── Meia estrela na listagem (starsHtml) ── */
+.star-half-wrap {
+  position: relative;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: auto;
+}
+
+.star-half-wrap .star-bg {
+  color: var(--border);
+}
+
+.star-half-wrap .star-fg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--gold);
+  clip-path: inset(0 50% 0 0);
+}
 
 /* ══════════════════════════════════════
    RESPONSIVIDADE — MOBILE (≤768px)

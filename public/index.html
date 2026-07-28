@@ -285,27 +285,28 @@
               <button class="star-btn" data-v="1" onclick="setStar(1)">
                 ★
               </button>
-              <button class="star-btn" data-v="1.5" onclick="setStar(1.5)">
-                ⯪
-              </button>
+    <button class="star-btn half-btn" data-v="1.5" onclick="setStar(1.5)">
+  <span class="star-bg">★</span><span class="star-fg">★</span>
+</button>
+
               <button class="star-btn" data-v="2" onclick="setStar(2)">
                 ★
               </button>
-              <button class="star-btn" data-v="2.5" onclick="setStar(2.5)">
-                ⯪
-              </button>
+              <button class="star-btn half-btn" data-v="2.5" onclick="setStar(2.5)">
+  <span class="star-bg">★</span><span class="star-fg">★</span>
+</button>
               <button class="star-btn" data-v="3" onclick="setStar(3)">
                 ★
               </button>
-              <button class="star-btn" data-v="3.5" onclick="setStar(3.5)">
-                ⯪
-              </button>
+              <button class="star-btn half-btn" data-v="3.5" onclick="setStar(3.5)">
+  <span class="star-bg">★</span><span class="star-fg">★</span>
+</button>
               <button class="star-btn" data-v="4" onclick="setStar(4)">
                 ★
               </button>
-              <button class="star-btn" data-v="4.5" onclick="setStar(4.5)">
-                ⯪
-              </button>
+             <button class="star-btn half-btn" data-v="4.5" onclick="setStar(4.5)">
+  <span class="star-bg">★</span><span class="star-fg">★</span>
+</button>
               <button class="star-btn" data-v="5" onclick="setStar(5)">
                 ★
               </button>
@@ -398,23 +399,38 @@
       </div>
     </div>
     <!-- Modal Nova Categoria -->
-<div class="overlay" id="cat-modal-overlay" onclick="closeCatModalOutside(event)">
-  <div class="modal" style="max-width:380px">
-    <button class="confirm-close" onclick="closeCatModal()">✕</button>
-    <div class="confirm-icon">🏷️</div>
-    <h3 id="cat-modal-title">Nova categoria</h3>
-    <div class="form-grid" style="grid-template-columns:1fr;margin-top:8px">
-      <div class="field">
-        <label id="cat-modal-label">Nome da categoria</label>
-        <input id="cat-name-input" type="text" placeholder="Ex: Ficção Científica" />
+    <div
+      class="overlay"
+      id="cat-modal-overlay"
+      onclick="closeCatModalOutside(event)"
+    >
+      <div class="modal" style="max-width: 380px">
+        <button class="confirm-close" onclick="closeCatModal()">✕</button>
+        <div class="confirm-icon">🏷️</div>
+        <h3 id="cat-modal-title">Nova categoria</h3>
+        <div
+          class="form-grid"
+          style="grid-template-columns: 1fr; margin-top: 8px"
+        >
+          <div class="field">
+            <label id="cat-modal-label">Nome da categoria</label>
+            <input
+              id="cat-name-input"
+              type="text"
+              placeholder="Ex: Ficção Científica"
+            />
+          </div>
+        </div>
+        <div class="modal-actions" style="margin-top: 20px">
+          <button class="btn-outline" onclick="closeCatModal()">
+            Cancelar
+          </button>
+          <button class="btn-gold" onclick="saveNewCategory()">
+            💾 Salvar
+          </button>
+        </div>
       </div>
     </div>
-    <div class="modal-actions" style="margin-top:20px">
-      <button class="btn-outline" onclick="closeCatModal()">Cancelar</button>
-      <button class="btn-gold" onclick="saveNewCategory()">💾 Salvar</button>
-    </div>
-  </div>
-</div>
     <div id="toast">✔ Salvo com sucesso!</div>
     <script src="./assets/js/firebase-config.js"></script>
     <script type="module" src="./assets/js/app-init.js"></script>
