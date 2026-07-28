@@ -1,10 +1,10 @@
-const express  = require("express");
-const cors     = require("cors");
-const path     = require("path");
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 const { authMiddleware, admin } = require("./auth");
-const { upsertUser }            = require("./database");
+const { upsertUser } = require("./database");
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());

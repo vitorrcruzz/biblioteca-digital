@@ -25,7 +25,7 @@ async function accountFetch(path, options = {}) {
 async function loadAccount() {
   try {
     const user = await accountFetch("/");
-    document.getElementById("a-name").value        = user.name  || "";
+    document.getElementById("a-name").value = user.name || "";
     document.getElementById("a-email").placeholder = user.email || "";
     document.getElementById("current-year-label").textContent = currentYear;
 
@@ -97,8 +97,8 @@ async function saveEmail() {
     });
     showToast("Email atualizado! Faça login novamente.");
     setTimeout(async () => {
-      const { auth }     = await import("./firebase-app.js");
-      const { signOut }  = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      const { auth } = await import("./firebase-app.js");
+      const { signOut } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
       await signOut(auth);
       localStorage.removeItem("fb_token");
       window.location.href = "/login.html";
@@ -144,7 +144,7 @@ let confirmCallback = null;
 function openConfirm(title, msg, onConfirm) {
   confirmCallback = onConfirm;
   document.getElementById("confirm-title").textContent = title;
-  document.getElementById("confirm-msg").textContent   = msg;
+  document.getElementById("confirm-msg").textContent = msg;
   document.getElementById("confirm-yes").onclick = () => {
     closeConfirm();
     onConfirm();
@@ -219,7 +219,7 @@ function openYearModalFromPanel() {
 //  USER PANEL (mobile)
 // ═══════════════════════════════════════════════════
 function openUserPanel() {
-  const nameEl   = document.getElementById("user-name-panel");
+  const nameEl = document.getElementById("user-name-panel");
   const userName = document.getElementById("user-name");
   if (nameEl && userName) nameEl.textContent = userName.textContent;
   document.getElementById("user-panel").classList.add("open");

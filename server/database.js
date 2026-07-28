@@ -1,6 +1,6 @@
 const Database = require("better-sqlite3");
-const path     = require("path");
-const fs       = require("fs");
+const path = require("path");
+const fs = require("fs");
 
 // Garante que a pasta de dados existe
 const DATA_DIR = path.join(__dirname, "data");
@@ -60,13 +60,13 @@ function getUserDb(uid) {
   )
 `);
 
-// Pré-popula categorias padrão se ainda não existirem
-const catCount = db.prepare("SELECT COUNT(*) as c FROM categories WHERE parent_id IS NULL").get();
-if (catCount.c === 0) {
-  const defaults = ["Terror","Suspense","Mistério","Ação","Aventura","Ficção","Fantasia","HQ","Infantil"];
-  const insertCat = db.prepare("INSERT INTO categories (name, parent_id) VALUES (?, NULL)");
-  for (const name of defaults) insertCat.run(name);
-}
+  // Pré-popula categorias padrão se ainda não existirem
+  const catCount = db.prepare("SELECT COUNT(*) as c FROM categories WHERE parent_id IS NULL").get();
+  if (catCount.c === 0) {
+    const defaults = ["Terror", "Suspense", "Mistério", "Ação", "Aventura", "Ficção", "Fantasia", "HQ", "Infantil"];
+    const insertCat = db.prepare("INSERT INTO categories (name, parent_id) VALUES (?, NULL)");
+    for (const name of defaults) insertCat.run(name);
+  }
 
   return db;
 }

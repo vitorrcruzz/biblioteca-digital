@@ -11,7 +11,11 @@
   --radius: 12px;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   background: var(--bg);
@@ -109,7 +113,9 @@ body {
   margin-top: 4px;
 }
 
-.btn-login:hover { opacity: 0.85; }
+.btn-login:hover {
+  opacity: 0.85;
+}
 
 .btn-login:disabled {
   opacity: 0.5;
@@ -134,8 +140,13 @@ body {
   background: var(--border);
 }
 
-.login-divider::before { left: 0; }
-.login-divider::after  { right: 0; }
+.login-divider::before {
+  left: 0;
+}
+
+.login-divider::after {
+  right: 0;
+}
 
 .btn-google {
   display: flex;
@@ -180,7 +191,9 @@ body {
   transition: opacity 0.15s;
 }
 
-.login-footer a:hover { opacity: 0.8; }
+.login-footer a:hover {
+  opacity: 0.8;
+}
 
 .login-error {
   background: rgba(224, 92, 106, 0.1);

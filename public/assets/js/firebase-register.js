@@ -15,14 +15,14 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 window.register = async function () {
-  const name     = document.getElementById("r-name").value.trim();
-  const email    = document.getElementById("r-email").value.trim();
+  const name = document.getElementById("r-name").value.trim();
+  const email = document.getElementById("r-email").value.trim();
   const password = document.getElementById("r-password").value;
-  const errEl    = document.getElementById("register-error");
+  const errEl = document.getElementById("register-error");
   errEl.style.display = "none";
 
   if (!name) {
-    errEl.textContent   = "Informe seu nome.";
+    errEl.textContent = "Informe seu nome.";
     errEl.style.display = "";
     return;
   }
@@ -32,7 +32,7 @@ window.register = async function () {
     await updateProfile(user, { displayName: name });
     await afterLogin(user);
   } catch (err) {
-    errEl.textContent   = traduzirErro(err.code);
+    errEl.textContent = traduzirErro(err.code);
     errEl.style.display = "";
   }
 };
@@ -44,7 +44,7 @@ window.loginGoogle = async function () {
     const { user } = await signInWithPopup(auth, provider);
     await afterLogin(user);
   } catch (err) {
-    errEl.textContent   = traduzirErro(err.code);
+    errEl.textContent = traduzirErro(err.code);
     errEl.style.display = "";
   }
 };

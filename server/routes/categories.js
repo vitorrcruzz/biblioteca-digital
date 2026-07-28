@@ -1,12 +1,12 @@
 const express = require("express");
-const router  = express.Router();
+const router = express.Router();
 const { getUserDb } = require("../database");
 
 // GET /api/categories — lista todas com subcategorias
 router.get("/", (req, res) => {
   const db = getUserDb(req.user.uid);
   const parents = db.prepare("SELECT * FROM categories WHERE parent_id IS NULL ORDER BY name").all();
-  const result  = parents.map(p => ({
+  const result = parents.map(p => ({
     ...p,
     subcategories: db.prepare("SELECT * FROM categories WHERE parent_id = ? ORDER BY name").all(p.id)
   }));
@@ -38,7 +38,7 @@ router.post("/", (req, res) => {
 
 // DELETE /api/categories/:id — remove categoria e subcategorias
 router.delete("/:id", (req, res) => {
-  const db  = getUserDb(req.user.uid);
+  const db = getUserDb(req.user.uid);
   const cat = db.prepare("SELECT * FROM categories WHERE id = ?").get(req.params.id);
   if (!cat) return res.status(404).json({ error: "Categoria não encontrada" });
   db.prepare("DELETE FROM categories WHERE id = ?").run(req.params.id);

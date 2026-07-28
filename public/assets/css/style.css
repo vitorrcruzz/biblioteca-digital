@@ -673,6 +673,8 @@ nav a .ico {
   cursor: pointer;
   color: var(--border);
   transition: color 0.1s;
+  padding: 0;
+  line-height: 1;
 }
 
 .star-btn.on,
@@ -791,6 +793,7 @@ nav a .ico {
 .btn-danger-lg:hover {
   opacity: 0.85;
 }
+
 /* ── Year Panel (mobile) ── */
 #year-panel-overlay {
   display: none;
@@ -848,9 +851,11 @@ nav a .ico {
 .year-panel-header button:hover {
   background: rgba(224, 92, 106, 0.15);
 }
+
 #year-nav-btn {
   display: none;
 }
+
 .year-panel-btn {
   display: block;
   width: 100%;
@@ -875,6 +880,7 @@ nav a .ico {
   font-weight: 700;
   background: var(--surface2);
 }
+
 /* ── Sidebar year header ── */
 .sidebar-year-header {
   display: flex;
@@ -992,6 +998,7 @@ nav a .ico {
 .year-panel-delete-btn:hover {
   background: rgba(224, 92, 106, 0.15);
 }
+
 /* ── Reread button ── */
 .btn-reread {
   display: inline-flex;
@@ -1043,6 +1050,7 @@ nav a .ico {
   font-size: 0.7rem;
   font-weight: 600;
 }
+
 .btn-reread-sm {
   background: none;
   border: 1px solid var(--border);
@@ -1058,6 +1066,7 @@ nav a .ico {
   border-color: var(--green);
   color: var(--green);
 }
+
 /* ── Sidebar user ── */
 .sidebar-user {
   padding: 16px 24px;
@@ -1125,6 +1134,7 @@ nav a .ico {
   border-color: var(--gold);
   color: var(--gold);
 }
+
 /* ── Year panel user info ── */
 .year-panel-user {
   display: flex;
@@ -1157,6 +1167,7 @@ nav a .ico {
   border-color: var(--red);
   color: var(--red);
 }
+
 /* ── User Panel (mobile) ── */
 #user-panel-overlay {
   display: none;
@@ -1207,6 +1218,7 @@ nav a .ico {
 #user-nav-btn {
   display: none;
 }
+
 /* ── Category select ── */
 .category-select-wrap {
   display: flex;
@@ -1257,26 +1269,8 @@ nav a .ico {
   opacity: 0.8;
   margin-left: 3px;
 }
-/* ── Estrelas ── */
-.star-btn {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
-  cursor: pointer;
-  color: var(--border);
-  transition: color 0.1s;
-  padding: 0;
-  line-height: 1;
-}
 
-.star-btn.on {
-  color: var(--gold);
-}
-
-.star-btn:hover {
-  color: var(--gold);
-}
-
+/* ── Estrelas (meia estrela) ── */
 /* Botão de meia estrela */
 .half-btn {
   position: relative;
@@ -1340,16 +1334,19 @@ nav a .ico {
    RESPONSIVIDADE — MOBILE (≤768px)
    ══════════════════════════════════════ */
 @media (max-width: 768px) {
+
   html,
   body {
     overflow-x: hidden;
     width: 100%;
     max-width: 100vw;
   }
+
   /* Botão ano só aparece no mobile */
   #year-nav-btn {
     display: flex;
   }
+
   /* ── Sidebar vira barra inferior ── */
   #sidebar {
     width: 100%;
@@ -1468,7 +1465,7 @@ nav a .ico {
     grid-area: info;
   }
 
-  .book-row > div:last-child {
+  .book-row>div:last-child {
     grid-area: status;
     display: flex;
     flex-direction: column;
@@ -1476,9 +1473,9 @@ nav a .ico {
   }
 
   /* Esconde colunas intermediárias no dashboard mobile */
-  .book-row > div:nth-child(2),
-  .book-row > div:nth-child(3),
-  .book-row > div:nth-child(4) {
+  .book-row>div:nth-child(2),
+  .book-row>div:nth-child(3),
+  .book-row>div:nth-child(4) {
     display: none;
   }
 
@@ -1496,11 +1493,11 @@ nav a .ico {
     gap: 8px;
   }
 
-  .acervo-row > div:not(:first-child):not(.actions-col) {
+  .acervo-row>div:not(:first-child):not(.actions-col) {
     display: none;
   }
 
-  .acervo-row > div:first-child {
+  .acervo-row>div:first-child {
     flex: 1;
     min-width: 0;
   }
@@ -1534,9 +1531,11 @@ nav a .ico {
     padding: 7px 10px;
     font-size: 0.82rem;
   }
+
   #user-nav-btn {
     display: flex;
   }
+
   /* ── Filter bar ── */
   .filter-bar {
     flex-direction: column;
@@ -1615,10 +1614,12 @@ nav a .ico {
     top: 12px;
     right: 12px;
   }
+
   .btn-reread-sm {
     padding: 7px 10px;
     font-size: 0.82rem;
   }
+
   /* ── Sidebar user — esconde no mobile ── */
   .sidebar-user {
     display: none;

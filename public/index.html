@@ -1,439 +1,353 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Minha Biblioteca</title>
-    <link rel="shortcut icon" href="./images/icon.svg" type="image/x-icon" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-    <script
-      src="https://kit.fontawesome.com/36e64f3fff.js"
-      crossorigin="anonymous"
-    ></script>
-    <link rel="stylesheet" href="./assets/css/style.css" />
-  </head>
-  <body>
-    <!-- Painel de anos (mobile) -->
-    <div id="year-panel-overlay" onclick="closeYearPanel()"></div>
-    <div id="year-panel">
-      <div class="year-panel-header">
-        <span>📅 Ano</span>
-        <button onclick="closeYearPanel()">✕</button>
-      </div>
 
-      <!-- Info do usuário no painel mobile -->
-      <button class="year-panel-new-btn" onclick="openYearModalFromPanel()">
-        ＋ Novo ano
-      </button>
-      <div id="year-panel-list"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minha Biblioteca</title>
+  <link rel="shortcut icon" href="./images/icon.svg" type="image/x-icon" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://kit.fontawesome.com/36e64f3fff.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="./assets/css/style.css" />
+</head>
+
+<body>
+  <!-- Painel de anos (mobile) -->
+  <div id="year-panel-overlay" onclick="closeYearPanel()"></div>
+  <div id="year-panel">
+    <div class="year-panel-header">
+      <span>📅 Ano</span>
+      <button onclick="closeYearPanel()">✕</button>
     </div>
-    <!-- Painel de usuário (mobile) -->
-    <div id="user-panel-overlay" onclick="closeUserPanel()"></div>
-    <div id="user-panel">
-      <div class="year-panel-header">
-        <span>👤 Conta</span>
-        <button onclick="closeUserPanel()">✕</button>
-      </div>
-      <div class="user-panel-info">
-        <span class="user-panel-icon">👤</span>
-        <span id="user-name-panel"></span>
-      </div>
-      <button
-        class="year-panel-new-btn"
-        onclick="window.location.href = '/account.html'"
-      >
-        ⚙️ Configurações
-      </button>
-      <button class="year-panel-logout" onclick="logout()">🚪 Sair</button>
+
+    <!-- Info do usuário no painel mobile -->
+    <button class="year-panel-new-btn" onclick="openYearModalFromPanel()">
+      ＋ Novo ano
+    </button>
+    <div id="year-panel-list"></div>
+  </div>
+  <!-- Painel de usuário (mobile) -->
+  <div id="user-panel-overlay" onclick="closeUserPanel()"></div>
+  <div id="user-panel">
+    <div class="year-panel-header">
+      <span>👤 Conta</span>
+      <button onclick="closeUserPanel()">✕</button>
     </div>
-    <!-- Sidebar -->
-    <aside id="sidebar">
-      <div class="brand">
-        <h1>📚 Biblioteca</h1>
-        <p>Acervo pessoal</p>
+    <div class="user-panel-info">
+      <span class="user-panel-icon">👤</span>
+      <span id="user-name-panel"></span>
+    </div>
+    <button class="year-panel-new-btn" onclick="window.location.href = '/account.html'">
+      ⚙️ Configurações
+    </button>
+    <button class="year-panel-logout" onclick="logout()">🚪 Sair</button>
+  </div>
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="brand">
+      <h1>📚 Biblioteca</h1>
+      <p>Acervo pessoal</p>
+    </div>
+    <nav>
+      <a class="active" data-page="dashboard" onclick="goTo('dashboard')">
+        <span class="ico">🏠</span><span>Dashboard</span>
+      </a>
+      <a data-page="acervo" onclick="goTo('acervo')">
+        <span class="ico">📖</span><span>Acervo</span>
+      </a>
+      <a id="year-nav-btn" onclick="openYearPanel()">
+        <span class="ico">📅</span><span>Ano</span>
+      </a>
+      <a onclick="openModal()">
+        <span class="ico">＋</span><span>Adicionar</span>
+      </a>
+      <a id="user-nav-btn" onclick="openUserPanel()">
+        <span class="ico">👤</span><span>Conta</span>
+      </a>
+    </nav>
+    <div class="sidebar-year">
+      <div class="sidebar-year-header">
+        <p>Ano</p>
       </div>
-      <nav>
-        <a class="active" data-page="dashboard" onclick="goTo('dashboard')">
-          <span class="ico">🏠</span><span>Dashboard</span>
-        </a>
-        <a data-page="acervo" onclick="goTo('acervo')">
-          <span class="ico">📖</span><span>Acervo</span>
-        </a>
-        <a id="year-nav-btn" onclick="openYearPanel()">
-          <span class="ico">📅</span><span>Ano</span>
-        </a>
-        <a onclick="openModal()">
-          <span class="ico">＋</span><span>Adicionar</span>
-        </a>
-        <a id="user-nav-btn" onclick="openUserPanel()">
-          <span class="ico">👤</span><span>Conta</span>
-        </a>
-      </nav>
-      <div class="sidebar-year">
-        <div class="sidebar-year-header">
-          <p>Ano</p>
-        </div>
-        <div id="year-list"></div>
+      <div id="year-list"></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-info">
+        <span class="user-icon">👤</span>
+        <span id="user-name" class="user-name"></span>
       </div>
-      <div class="sidebar-user">
-        <div class="user-info">
-          <span class="user-icon">👤</span>
-          <span id="user-name" class="user-name"></span>
-        </div>
-        <div class="sidebar-user-actions">
-          <button class="btn-logout" onclick="logout()">Sair</button>
-          <button
-            class="btn-settings"
-            onclick="window.location.href = '/account.html'"
-            title="Configurações"
-          >
-            ⚙️
-          </button>
-        </div>
+      <div class="sidebar-user-actions">
+        <button class="btn-logout" onclick="logout()">Sair</button>
+        <button class="btn-settings" onclick="window.location.href = '/account.html'" title="Configurações">
+          ⚙️
+        </button>
       </div>
-    </aside>
+    </div>
+  </aside>
 
-    <!-- Main -->
-    <main id="main">
-      <!-- ── DASHBOARD ── -->
-      <div id="page-dashboard" class="page active">
-        <div class="page-header">
-          <h2 id="dash-title">Resumo <span id="dash-year"></span></h2>
-          <p id="dash-sub"></p>
+  <!-- Main -->
+  <main id="main">
+    <!-- ── DASHBOARD ── -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <h2 id="dash-title">Resumo <span id="dash-year"></span></h2>
+        <p id="dash-sub"></p>
+      </div>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="goal-card" id="goal-card" style="display: none">
+        <div class="goal-header">
+          <span class="title">🎯 Meta de leitura</span>
+          <span class="fraction" id="goal-fraction"></span>
         </div>
-        <div class="stats-grid" id="stats-grid"></div>
-        <div class="goal-card" id="goal-card" style="display: none">
-          <div class="goal-header">
-            <span class="title">🎯 Meta de leitura</span>
-            <span class="fraction" id="goal-fraction"></span>
-          </div>
-          <div class="goal-bar">
-            <div class="goal-fill" id="goal-fill"></div>
-          </div>
-          <p class="goal-sub" id="goal-sub"></p>
+        <div class="goal-bar">
+          <div class="goal-fill" id="goal-fill"></div>
         </div>
-        <div class="charts-row">
-          <div class="chart-card">
-            <h3>📅 Livros por mês</h3>
-            <div class="chart-wrap"><canvas id="chartMonth"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <h3>🏷️ Por categoria</h3>
-            <div class="chart-wrap"><canvas id="chartCat"></canvas></div>
-          </div>
+        <p class="goal-sub" id="goal-sub"></p>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <h3>📅 Livros por mês</h3>
+          <div class="chart-wrap"><canvas id="chartMonth"></canvas></div>
         </div>
-        <div class="section-header">
-          <h3>📚 Últimas leituras</h3>
-          <button class="btn-outline" onclick="goTo('acervo')">
-            Ver todos →
-          </button>
-        </div>
-        <div class="recent-books">
-          <div class="book-row header">
-            <div>Título / Autor</div>
-            <div>Categoria</div>
-            <div>Págs</div>
-            <div>Avaliação</div>
-            <div>Status</div>
-          </div>
-          <div id="recent-list"></div>
+        <div class="chart-card">
+          <h3>🏷️ Por categoria</h3>
+          <div class="chart-wrap"><canvas id="chartCat"></canvas></div>
         </div>
       </div>
-
-      <!-- ── ACERVO ── -->
-      <div id="page-acervo" class="page">
-        <div class="page-header">
-          <h2>Acervo completo</h2>
-          <p id="acervo-count"></p>
-        </div>
-        <div class="filter-bar">
-          <input
-            type="text"
-            id="search"
-            placeholder="🔍  Buscar título ou autor..."
-            oninput="renderAcervo()"
-          />
-          <select id="filter-year" onchange="renderAcervo()">
-            <option value="">Todos os anos</option>
-          </select>
-          <select id="filter-cat" onchange="renderAcervo()">
-            <option value="">Todas categorias</option>
-          </select>
-          <select id="filter-status" onchange="renderAcervo()">
-            <option value="">Todos status</option>
-            <option value="finished">✔️ Concluído</option>
-            <option value="reading">⏳ Lendo</option>
-            <option value="paused">📓 Pausado</option>
-          </select>
-          <button class="btn-gold" onclick="openModal()">＋ Adicionar</button>
-        </div>
-        <div class="recent-books" style="overflow: hidden">
-          <div class="acervo-row header">
-            <div>Título / Autor</div>
-            <div class="hide-sm">Categoria</div>
-            <div>Págs</div>
-            <div class="hide-sm">Início</div>
-            <div class="hide-sm">Término</div>
-            <div>Nota</div>
-            <div>Ações</div>
-          </div>
-          <div id="acervo-list"></div>
-        </div>
+      <div class="section-header">
+        <h3>📚 Últimas leituras</h3>
+        <button class="btn-outline" onclick="goTo('acervo')">
+          Ver todos →
+        </button>
       </div>
-    </main>
+      <div class="recent-books">
+        <div class="book-row header">
+          <div>Título / Autor</div>
+          <div>Categoria</div>
+          <div>Págs</div>
+          <div>Avaliação</div>
+          <div>Status</div>
+        </div>
+        <div id="recent-list"></div>
+      </div>
+    </div>
 
-    <!-- Modal Add/Edit -->
-    <div class="overlay" id="modal-overlay" onclick="closeModalOutside(event)">
-      <div class="modal">
-        <h3 id="modal-title">Adicionar livro</h3>
-        <div class="form-grid">
-          <div class="field full">
-            <label>Título</label>
-            <input id="f-title" type="text" placeholder="Nome do livro" />
-          </div>
-          <div class="field">
-            <label>Autor</label>
-            <input id="f-author" type="text" placeholder="Nome do autor" />
-          </div>
-          <div class="field">
-            <label>Categoria</label>
-            <div class="category-select-wrap">
-              <select id="f-category" onchange="onCategoryChange()">
-                <option value="">Selecione</option>
-              </select>
-              <button
-                type="button"
-                class="btn-add-cat"
-                onclick="openNewCategoryModal(null)"
-                title="Nova categoria"
-              >
-                ＋
-              </button>
-            </div>
-          </div>
-          <div class="field" id="subcategory-field" style="display: none">
-            <label
-              >Subcategoria
-              <span style="color: var(--muted); font-weight: 400"
-                >(opcional)</span
-              ></label
-            >
-            <div class="category-select-wrap">
-              <select id="f-subcategory">
-                <option value="">Nenhuma</option>
-              </select>
-              <button
-                type="button"
-                class="btn-add-cat"
-                onclick="openNewCategoryModal()"
-                title="Nova subcategoria"
-              >
-                ＋
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label>Páginas</label>
-            <input id="f-pages" type="number" min="1" placeholder="0" />
-          </div>
-          <div class="field">
-            <label>Ano</label>
-            <input
-              id="f-year"
-              type="number"
-              min="2000"
-              max="2100"
-              placeholder="2026"
-            />
-          </div>
-          <div class="field">
-            <label>Status</label>
-            <select id="f-status">
-              <option value="reading">⏳ Lendo</option>
-              <option value="finished">✔️ Concluído</option>
-              <option value="paused">📓 Pausado</option>
+    <!-- ── ACERVO ── -->
+    <div id="page-acervo" class="page">
+      <div class="page-header">
+        <h2>Acervo completo</h2>
+        <p id="acervo-count"></p>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="search" placeholder="🔍  Buscar título ou autor..." oninput="renderAcervo()" />
+        <select id="filter-year" onchange="renderAcervo()">
+          <option value="">Todos os anos</option>
+        </select>
+        <select id="filter-cat" onchange="renderAcervo()">
+          <option value="">Todas categorias</option>
+        </select>
+        <select id="filter-status" onchange="renderAcervo()">
+          <option value="">Todos status</option>
+          <option value="finished">✔️ Concluído</option>
+          <option value="reading">⏳ Lendo</option>
+          <option value="paused">📓 Pausado</option>
+        </select>
+        <button class="btn-gold" onclick="openModal()">＋ Adicionar</button>
+      </div>
+      <div class="recent-books" style="overflow: hidden">
+        <div class="acervo-row header">
+          <div>Título / Autor</div>
+          <div class="hide-sm">Categoria</div>
+          <div>Págs</div>
+          <div class="hide-sm">Início</div>
+          <div class="hide-sm">Término</div>
+          <div>Nota</div>
+          <div>Ações</div>
+        </div>
+        <div id="acervo-list"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Add/Edit -->
+  <div class="overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+    <div class="modal">
+      <h3 id="modal-title">Adicionar livro</h3>
+      <div class="form-grid">
+        <div class="field full">
+          <label>Título</label>
+          <input id="f-title" type="text" placeholder="Nome do livro" />
+        </div>
+        <div class="field">
+          <label>Autor</label>
+          <input id="f-author" type="text" placeholder="Nome do autor" />
+        </div>
+        <div class="field">
+          <label>Categoria</label>
+          <div class="category-select-wrap">
+            <select id="f-category" onchange="onCategoryChange()">
+              <option value="">Selecione</option>
             </select>
-          </div>
-          <div class="field">
-            <label>Data de início</label>
-            <input id="f-start" type="date" />
-          </div>
-          <div class="field">
-            <label>Data de término</label>
-            <input id="f-end" type="date" />
-          </div>
-          <div class="field">
-            <label>Releitura</label>
-            <button
-              type="button"
-              id="reread-btn"
-              onclick="toggleReread()"
-              class="btn-reread"
-            >
-              <span class="reread-ico"
-                ><i
-                  class="fa-solid fa-arrows-rotate"
-                  style="color: rgb(255, 255, 255)"
-                ></i
-              ></span>
-              <span id="reread-label">Marcar como releitura</span>
+            <button type="button" class="btn-add-cat" onclick="openNewCategoryModal(null)" title="Nova categoria">
+              ＋
             </button>
           </div>
-          <div class="field full">
-            <label>Avaliação</label>
-            <div class="star-rating" id="star-rating">
-              <button class="star-btn" data-v="1" onclick="setStar(1)">
-                ★
-              </button>
-    <button class="star-btn half-btn" data-v="1.5" onclick="setStar(1.5)">
-  <span class="star-bg">★</span><span class="star-fg">★</span>
-</button>
+        </div>
+        <div class="field" id="subcategory-field" style="display: none">
+          <label>Subcategoria
+            <span style="color: var(--muted); font-weight: 400">(opcional)</span></label>
+          <div class="category-select-wrap">
+            <select id="f-subcategory">
+              <option value="">Nenhuma</option>
+            </select>
+            <button type="button" class="btn-add-cat" onclick="openNewCategoryModal()" title="Nova subcategoria">
+              ＋
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Páginas</label>
+          <input id="f-pages" type="number" min="1" placeholder="0" />
+        </div>
+        <div class="field">
+          <label>Ano</label>
+          <input id="f-year" type="number" min="2000" max="2100" placeholder="2026" />
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="f-status">
+            <option value="reading">⏳ Lendo</option>
+            <option value="finished">✔️ Concluído</option>
+            <option value="paused">📓 Pausado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Data de início</label>
+          <input id="f-start" type="date" />
+        </div>
+        <div class="field">
+          <label>Data de término</label>
+          <input id="f-end" type="date" />
+        </div>
+        <div class="field">
+          <label>Releitura</label>
+          <button type="button" id="reread-btn" onclick="toggleReread()" class="btn-reread">
+            <span class="reread-ico"><i class="fa-solid fa-arrows-rotate" style="color: rgb(255, 255, 255)"></i></span>
+            <span id="reread-label">Marcar como releitura</span>
+          </button>
+        </div>
+        <div class="field full">
+          <label>Avaliação</label>
+          <div class="star-rating" id="star-rating">
+            <button class="star-btn" data-v="1" onclick="setStar(1)">
+              ★
+            </button>
+            <button class="star-btn half-btn" data-v="1.5" onclick="setStar(1.5)">
+              <span class="star-bg">★</span><span class="star-fg">★</span>
+            </button>
 
-              <button class="star-btn" data-v="2" onclick="setStar(2)">
-                ★
-              </button>
-              <button class="star-btn half-btn" data-v="2.5" onclick="setStar(2.5)">
-  <span class="star-bg">★</span><span class="star-fg">★</span>
-</button>
-              <button class="star-btn" data-v="3" onclick="setStar(3)">
-                ★
-              </button>
-              <button class="star-btn half-btn" data-v="3.5" onclick="setStar(3.5)">
-  <span class="star-bg">★</span><span class="star-fg">★</span>
-</button>
-              <button class="star-btn" data-v="4" onclick="setStar(4)">
-                ★
-              </button>
-             <button class="star-btn half-btn" data-v="4.5" onclick="setStar(4.5)">
-  <span class="star-bg">★</span><span class="star-fg">★</span>
-</button>
-              <button class="star-btn" data-v="5" onclick="setStar(5)">
-                ★
-              </button>
-              <span
-                id="star-label"
-                style="
+            <button class="star-btn" data-v="2" onclick="setStar(2)">
+              ★
+            </button>
+            <button class="star-btn half-btn" data-v="2.5" onclick="setStar(2.5)">
+              <span class="star-bg">★</span><span class="star-fg">★</span>
+            </button>
+            <button class="star-btn" data-v="3" onclick="setStar(3)">
+              ★
+            </button>
+            <button class="star-btn half-btn" data-v="3.5" onclick="setStar(3.5)">
+              <span class="star-bg">★</span><span class="star-fg">★</span>
+            </button>
+            <button class="star-btn" data-v="4" onclick="setStar(4)">
+              ★
+            </button>
+            <button class="star-btn half-btn" data-v="4.5" onclick="setStar(4.5)">
+              <span class="star-bg">★</span><span class="star-fg">★</span>
+            </button>
+            <button class="star-btn" data-v="5" onclick="setStar(5)">
+              ★
+            </button>
+            <span id="star-label" style="
                   color: var(--muted);
                   font-size: 0.82rem;
                   margin-left: 8px;
-                "
-                >Sem nota</span
-              >
-              <button
-                class="btn-clear-star"
-                onclick="setStar(null)"
-                title="Remover nota"
-              >
-                ✕
-              </button>
-            </div>
+                ">Sem nota</span>
+            <button class="btn-clear-star" onclick="setStar(null)" title="Remover nota">
+              ✕
+            </button>
           </div>
         </div>
-        <div class="modal-actions">
-          <button class="btn-outline" onclick="closeModal()">Cancelar</button>
-          <button class="btn-gold" onclick="saveBook()">💾 Salvar</button>
-        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeModal()">Cancelar</button>
+        <button class="btn-gold" onclick="saveBook()">💾 Salvar</button>
       </div>
     </div>
-    <!-- Modal Confirmar Exclusão -->
-    <div class="overlay" id="confirm-overlay">
-      <div class="modal" style="max-width: 420px">
-        <button class="confirm-close" onclick="closeConfirm()">✕</button>
-        <div class="confirm-icon">🗑</div>
-        <h3 id="confirm-title">Excluir livro?</h3>
-        <p id="confirm-msg" class="confirm-msg"></p>
-        <div
-          class="modal-actions"
-          style="justify-content: center; gap: 16px; margin-top: 28px"
-        >
-          <button class="btn-outline" onclick="closeConfirm()">Não</button>
-          <button class="btn-danger-lg" id="confirm-yes">Sim, excluir</button>
-        </div>
+  </div>
+  <!-- Modal Confirmar Exclusão -->
+  <div class="overlay" id="confirm-overlay">
+    <div class="modal" style="max-width: 420px">
+      <button class="confirm-close" onclick="closeConfirm()">✕</button>
+      <div class="confirm-icon">🗑</div>
+      <h3 id="confirm-title">Excluir livro?</h3>
+      <p id="confirm-msg" class="confirm-msg"></p>
+      <div class="modal-actions" style="justify-content: center; gap: 16px; margin-top: 28px">
+        <button class="btn-outline" onclick="closeConfirm()">Não</button>
+        <button class="btn-danger-lg" id="confirm-yes">Sim, excluir</button>
       </div>
     </div>
-    <!-- Modal Novo Ano -->
-    <div
-      class="overlay"
-      id="year-modal-overlay"
-      onclick="closeYearModalOutside(event)"
-    >
-      <div class="modal" style="max-width: 400px">
-        <button class="confirm-close" onclick="closeYearModal()">✕</button>
-        <div class="confirm-icon">📅</div>
-        <h3>Novo ano</h3>
-        <div
-          class="form-grid"
-          style="grid-template-columns: 1fr; margin-top: 8px"
-        >
-          <div class="field">
-            <label>Ano</label>
-            <input
-              id="ym-year"
-              type="number"
-              min="2020"
-              max="2100"
-              placeholder="2027"
-            />
-          </div>
-          <div class="field" id="ym-goal-field">
-            <label
-              >Meta de leitura
-              <span style="color: var(--muted); font-weight: 400"
-                >(opcional)</span
-              ></label
-            >
-            <input
-              id="ym-goal"
-              type="number"
-              min="1"
-              placeholder="Ex: 20 livros"
-            />
-          </div>
+  </div>
+  <!-- Modal Novo Ano -->
+  <div class="overlay" id="year-modal-overlay" onclick="closeYearModalOutside(event)">
+    <div class="modal" style="max-width: 400px">
+      <button class="confirm-close" onclick="closeYearModal()">✕</button>
+      <div class="confirm-icon">📅</div>
+      <h3>Novo ano</h3>
+      <div class="form-grid" style="grid-template-columns: 1fr; margin-top: 8px">
+        <div class="field">
+          <label>Ano</label>
+          <input id="ym-year" type="number" min="2020" max="2100" placeholder="2027" />
         </div>
-        <div class="modal-actions" style="margin-top: 24px">
-          <button class="btn-outline" onclick="closeYearModal()">
-            Cancelar
-          </button>
-          <button class="btn-gold" onclick="saveYear()">💾 Salvar</button>
+        <div class="field" id="ym-goal-field">
+          <label>Meta de leitura
+            <span style="color: var(--muted); font-weight: 400">(opcional)</span></label>
+          <input id="ym-goal" type="number" min="1" placeholder="Ex: 20 livros" />
         </div>
       </div>
-    </div>
-    <!-- Modal Nova Categoria -->
-    <div
-      class="overlay"
-      id="cat-modal-overlay"
-      onclick="closeCatModalOutside(event)"
-    >
-      <div class="modal" style="max-width: 380px">
-        <button class="confirm-close" onclick="closeCatModal()">✕</button>
-        <div class="confirm-icon">🏷️</div>
-        <h3 id="cat-modal-title">Nova categoria</h3>
-        <div
-          class="form-grid"
-          style="grid-template-columns: 1fr; margin-top: 8px"
-        >
-          <div class="field">
-            <label id="cat-modal-label">Nome da categoria</label>
-            <input
-              id="cat-name-input"
-              type="text"
-              placeholder="Ex: Ficção Científica"
-            />
-          </div>
-        </div>
-        <div class="modal-actions" style="margin-top: 20px">
-          <button class="btn-outline" onclick="closeCatModal()">
-            Cancelar
-          </button>
-          <button class="btn-gold" onclick="saveNewCategory()">
-            💾 Salvar
-          </button>
-        </div>
+      <div class="modal-actions" style="margin-top: 24px">
+        <button class="btn-outline" onclick="closeYearModal()">
+          Cancelar
+        </button>
+        <button class="btn-gold" onclick="saveYear()">💾 Salvar</button>
       </div>
     </div>
-    <div id="toast">✔ Salvo com sucesso!</div>
-    <script src="./assets/js/firebase-config.js"></script>
-    <script type="module" src="./assets/js/app-init.js"></script>
-    <script src="./assets/js/script.js"></script>
-  </body>
+  </div>
+  <!-- Modal Nova Categoria -->
+  <div class="overlay" id="cat-modal-overlay" onclick="closeCatModalOutside(event)">
+    <div class="modal" style="max-width: 380px">
+      <button class="confirm-close" onclick="closeCatModal()">✕</button>
+      <div class="confirm-icon">🏷️</div>
+      <h3 id="cat-modal-title">Nova categoria</h3>
+      <div class="form-grid" style="grid-template-columns: 1fr; margin-top: 8px">
+        <div class="field">
+          <label id="cat-modal-label">Nome da categoria</label>
+          <input id="cat-name-input" type="text" placeholder="Ex: Ficção Científica" />
+        </div>
+      </div>
+      <div class="modal-actions" style="margin-top: 20px">
+        <button class="btn-outline" onclick="closeCatModal()">
+          Cancelar
+        </button>
+        <button class="btn-gold" onclick="saveNewCategory()">
+          💾 Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="toast">✔ Salvo com sucesso!</div>
+  <script src="./assets/js/firebase-config.js"></script>
+  <script type="module" src="./assets/js/app-init.js"></script>
+  <script src="./assets/js/script.js"></script>
+</body>
+
 </html>

@@ -1,5 +1,5 @@
 const express = require("express");
-const router  = express.Router();
+const router = express.Router();
 const { getUserDb, usersDb } = require("../database");
 const { admin } = require("../auth");
 
@@ -66,7 +66,7 @@ router.delete("/", async (req, res) => {
     // Remove do banco de usuários
     usersDb.prepare("DELETE FROM users WHERE uid = ?").run(uid);
     // Remove o banco de livros do usuário
-    const fs   = require("fs");
+    const fs = require("fs");
     const path = require("path");
     const dbPath = path.join(__dirname, "../data", `books_${uid}.db`);
     if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);

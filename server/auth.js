@@ -1,5 +1,5 @@
 const admin = require("firebase-admin");
-const path  = require("path");
+const path = require("path");
 
 // Inicializa o Firebase Admin apenas uma vez
 if (!admin.apps.length) {
@@ -22,9 +22,9 @@ async function authMiddleware(req, res, next) {
   try {
     const decoded = await admin.auth().verifyIdToken(token);
     req.user = {
-      uid:   decoded.uid,
+      uid: decoded.uid,
       email: decoded.email,
-      name:  decoded.name || decoded.email,
+      name: decoded.name || decoded.email,
     };
     next();
   } catch (err) {

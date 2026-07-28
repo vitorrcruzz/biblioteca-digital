@@ -7,11 +7,11 @@ import {
 
 const firebaseConfig = window.__firebaseConfig;
 
-const app  = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 let currentUser = null;
-let authToken   = null;
+let authToken = null;
 
 // Aguarda o Firebase verificar o estado de autenticação
 function waitForAuth() {
@@ -19,7 +19,7 @@ function waitForAuth() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
-        authToken   = await user.getIdToken(true);
+        authToken = await user.getIdToken(true);
         localStorage.setItem("fb_token", authToken);
         resolve(user);
       } else {

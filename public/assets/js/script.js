@@ -356,8 +356,8 @@ function renderDashboard() {
 
   document.getElementById("recent-list").innerHTML = sorted.length
     ? sorted
-        .map(
-          (b) => `
+      .map(
+        (b) => `
         <div class="book-row">
           <div class="title-col">
             <div class="t">${b.title}</div>
@@ -368,8 +368,8 @@ function renderDashboard() {
           <div>${starsHtml(b.rating)}</div>
           <div style="font-size:.82rem">${statusHtml(b.status)}</div>
         </div>`,
-        )
-        .join("")
+      )
+      .join("")
     : `<div class="empty"><div class="ico">📭</div><p>Nenhum livro em ${currentYear}</p></div>`;
 }
 
@@ -520,8 +520,8 @@ function renderAcervo() {
 
   document.getElementById("acervo-list").innerHTML = books.length
     ? books
-        .map(
-          (b) => `
+      .map(
+        (b) => `
         <div class="acervo-row">
           <div>
             <div class="t">${b.title}${b.is_reread ? ' <span class="badge-reread"><i class="fa-solid fa-arrows-rotate" style="color: rgb(255, 255, 255);"></i> Releitura</span>' : ""}</div>
@@ -537,8 +537,8 @@ function renderAcervo() {
             <button class="btn-danger" onclick="deleteBook(${b.id})">🗑</button>
           </div>
         </div>`,
-        )
-        .join("")
+      )
+      .join("")
     : `<div class="empty"><div class="ico">🔍</div><p>Nenhum livro encontrado</p></div>`;
 }
 
@@ -560,9 +560,9 @@ function closeModalOutside(e) {
 function setStar(v) {
   currentRating = v;
   document.querySelectorAll(".star-btn").forEach((btn) => {
-    const val    = parseFloat(btn.dataset.v);
+    const val = parseFloat(btn.dataset.v);
     const isHalf = btn.classList.contains("half-btn");
-    const isOn   = v !== null && val <= v;
+    const isOn = v !== null && val <= v;
 
     btn.classList.toggle("on", isOn);
 
@@ -739,24 +739,24 @@ function openModal(id) {
       label.textContent = isReread ? "Releitura" : "Marcar como releitura";
     }
   } else {
-  document.getElementById("f-title").value    = "";
-  document.getElementById("f-author").value   = "";
-  document.getElementById("f-pages").value    = "";
-  document.getElementById("f-year").value     = currentYear;
-  document.getElementById("f-status").value   = "reading";
-  document.getElementById("f-start").value    = new Date().toISOString().slice(0, 10);
-  document.getElementById("f-end").value      = "";
-  setStar(null);
+    document.getElementById("f-title").value = "";
+    document.getElementById("f-author").value = "";
+    document.getElementById("f-pages").value = "";
+    document.getElementById("f-year").value = currentYear;
+    document.getElementById("f-status").value = "reading";
+    document.getElementById("f-start").value = new Date().toISOString().slice(0, 10);
+    document.getElementById("f-end").value = "";
+    setStar(null);
 
-  isReread = false;
-  const btn   = document.getElementById("reread-btn");
-  const label = document.getElementById("reread-label");
-  if (btn) {
-    btn.classList.remove("active");
-    label.textContent = "Marcar como releitura";
-  }
+    isReread = false;
+    const btn = document.getElementById("reread-btn");
+    const label = document.getElementById("reread-label");
+    if (btn) {
+      btn.classList.remove("active");
+      label.textContent = "Marcar como releitura";
+    }
 
-  populateCategorySelect("", "");
+    populateCategorySelect("", "");
   }
 
   document.getElementById("modal-overlay").classList.add("open");

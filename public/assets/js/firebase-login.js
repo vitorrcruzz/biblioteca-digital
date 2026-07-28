@@ -17,16 +17,16 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 window.loginEmail = async function () {
-  const email    = document.getElementById("l-email").value.trim();
+  const email = document.getElementById("l-email").value.trim();
   const password = document.getElementById("l-password").value;
-  const errEl    = document.getElementById("login-error");
+  const errEl = document.getElementById("login-error");
   errEl.style.display = "none";
 
   try {
     const { user } = await signInWithEmailAndPassword(auth, email, password);
     await afterLogin(user);
   } catch (err) {
-    errEl.textContent   = traduzirErro(err.code);
+    errEl.textContent = traduzirErro(err.code);
     errEl.style.display = "";
   }
 };
@@ -38,7 +38,7 @@ window.loginGoogle = async function () {
     const { user } = await signInWithPopup(auth, provider);
     await afterLogin(user);
   } catch (err) {
-    errEl.textContent   = traduzirErro(err.code);
+    errEl.textContent = traduzirErro(err.code);
     errEl.style.display = "";
   }
 };
