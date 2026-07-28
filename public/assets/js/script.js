@@ -10,9 +10,12 @@ let DB = { books: [], goals: {} };
 let currentYear = new Date().getFullYear();
 let editingId = null;
 let currentRating = null;
+let categories = []; // lista de categorias carregadas da API
+let newCatParentId = null; // null = nova categoria raiz, número = nova subcategoria
 let chartMonth = null;
 let chartCat = null;
 let isReread = false;
+
 
 // ═══════════════════════════════════════════════════
 //  API
@@ -22,8 +25,8 @@ async function apiFetch(path, options = {}) {
 
   const res = await fetch(API + path, {
     headers: {
-      "Content-Type":  "application/json",
-      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     ...options,
   });
@@ -45,20 +48,22 @@ async function loadBooks() {
   const token = window.__getAuthToken ? await window.__getAuthToken() : null;
   const headers = {
     "Content-Type": "application/json",
-    ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
-  const [books, goalsArr] = await Promise.all([
+  const [books, goalsArr, cats] = await Promise.all([
     apiFetch(""),
     fetch("/api/goals", { headers }).then((r) => {
       if (!r.ok) throw new Error("goals 401");
       return r.json();
     }),
+    fetch("/api/categories", { headers }).then((r) => r.json()),
   ]);
 
   DB.books = books;
   DB.goals = {};
   goalsArr.forEach((g) => (DB.goals[g.year] = g.target));
+  categories = cats;
 }
 
 async function createBook(data) {
@@ -107,20 +112,21 @@ function starsHtml(r) {
   let h = "";
   for (let i = 1; i <= 5; i++) {
     if (r >= i) h += "★";
-    else if (r >= i - 0.5) h += "½";
+    else if (r >= i - 0.5) h += "⯪";
     else h += "☆";
   }
   return `<span class="stars">${h}</span>`;
 }
 
-function badgeHtml(cat) {
+function badgeHtml(cat, sub) {
   if (!cat) return "";
   const c = cat
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s/g, "-");
-  return `<span class="badge badge-${c}">${cat}</span>`;
+  const subHtml = sub ? `<span class="badge-sub">• ${sub}</span>` : "";
+  return `<span class="badge badge-${c}">${cat}${subHtml}</span>`;
 }
 
 function statusHtml(s) {
@@ -329,7 +335,7 @@ function renderDashboard() {
     document.getElementById("goal-sub").textContent =
       left > 0
         ? `Faltam ${left} livros para atingir sua meta em ${currentYear}`
-        : `🎉 Meta de ${currentYear} atingida!`;
+        : `Parabéns! Meta de ${currentYear} atingida!`;
   } else {
     gc.style.display = "none";
   }
@@ -517,7 +523,7 @@ function renderAcervo() {
             <div class="t">${b.title}${b.is_reread ? ' <span class="badge-reread"><i class="fa-solid fa-arrows-rotate" style="color: rgb(255, 255, 255);"></i> Releitura</span>' : ""}</div>
             <div class="a">${b.author}</div>
           </div>
-          <div class="hide-sm">${badgeHtml(b.category)}</div>
+          <div class="hide-sm">${badgeHtml(b.category, b.subcategory)}</div>
           <div style="color:var(--muted);font-size:.84rem">${b.pages || "—"}</div>
           <div class="hide-sm" style="color:var(--muted);font-size:.82rem">${fmtDate(b.start_date)}</div>
           <div class="hide-sm" style="color:var(--muted);font-size:.82rem">${fmtDate(b.end_date)}</div>
@@ -554,6 +560,138 @@ function setStar(v) {
   });
   document.getElementById("star-label").textContent = v ? `${v} ★` : "Sem nota";
 }
+// ═══════════════════════════════════════════════════
+//  CATEGORIAS
+// ═══════════════════════════════════════════════════
+function populateCategorySelect(selectedCat, selectedSub) {
+  const sel = document.getElementById("f-category");
+  sel.innerHTML =
+    '<option value="">Selecione</option>' +
+    categories
+      .map(
+        (c) =>
+          `<option value="${c.name}" ${c.name === selectedCat ? "selected" : ""}>${c.name}</option>`,
+      )
+      .join("");
+
+  if (selectedCat) {
+    populateSubcategorySelect(selectedCat, selectedSub);
+  } else {
+    document.getElementById("subcategory-field").style.display = "none";
+  }
+}
+
+function populateSubcategorySelect(catName, selectedSub) {
+  const cat = categories.find((c) => c.name === catName);
+  const field = document.getElementById("subcategory-field");
+  const sel = document.getElementById("f-subcategory");
+
+  if (cat && cat.subcategories && cat.subcategories.length > 0) {
+    sel.innerHTML =
+      '<option value="">Nenhuma</option>' +
+      cat.subcategories
+        .map(
+          (s) =>
+            `<option value="${s.name}" ${s.name === selectedSub ? "selected" : ""}>${s.name}</option>`,
+        )
+        .join("");
+    field.style.display = "";
+  } else {
+    sel.innerHTML = '<option value="">Nenhuma</option>';
+    field.style.display = "";
+  }
+}
+
+function onCategoryChange() {
+  const catName = document.getElementById("f-category").value;
+  if (catName) {
+    populateSubcategorySelect(catName, "");
+  } else {
+    document.getElementById("subcategory-field").style.display = "none";
+  }
+}
+
+// ── Modal nova categoria ──
+function openNewCategoryModal(parentId) {
+  const catName = document.getElementById("f-category").value;
+  newCatParentId =
+    parentId === null
+      ? null
+      : catName
+        ? categories.find((c) => c.name === catName)?.id
+        : null;
+
+  const isRoot = newCatParentId === null && parentId === null;
+  document.getElementById("cat-modal-title").textContent = isRoot
+    ? "Nova categoria"
+    : `Nova subcategoria de "${catName}"`;
+  document.getElementById("cat-modal-label").textContent = isRoot
+    ? "Nome da categoria"
+    : "Nome da subcategoria";
+  document.getElementById("cat-name-input").value = "";
+  document.getElementById("cat-modal-overlay").classList.add("open");
+}
+
+function closeCatModal() {
+  document.getElementById("cat-modal-overlay").classList.remove("open");
+}
+
+function closeCatModalOutside(e) {
+  if (e.target.id === "cat-modal-overlay") closeCatModal();
+}
+
+async function saveNewCategory() {
+  const name = document.getElementById("cat-name-input").value.trim();
+  if (!name) {
+    alert("Informe um nome.");
+    return;
+  }
+
+  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
+  try {
+    const res = await fetch("/api/categories", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name, parent_id: newCatParentId }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || "Erro ao salvar categoria");
+      return;
+    }
+
+    const newCat = await res.json();
+
+    // Atualiza a lista local de categorias
+    if (newCatParentId === null) {
+      categories.push({ ...newCat, subcategories: [] });
+      categories.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      const parent = categories.find((c) => c.id === newCatParentId);
+      if (parent) {
+        parent.subcategories.push(newCat);
+        parent.subcategories.sort((a, b) => a.name.localeCompare(b.name));
+      }
+    }
+
+    closeCatModal();
+
+    // Seleciona a nova categoria/subcategoria automaticamente
+    const currentCat =
+      newCatParentId === null
+        ? name
+        : document.getElementById("f-category").value;
+    populateCategorySelect(currentCat, newCatParentId !== null ? name : "");
+
+    showToast(`"${name}" adicionada!`);
+  } catch (err) {
+    alert("Erro ao salvar: " + err.message);
+  }
+}
 
 // ═══════════════════════════════════════════════════
 //  MODAL
@@ -577,7 +715,7 @@ function openModal(id) {
     document.getElementById("f-status").value = b.status || "reading";
     document.getElementById("f-start").value = b.start_date || "";
     document.getElementById("f-end").value = b.end_date || "";
-    document.getElementById("f-category").value = b.category || "";
+    populateCategorySelect(b.category || "", b.subcategory || "");
     if (b.rating) setStar(b.rating);
 
     isReread = b.is_reread === 1;
@@ -586,24 +724,26 @@ function openModal(id) {
       label.textContent = isReread ? "Releitura" : "Marcar como releitura";
     }
   } else {
-    document.getElementById("f-title").value = "";
-    document.getElementById("f-author").value = "";
-    document.getElementById("f-pages").value = "";
-    document.getElementById("f-year").value = currentYear;
-    document.getElementById("f-status").value = "reading";
-    document.getElementById("f-start").value = new Date()
-      .toISOString()
-      .slice(0, 10);
-    document.getElementById("f-end").value = "";
-    document.getElementById("f-category").value = "";
-    setStar(null);
+  document.getElementById("f-title").value    = "";
+  document.getElementById("f-author").value   = "";
+  document.getElementById("f-pages").value    = "";
+  document.getElementById("f-year").value     = currentYear;
+  document.getElementById("f-status").value   = "reading";
+  document.getElementById("f-start").value    = new Date().toISOString().slice(0, 10);
+  document.getElementById("f-end").value      = "";
+  setStar(null);
 
-    isReread = false;
-    if (btn) {
-      btn.classList.remove("active");
-      label.textContent = "Marcar como releitura";
-    }
+  isReread = false;
+  const btn   = document.getElementById("reread-btn");
+  const label = document.getElementById("reread-label");
+  if (btn) {
+    btn.classList.remove("active");
+    label.textContent = "Marcar como releitura";
   }
+
+  populateCategorySelect("", "");
+  }
+
   document.getElementById("modal-overlay").classList.add("open");
 }
 
@@ -623,6 +763,7 @@ async function saveBook() {
     pages: parseInt(document.getElementById("f-pages").value) || 0,
     year: parseInt(document.getElementById("f-year").value) || currentYear,
     category: document.getElementById("f-category").value || "",
+    subcategory: document.getElementById("f-subcategory").value || "",
     rating: currentRating || 0,
     status: document.getElementById("f-status").value,
     start_date: document.getElementById("f-start").value || null,

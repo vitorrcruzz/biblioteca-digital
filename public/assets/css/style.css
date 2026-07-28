@@ -1207,6 +1207,56 @@ nav a .ico {
 #user-nav-btn {
   display: none;
 }
+/* ── Category select ── */
+.category-select-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.category-select-wrap select {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.category-select-wrap select:focus {
+  border-color: var(--gold);
+}
+
+.btn-add-cat {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  width: 38px;
+  height: 38px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-add-cat:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Badge com subcategoria */
+.badge-sub {
+  font-size: 0.65rem;
+  opacity: 0.8;
+  margin-left: 3px;
+}
 
 /* ══════════════════════════════════════
    RESPONSIVIDADE — MOBILE (≤768px)

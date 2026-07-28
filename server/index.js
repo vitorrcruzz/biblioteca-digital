@@ -23,6 +23,7 @@ app.post("/api/auth/login", authMiddleware, (req, res) => {
 // Todas as rotas /api/* exigem autenticação
 app.use("/api/books", authMiddleware, require("./routes/books"));
 app.use("/api/goals", authMiddleware, require("./routes/goals"));
+app.use("/api/categories", authMiddleware, require("./routes/categories"));
 app.use("/api/account", authMiddleware, require("./routes/account"));
 
 // Frontend

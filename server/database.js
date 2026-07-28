@@ -51,6 +51,22 @@ function getUserDb(uid) {
       target INTEGER NOT NULL
     )
   `);
+  db.exec(`
+  CREATE TABLE IF NOT EXISTS categories (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    name      TEXT    NOT NULL,
+    parent_id INTEGER DEFAULT NULL,
+    FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE
+  )
+`);
+
+// Pré-popula categorias padrão se ainda não existirem
+const catCount = db.prepare("SELECT COUNT(*) as c FROM categories WHERE parent_id IS NULL").get();
+if (catCount.c === 0) {
+  const defaults = ["Terror","Suspense","Mistério","Ação","Aventura","Ficção","Fantasia","HQ","Infantil"];
+  const insertCat = db.prepare("INSERT INTO categories (name, parent_id) VALUES (?, NULL)");
+  for (const name of defaults) insertCat.run(name);
+}
 
   return db;
 }
