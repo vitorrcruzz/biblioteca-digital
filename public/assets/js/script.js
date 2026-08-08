@@ -853,6 +853,79 @@ async function deleteBook(id) {
     },
   );
 }
+// ═══════════════════════════════════════════════════
+//  NEWS POPUP
+// ═══════════════════════════════════════════════════
+const NEWS_POPUP = {
+  version: "v1",                    // ← muda aqui a cada nova versão
+  expires: "2026-08-22",            // ← 14 dias a partir do lançamento
+  title: "Novidades da Biblioteca Digital",
+  items: [
+    {
+      icon: "📢",
+      title: "Pop-up de novidades",
+      desc: "Fique por dentro das novidades e atualizações da Biblioteca Digital." +
+        " O pop-up de novidades aparecerá automaticamente quando houver atualizações importantes." +
+        " Você pode dispensá-lo permanentemente clicando no botão 'Não mostrar novamente'."
+    },
+    {
+      icon: "✉️",
+      title: "Contato do Suporte",
+      desc: "Agora você pode entrar em contato com o suporte diretamente pelo e-mail support.bibliotecadigital@gmail.com" +
+        " caso precise de ajuda ou queira enviar sugestões."
+    },
+    // {
+    //   icon: "🔍",
+    //   title: "Busca por ISBN",
+    //   desc: "Adicione um livro informando o ISBN e os dados são preenchidos automaticamente via Google Books."
+    // },
+    // {
+    //   icon: "⚙️",
+    //   title: "Página de conta",
+    //   desc: "Gerencie seu perfil, altere nome, e-mail, senha e meta de leitura do ano na página de conta."
+    // },
+  ]
+};
+
+function shouldShowNewsPopup() {
+  const key = `news_popup_${NEWS_POPUP.version}`;
+  const data = localStorage.getItem(key);
+  if (data) return false; // já foi dispensado permanentemente
+
+  // Verifica se ainda está dentro do período
+  const today = new Date().toISOString().slice(0, 10);
+  const expires = NEWS_POPUP.expires;
+  return today <= expires;
+}
+
+function renderNewsPopup() {
+  const body = document.getElementById("news-popup-body");
+  if (!body) return;
+  body.innerHTML = NEWS_POPUP.items.map(item => `
+    <div class="news-item">
+      <span class="news-item-icon">${item.icon}</span>
+      <div class="news-item-text">
+        <h4>${item.title}</h4>
+        <p>${item.desc}</p>
+      </div>
+    </div>
+  `).join("");
+}
+
+function openNewsPopup() {
+  renderNewsPopup();
+  document.getElementById("news-popup-overlay").classList.add("open");
+}
+
+function closeNewsPopup() {
+  document.getElementById("news-popup-overlay").classList.remove("open");
+}
+
+function dismissNewsPopup() {
+  const key = `news_popup_${NEWS_POPUP.version}`;
+  localStorage.setItem(key, "dismissed");
+  closeNewsPopup();
+}
 
 // ═══════════════════════════════════════════════════
 //  TOAST
@@ -871,6 +944,10 @@ async function init() {
     await loadBooks();
     renderYearList();
     renderDashboard();
+    // Mostra popup de novidades se aplicável
+    if (shouldShowNewsPopup()) {
+      setTimeout(() => openNewsPopup(), 800);
+    }
     // Verifica se deve abrir o acervo direto
     const params = new URLSearchParams(window.location.search);
     if (params.get("page") === "acervo") goTo("acervo");

@@ -23,6 +23,7 @@ body {
   font-family: "Segoe UI", system-ui, sans-serif;
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
@@ -213,4 +214,28 @@ body {
   padding: 10px 14px;
   font-size: 0.85rem;
   margin-bottom: 16px;
+}
+
+.auth-footer {
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.auth-footer a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  opacity: 0.8;
 }

@@ -50,7 +50,7 @@
     </div>
     <nav>
       <a class="active" data-page="dashboard" onclick="goTo('dashboard')">
-        <span class="ico">🏠</span><span>Dashboard</span>
+        <span class="ico">📊</span><span>Dashboard</span>
       </a>
       <a data-page="acervo" onclick="goTo('acervo')">
         <span class="ico">📖</span><span>Acervo</span>
@@ -167,6 +167,15 @@
         <div id="acervo-list"></div>
       </div>
     </div>
+    <!-- Footer -->
+    <footer id="app-footer">
+      <span class="footer-text">
+        Suporte: <a href="mailto:support.bibliotecadigital@gmail.com">support.bibliotecadigital@gmail.com</a>
+      </span>
+      <span class="footer-text">
+        📚 Biblioteca Digital — Desenvolvido por <strong>Vitor ☕</strong>
+      </span>
+    </footer>
   </main>
 
   <!-- Modal Add/Edit -->
@@ -341,6 +350,25 @@
         <button class="btn-gold" onclick="saveNewCategory()">
           💾 Salvar
         </button>
+      </div>
+    </div>
+  </div>
+  <!-- Pop-up de novidades -->
+  <div id="news-popup-overlay">
+    <div class="news-popup">
+      <div class="news-popup-header">
+        <span class="news-popup-icon">📢</span>
+        <div>
+          <h3>Novidades da Biblioteca Digital</h3>
+          <p>Confira o que há de novo no sistema</p>
+        </div>
+      </div>
+      <div class="news-popup-body" id="news-popup-body">
+        <!-- Conteúdo definido no script -->
+      </div>
+      <div class="news-popup-actions">
+        <button class="btn-dismiss" onclick="closeNewsPopup()">Fechar</button>
+        <button class="btn-dismiss-forever" onclick="dismissNewsPopup()">✓ Não mostrar novamente</button>
       </div>
     </div>
   </div>
