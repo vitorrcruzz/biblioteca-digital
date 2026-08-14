@@ -709,6 +709,227 @@ async function saveNewCategory() {
 }
 
 // ═══════════════════════════════════════════════════
+//  GERENCIAR CATEGORIAS (editar / excluir)
+// ═══════════════════════════════════════════════════
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function openManageCategoriesModal() {
+  renderManageCatList();
+  document.getElementById("manage-cat-modal-overlay").classList.add("open");
+}
+
+function closeManageCategoriesModal() {
+  document.getElementById("manage-cat-modal-overlay").classList.remove("open");
+}
+
+function closeManageCatModalOutside(e) {
+  if (e.target.id === "manage-cat-modal-overlay") closeManageCategoriesModal();
+}
+
+function findCategoryById(id) {
+  for (const c of categories) {
+    if (c.id === id) return c;
+    const sub = (c.subcategories || []).find((s) => s.id === id);
+    if (sub) return sub;
+  }
+  return null;
+}
+
+function renderManageCatList() {
+  const el = document.getElementById("manage-cat-list");
+  if (!categories.length) {
+    el.innerHTML = `<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:16px 0">Nenhuma categoria cadastrada.</p>`;
+    return;
+  }
+
+  el.innerHTML = categories
+    .map(
+      (c) => `
+      <div class="manage-cat-item">
+        <div class="manage-cat-row" id="manage-cat-row-${c.id}">
+          <span class="manage-cat-name">${escapeHtml(c.name)}</span>
+          <div class="manage-cat-actions">
+            <button class="btn-icon-sm" onclick="startRenameCategory(${c.id})" title="Renomear">✏️</button>
+            <button class="btn-icon-sm btn-icon-danger" onclick="confirmDeleteCategory(${c.id}, false)" title="Excluir">🗑</button>
+          </div>
+        </div>
+        ${c.subcategories && c.subcategories.length
+          ? `<div class="manage-cat-subs">
+              ${c.subcategories
+            .map(
+              (s) => `
+                <div class="manage-cat-row manage-cat-sub-row" id="manage-cat-row-${s.id}">
+                  <span class="manage-cat-name">↳ ${escapeHtml(s.name)}</span>
+                  <div class="manage-cat-actions">
+                    <button class="btn-icon-sm" onclick="startRenameCategory(${s.id})" title="Renomear">✏️</button>
+                    <button class="btn-icon-sm btn-icon-danger" onclick="confirmDeleteCategory(${s.id}, true)" title="Excluir">🗑</button>
+                  </div>
+                </div>`,
+            )
+            .join("")}
+            </div>`
+          : ""
+        }
+      </div>`,
+    )
+    .join("");
+}
+
+function startRenameCategory(id) {
+  const cat = findCategoryById(id);
+  const row = document.getElementById(`manage-cat-row-${id}`);
+  if (!cat || !row) return;
+
+  row.innerHTML = `
+    <input type="text" class="manage-cat-input" id="manage-cat-input-${id}" value="${escapeHtml(cat.name)}" />
+    <div class="manage-cat-actions">
+      <button class="btn-icon-sm btn-icon-ok" onclick="submitRenameCategory(${id})" title="Salvar">✔</button>
+      <button class="btn-icon-sm" onclick="renderManageCatList()" title="Cancelar">✕</button>
+    </div>
+  `;
+  const input = document.getElementById(`manage-cat-input-${id}`);
+  input.focus();
+  input.select();
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitRenameCategory(id);
+    if (e.key === "Escape") renderManageCatList();
+  });
+}
+
+async function submitRenameCategory(id) {
+  const input = document.getElementById(`manage-cat-input-${id}`);
+  const newName = input.value.trim();
+  if (!newName) {
+    alert("Informe um nome.");
+    return;
+  }
+
+  const cat = findCategoryById(id);
+  if (!cat) return;
+  const oldName = cat.name;
+  const isSub = cat.parent_id !== null;
+
+  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
+  try {
+    const res = await fetch(`/api/categories/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: newName }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || "Erro ao renomear categoria");
+      return;
+    }
+
+    await loadBooks();
+    renderManageCatList();
+    renderYearList();
+    const active = document.querySelector(".page.active");
+    if (active?.id === "page-dashboard") renderDashboard();
+    if (active?.id === "page-acervo") renderAcervo();
+    resyncBookModalCategoryField(oldName, newName, isSub);
+    showToast("Categoria atualizada!");
+  } catch (err) {
+    alert("Erro ao renomear: " + err.message);
+  }
+}
+
+// Se o modal de Adicionar/Editar livro estiver aberto no momento em que uma
+// categoria/subcategoria é renomeada ou excluída, atualiza o campo na hora
+// (newName === "" indica que a categoria foi excluída, não renomeada)
+function resyncBookModalCategoryField(oldName, newName, isSub) {
+  const bookModal = document.getElementById("modal-overlay");
+  if (!bookModal || !bookModal.classList.contains("open")) return;
+
+  const catSel = document.getElementById("f-category");
+  const subSel = document.getElementById("f-subcategory");
+  let selCat = catSel.value;
+  let selSub = subSel.value;
+
+  if (isSub) {
+    if (selSub === oldName) selSub = newName;
+  } else if (selCat === oldName) {
+    selCat = newName;
+    if (!newName) selSub = ""; // categoria removida: subcategoria perde o vínculo
+  }
+
+  populateCategorySelect(selCat, selSub);
+}
+
+function findParentCategoryName(subId) {
+  const parent = categories.find((c) => (c.subcategories || []).some((s) => s.id === subId));
+  return parent ? parent.name : null;
+}
+
+function countBooksUsingCategory(cat, isSub) {
+  if (isSub) {
+    const parentName = findParentCategoryName(cat.id);
+    return DB.books.filter((b) => b.category === parentName && b.subcategory === cat.name).length;
+  }
+  return DB.books.filter((b) => b.category === cat.name).length;
+}
+
+function confirmDeleteCategory(id, isSub) {
+  const cat = findCategoryById(id);
+  if (!cat) return;
+
+  const count = countBooksUsingCategory(cat, isSub);
+  const tipo = isSub ? "subcategoria" : "categoria";
+
+  const msg =
+    count > 0
+      ? `⚠️ Há ${count} livro${count > 1 ? "s" : ""} vinculado${count > 1 ? "s" : ""} a essa ${tipo}. ` +
+        `Se você continuar, ${count > 1 ? "esses livros ficarão" : "esse livro ficará"} sem ${tipo}, mas você ` +
+        `ainda poderá editá-lo depois para atribuir uma nova. A exclusão pode ser feita normalmente.`
+      : `A ${tipo} "${cat.name}"${isSub ? "" : " e suas subcategorias"} será removida permanentemente. Nenhum livro está vinculado a ela no momento.`;
+
+  openConfirm("Excluir categoria?", msg, () => deleteCategoryNow(id));
+}
+
+async function deleteCategoryNow(id) {
+  const cat = findCategoryById(id);
+  if (!cat) return;
+  const oldName = cat.name;
+  const isSub = cat.parent_id !== null;
+
+  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
+  try {
+    const res = await fetch(`/api/categories/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || "Erro ao excluir categoria");
+      return;
+    }
+
+    await loadBooks();
+    renderManageCatList();
+    renderYearList();
+    const active = document.querySelector(".page.active");
+    if (active?.id === "page-dashboard") renderDashboard();
+    if (active?.id === "page-acervo") renderAcervo();
+    resyncBookModalCategoryField(oldName, "", isSub);
+    showToast("Categoria removida.");
+  } catch (err) {
+    alert("Erro ao excluir: " + err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════
 //  MODAL
 // ═══════════════════════════════════════════════════
 function openModal(id) {

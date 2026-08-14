@@ -200,6 +200,10 @@
             <button type="button" class="btn-add-cat" onclick="openNewCategoryModal(null)" title="Nova categoria">
               ＋
             </button>
+            <button type="button" class="btn-add-cat" onclick="openManageCategoriesModal()"
+              title="Gerenciar categorias">
+              ✏️
+            </button>
           </div>
         </div>
         <div class="field" id="subcategory-field" style="display: none">
@@ -350,6 +354,18 @@
         <button class="btn-gold" onclick="saveNewCategory()">
           💾 Salvar
         </button>
+      </div>
+    </div>
+  </div>
+  <!-- Modal Gerenciar Categorias -->
+  <div class="overlay" id="manage-cat-modal-overlay" onclick="closeManageCatModalOutside(event)">
+    <div class="modal" style="max-width: 480px">
+      <button class="confirm-close" onclick="closeManageCategoriesModal()">✕</button>
+      <div class="confirm-icon">🏷️</div>
+      <h3>Gerenciar categorias</h3>
+      <div id="manage-cat-list" class="manage-cat-list"></div>
+      <div class="modal-actions" style="margin-top: 20px; justify-content: center">
+        <button class="btn-outline" onclick="closeManageCategoriesModal()">Fechar</button>
       </div>
     </div>
   </div>
