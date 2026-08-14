@@ -1078,22 +1078,21 @@ async function deleteBook(id) {
 //  NEWS POPUP
 // ═══════════════════════════════════════════════════
 const NEWS_POPUP = {
-  version: "v1",                    // ← muda aqui a cada nova versão
-  expires: "2026-08-22",            // ← 14 dias a partir do lançamento
+  version: "v2",                    // ← muda aqui a cada nova versão
+  expires: "2026-08-27",            // ← 14 dias a partir do lançamento
   title: "Novidades da Biblioteca Digital",
   items: [
     {
-      icon: "📢",
-      title: "Pop-up de novidades",
-      desc: "Fique por dentro das novidades e atualizações da Biblioteca Digital." +
-        " O pop-up de novidades aparecerá automaticamente quando houver atualizações importantes." +
-        " Você pode dispensá-lo permanentemente clicando no botão 'Não mostrar novamente'."
+      icon: "📝",
+      title: "Edite suas categorias/subcategorias",
+      desc: "Agora você pode editar suas categorias e subcategorias diretamente na interface" +
+        " de edição dos livros."
     },
     {
-      icon: "✉️",
-      title: "Contato do Suporte",
-      desc: "Agora você pode entrar em contato com o suporte diretamente pelo e-mail support.bibliotecadigital@gmail.com" +
-        " caso precise de ajuda ou queira enviar sugestões."
+      icon: "📖",
+      title: "Novas informações na tela acervo",
+      desc: "Agora você pode visualizar mais detalhes sobre cada livro na tela do acervo." +
+        " como data de término, categoria/subcategoria , avaliação e status de leitura."
     },
     // {
     //   icon: "🔍",
