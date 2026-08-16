@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteca Digital — Página não encontrada</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0f1117;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      overflow: hidden;
+    }
+
+    .scene {
+      position: relative;
+      width: 400px;
+      height: 300px;
+    }
+
+    .number {
+      position: absolute;
+      font-size: 180px;
+      font-weight: 900;
+      color: #1f2436;
+      letter-spacing: -10px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      user-select: none;
+      z-index: 0;
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    .shelf {
+      position: absolute;
+      bottom: 40px;
+      left: 30px;
+      right: 30px;
+      height: 8px;
+      background: #e8b84b;
+      border-radius: 4px;
+      z-index: 2;
+      box-shadow: 0 4px 12px rgba(232, 184, 75, 0.3);
+    }
+
+    .book {
+      position: absolute;
+      bottom: 48px;
+      border-radius: 3px 6px 6px 3px;
+      z-index: 1;
+    }
+
+    .book-spine {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      border-radius: 3px 0 0 3px;
+      opacity: 0.7;
+    }
+
+    @keyframes float1 {
+
+      0%,
+      100% {
+        transform: rotate(-2deg) translateY(0)
+      }
+
+      50% {
+        transform: rotate(-2deg) translateY(-6px)
+      }
+    }
+
+    @keyframes float2 {
+
+      0%,
+      100% {
+        transform: rotate(1deg) translateY(0)
+      }
+
+      50% {
+        transform: rotate(1deg) translateY(-4px)
+      }
+    }
+
+    @keyframes float3 {
+
+      0%,
+      100% {
+        transform: rotate(-1deg) translateY(0)
+      }
+
+      50% {
+        transform: rotate(-1deg) translateY(-8px)
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.15
+      }
+
+      50% {
+        opacity: 0.25
+      }
+    }
+
+    @keyframes drift {
+      0% {
+        transform: translateY(0) rotate(0);
+        opacity: 0.3
+      }
+
+      100% {
+        transform: translateY(-300px) rotate(360deg);
+        opacity: 0
+      }
+    }
+
+    .b1 {
+      width: 32px;
+      height: 110px;
+      background: #e05c6a;
+      left: 40px;
+      animation: float1 3s ease-in-out infinite;
+    }
+
+    .b2 {
+      width: 28px;
+      height: 90px;
+      background: #5b8ff9;
+      left: 78px;
+      animation: float2 3.5s ease-in-out infinite;
+    }
+
+    .b3 {
+      width: 36px;
+      height: 130px;
+      background: #4caf8a;
+      left: 112px;
+      animation: float3 2.8s ease-in-out infinite;
+    }
+
+    .b4 {
+      width: 24px;
+      height: 85px;
+      background: #e8b84b;
+      left: 154px;
+      animation: float1 4s ease-in-out infinite 0.5s;
+    }
+
+    .b5 {
+      width: 30px;
+      height: 100px;
+      background: #1f2436;
+      left: 184px;
+      border: 2px dashed #2a3050;
+      animation: none;
+      opacity: 0.4;
+    }
+
+    .b6 {
+      width: 34px;
+      height: 120px;
+      background: #f0944a;
+      left: 220px;
+      animation: float3 3.8s ease-in-out infinite 0.3s;
+    }
+
+    .b7 {
+      width: 26px;
+      height: 95px;
+      background: #e05c6a;
+      left: 260px;
+      animation: float1 2.9s ease-in-out infinite 0.7s;
+    }
+
+    .b8 {
+      width: 38px;
+      height: 115px;
+      background: #5b8ff9;
+      left: 292px;
+      animation: float2 3.6s ease-in-out infinite 1.2s;
+    }
+
+    .question {
+      position: absolute;
+      bottom: 78px;
+      left: 196px;
+      color: #2a3050;
+      font-size: 32px;
+      font-weight: 900;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+    }
+
+    .content {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    h1 {
+      color: #e8b84b;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #7a82a0;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      max-width: 320px;
+      margin: 0 auto 24px;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #e8b84b;
+      color: #0f1117;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn:hover {
+      opacity: 0.85;
+    }
+
+    .footer-err {
+      margin-top: 32px;
+      font-size: 0.75rem;
+      color: #2a3050;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="scene">
+    <div class="number">404</div>
+    <div class="particles" id="particles"></div>
+    <div class="book b1">
+      <div class="book-spine" style="background:#c04050"></div>
+    </div>
+    <div class="book b2">
+      <div class="book-spine" style="background:#4070d0"></div>
+    </div>
+    <div class="book b3">
+      <div class="book-spine" style="background:#3a9070"></div>
+    </div>
+    <div class="book b4">
+      <div class="book-spine" style="background:#c09030"></div>
+    </div>
+    <div class="book b5"></div>
+    <div class="book b6">
+      <div class="book-spine" style="background:#c07030"></div>
+    </div>
+    <div class="book b7">
+      <div class="book-spine" style="background:#c04050"></div>
+    </div>
+    <div class="book b8">
+      <div class="book-spine" style="background:#4070d0"></div>
+    </div>
+    <div class="question">?</div>
+    <div class="shelf"></div>
+  </div>
+  <div class="content">
+    <h1>Página não encontrada</h1>
+    <p>Parece que esse livro saiu da prateleira. A página que você procura não existe ou foi movida.</p>
+    <button class="btn" onclick="window.location.href='/'">Voltar ao início</button>
+    <p class="footer-err">Biblioteca Digital — support.bibliotecadigital@gmail.com</p>
+  </div>
+  <script>
+    const colors = ['#e8b84b', '#5b8ff9', '#e05c6a', '#4caf8a', '#b07ef9'];
+    const p = document.getElementById('particles');
+    for (let i = 0; i < 12; i++) {
+      const el = document.createElement('div');
+      el.className = 'particle';
+      el.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;background:${colors[i % colors.length]};animation:drift ${3 + Math.random() * 4}s linear ${Math.random() * 3}s infinite`;
+      p.appendChild(el);
+    }
+  </script>
+</body>
+
+</html>

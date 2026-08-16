@@ -25,6 +25,9 @@ app.use("/api/books", authMiddleware, require("./routes/books"));
 app.use("/api/goals", authMiddleware, require("./routes/goals"));
 app.use("/api/categories", authMiddleware, require("./routes/categories"));
 app.use("/api/account", authMiddleware, require("./routes/account"));
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "../public/404.html"));
+});
 
 // Frontend
 app.get("/{*path}", (req, res) => {
