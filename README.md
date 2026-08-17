@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white" />
   <img src="https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase&logoColor=white" />
   <img src="https://img.shields.io/badge/Ubuntu-24.04%20LTS-E95420?logo=ubuntu&logoColor=white" />
-  <img src="https://img.shields.io/badge/Status-Em%20desenvolvimento-yellow" />
+  <img src="https://img.shields.io/badge/Vers%C3%A3o-v3.0-2ea44f" />
 </p>
 
 > **Sistema Pessoal de Gerenciamento de Acervo Literário**
@@ -182,6 +182,17 @@ http://localhost:3000
 - **Isolamento por Usuário:** O UID extraído do JWT define qual banco SQLite é carregado — nenhum usuário acessa dados de outro.
 - **Credenciais fora do Git:** `firebase-config.js` e `firebase-admin-key.json` estão no `.gitignore` e nunca são versionados.
 - **Firewall UFW:** Apenas portas 80 e 22 liberadas via range Tailscale (`100.0.0.0/8`).
+
+---
+
+## 🌿 Workflow de Versionamento
+
+O repositório segue um fluxo de duas branches:
+
+| Branch | Papel |
+|---|---|
+| `master` | Ambiente de desenvolvimento e testes |
+| `main` | Ambiente de produção, refletindo o que roda no servidor |
 
 ---
 
