@@ -12,6 +12,7 @@ let editingId = null;
 let currentRating = null;
 let categories = []; // lista de categorias carregadas da API
 let newCatParentId = null; // null = nova categoria raiz, número = nova subcategoria
+let sagas = []; // lista de sagas carregadas da API
 let chartMonth = null;
 let chartCat = null;
 let isReread = false;
@@ -51,19 +52,21 @@ async function loadBooks() {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
-  const [books, goalsArr, cats] = await Promise.all([
+  const [books, goalsArr, cats, sagasArr] = await Promise.all([
     apiFetch(""),
     fetch("/api/goals", { headers }).then((r) => {
       if (!r.ok) throw new Error("goals 401");
       return r.json();
     }),
     fetch("/api/categories", { headers }).then((r) => r.json()),
+    fetch("/api/sagas", { headers }).then((r) => r.json()),
   ]);
 
   DB.books = books;
   DB.goals = {};
   goalsArr.forEach((g) => (DB.goals[g.year] = g.target));
   categories = cats;
+  sagas = sagasArr;
 }
 
 async function createBook(data) {
@@ -92,6 +95,7 @@ function goTo(page) {
   document.querySelector(`nav a[data-page="${page}"]`)?.classList.add("active");
   if (page === "dashboard") renderDashboard();
   if (page === "acervo") renderAcervo();
+  if (page === "sagas") renderSagas();
 }
 
 // ═══════════════════════════════════════════════════
@@ -131,6 +135,17 @@ function badgeHtml(cat, sub) {
     .replace(/\s/g, "-");
   const subHtml = sub ? `<span class="badge-sub">• ${sub}</span>` : "";
   return `<span class="badge badge-${c}">${cat}${subHtml}</span>`;
+}
+
+function sagaBadgeHtml(b) {
+  if (!b.saga_id) return "";
+  const saga = sagas.find((s) => s.id === b.saga_id || s.id === Number(b.saga_id));
+  if (!saga) return "";
+  const vol =
+    b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== ""
+      ? ` <span class="badge-sub">· Vol. ${b.saga_order}</span>`
+      : "";
+  return `<span class="badge badge-saga">🗂️ ${escapeHtml(saga.name)}${vol}</span>`;
 }
 
 function statusHtml(s) {
@@ -362,6 +377,7 @@ function renderDashboard() {
           <div class="title-col">
             <div class="t">${b.title}</div>
             <div class="a">${b.author}</div>
+            ${b.saga_id ? `<div class="saga-inline-badge">${sagaBadgeHtml(b)}</div>` : ""}
           </div>
           <div>${badgeHtml(b.category)}</div>
           <div style="color:var(--muted);font-size:.85rem">${b.pages || "—"}</div>
@@ -526,6 +542,7 @@ function renderAcervo() {
           <div>
             <div class="t">${b.title}${b.is_reread ? ' <span class="badge-reread"><i class="fa-solid fa-arrows-rotate" style="color: rgb(255, 255, 255);"></i> Releitura</span>' : ""}</div>
             <div class="a">${b.author}</div>
+            ${b.saga_id ? `<div class="saga-inline-badge">${sagaBadgeHtml(b)}</div>` : ""}
           </div>
           <div class="hide-sm">${badgeHtml(b.category, b.subcategory)}</div>
           <div style="color:var(--muted);font-size:.84rem">${b.pages || "—"}</div>
@@ -929,6 +946,262 @@ async function deleteCategoryNow(id) {
   }
 }
 
+async function reloadSagas() {
+  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
+  try {
+    const res = await fetch("/api/sagas", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) sagas = await res.json();
+  } catch (e) {
+    /* silencioso: não é crítico para o restante da tela */
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  SAGAS
+// ═══════════════════════════════════════════════════
+function populateSagaSelect(selectedId, selectedOrder) {
+  const sel = document.getElementById("f-saga");
+  if (!sel) return;
+  sel.innerHTML =
+    '<option value="">Nenhuma</option>' +
+    sagas
+      .map(
+        (s) =>
+          `<option value="${s.id}" ${String(s.id) === String(selectedId) ? "selected" : ""}>${escapeHtml(s.name)}</option>`,
+      )
+      .join("");
+
+  const orderField = document.getElementById("saga-order-field");
+  const orderInput = document.getElementById("f-saga-order");
+  if (selectedId) {
+    orderField.style.display = "";
+    orderInput.value = selectedOrder ?? "";
+  } else {
+    orderField.style.display = "none";
+    orderInput.value = "";
+  }
+}
+
+function onSagaChange() {
+  populateSagaSelect(document.getElementById("f-saga").value, "");
+}
+
+// ── Modal nova saga ──
+function openNewSagaModal() {
+  document.getElementById("saga-name-input").value = "";
+  document.getElementById("saga-modal-overlay").classList.add("open");
+}
+
+function closeSagaModal() {
+  document.getElementById("saga-modal-overlay").classList.remove("open");
+}
+
+function closeSagaModalOutside(e) {
+  if (e.target.id === "saga-modal-overlay") closeSagaModal();
+}
+
+async function saveNewSaga() {
+  const name = document.getElementById("saga-name-input").value.trim();
+  if (!name) {
+    alert("Informe um nome.");
+    return;
+  }
+
+  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
+  try {
+    const res = await fetch("/api/sagas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || "Erro ao salvar saga");
+      return;
+    }
+
+    const newSaga = await res.json();
+    sagas.push({ ...newSaga, books: [] });
+    sagas.sort((a, b) => a.name.localeCompare(b.name));
+
+    closeSagaModal();
+
+    const bookModal = document.getElementById("modal-overlay");
+    if (bookModal && bookModal.classList.contains("open")) {
+      populateSagaSelect(newSaga.id, "");
+    }
+
+    if (document.querySelector(".page.active")?.id === "page-sagas") renderSagas();
+
+    showToast(`"${name}" adicionada!`);
+  } catch (err) {
+    alert("Erro ao salvar: " + err.message);
+  }
+}
+
+// ── Gerenciar (renomear/excluir) ──
+function startRenameSaga(id) {
+  const saga = sagas.find((s) => s.id === id);
+  const row = document.getElementById(`saga-row-${id}`);
+  if (!saga || !row) return;
+
+  row.innerHTML = `
+    <input type="text" class="manage-cat-input" id="saga-input-${id}" value="${escapeHtml(saga.name)}" />
+    <div class="manage-cat-actions">
+      <button class="btn-icon-sm btn-icon-ok" onclick="submitRenameSaga(${id})" title="Salvar">✔</button>
+      <button class="btn-icon-sm" onclick="renderSagas()" title="Cancelar">✕</button>
+    </div>
+  `;
+  const input = document.getElementById(`saga-input-${id}`);
+  input.focus();
+  input.select();
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitRenameSaga(id);
+    if (e.key === "Escape") renderSagas();
+  });
+}
+
+async function submitRenameSaga(id) {
+  const input = document.getElementById(`saga-input-${id}`);
+  const newName = input.value.trim();
+  if (!newName) {
+    alert("Informe um nome.");
+    return;
+  }
+
+  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
+  try {
+    const res = await fetch(`/api/sagas/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name: newName }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || "Erro ao renomear saga");
+      return;
+    }
+
+    await loadBooks();
+    renderSagas();
+    resyncBookModalSagaField();
+    showToast("Saga atualizada!");
+  } catch (err) {
+    alert("Erro ao renomear: " + err.message);
+  }
+}
+
+function confirmDeleteSaga(id) {
+  const saga = sagas.find((s) => s.id === id);
+  if (!saga) return;
+  const count = (saga.books || []).length;
+
+  const msg =
+    count > 0
+      ? `⚠️ Há ${count} livro${count > 1 ? "s" : ""} nessa saga. Os livros não serão excluídos — apenas deixarão de fazer parte de "${saga.name}".`
+      : `A saga "${saga.name}" será removida. Nenhum livro está vinculado a ela no momento.`;
+
+  openConfirm("Excluir saga?", msg, () => deleteSagaNow(id));
+}
+
+async function deleteSagaNow(id) {
+  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
+  try {
+    const res = await fetch(`/api/sagas/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || "Erro ao excluir saga");
+      return;
+    }
+
+    await loadBooks();
+    renderSagas();
+    resyncBookModalSagaField();
+    showToast("Saga removida.");
+  } catch (err) {
+    alert("Erro ao excluir: " + err.message);
+  }
+}
+
+// Se o modal de livro estiver aberto quando uma saga for renomeada/excluída, atualiza o campo
+function resyncBookModalSagaField() {
+  const bookModal = document.getElementById("modal-overlay");
+  if (!bookModal || !bookModal.classList.contains("open")) return;
+  const sel = document.getElementById("f-saga");
+  if (!sel) return;
+  let selId = sel.value;
+  if (selId && !sagas.some((s) => String(s.id) === String(selId))) selId = "";
+  const order = document.getElementById("f-saga-order")?.value || "";
+  populateSagaSelect(selId, order);
+}
+
+// ── Página Sagas ──
+function renderSagas() {
+  const el = document.getElementById("sagas-list");
+  const countEl = document.getElementById("sagas-count");
+  if (!el) return;
+
+  if (!sagas.length) {
+    countEl.textContent = "";
+    el.innerHTML = `<p style="color:var(--muted);text-align:center;padding:32px 0">Nenhuma saga cadastrada ainda. Clique em "＋ Nova saga" para agrupar os livros de uma série (ex: A Torre Negra).</p>`;
+    return;
+  }
+
+  countEl.textContent = `${sagas.length} saga${sagas.length > 1 ? "s" : ""} cadastrada${sagas.length > 1 ? "s" : ""}`;
+
+  el.innerHTML = sagas
+    .map((s) => {
+      const books = s.books || [];
+      const total = books.length;
+      const finished = books.filter((b) => b.status === "finished").length;
+      const pct = total ? Math.round((finished / total) * 100) : 0;
+
+      return `
+      <div class="saga-card">
+        <div class="saga-card-header manage-cat-row" id="saga-row-${s.id}">
+          <div>
+            <h3 class="saga-name">${escapeHtml(s.name)}</h3>
+            <p class="saga-progress">${total ? `${finished}/${total} concluído${total > 1 ? "s" : ""} · ${pct}%` : "Nenhum livro vinculado ainda"}</p>
+          </div>
+          <div class="manage-cat-actions">
+            <button class="btn-icon-sm" onclick="startRenameSaga(${s.id})" title="Renomear saga">✏️</button>
+            <button class="btn-icon-sm btn-icon-danger" onclick="confirmDeleteSaga(${s.id})" title="Excluir saga">🗑</button>
+          </div>
+        </div>
+        ${total ? `<div class="saga-progress-bar"><div class="saga-progress-fill" style="width:${pct}%"></div></div>` : ""}
+        <div class="saga-books">
+          ${
+            books
+              .map(
+                (b) => `
+            <div class="saga-book-row">
+              <span class="saga-vol">${b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== "" ? `Vol. ${b.saga_order}` : "—"}</span>
+              <div class="saga-book-info">
+                <span class="t">${escapeHtml(b.title)}</span>
+                <span class="a">${escapeHtml(b.author || "")} ${b.year ? `· ${b.year}` : ""}</span>
+              </div>
+              ${badgeHtml(b.category, b.subcategory)}
+              <span class="saga-book-status">${statusHtml(b.status)}</span>
+              <button class="btn-icon-sm" onclick="editBook(${b.id})" title="Editar livro">✏️</button>
+            </div>`,
+              )
+              .join("") ||
+            `<p style="color:var(--muted);font-size:.85rem;padding:8px 4px">Nenhum livro nessa saga ainda. Edite um livro e selecione essa saga no campo "Saga".</p>`
+          }
+        </div>
+      </div>`;
+    })
+    .join("");
+}
+
 // ═══════════════════════════════════════════════════
 //  MODAL
 // ═══════════════════════════════════════════════════
@@ -952,6 +1225,7 @@ function openModal(id) {
     document.getElementById("f-start").value = b.start_date || "";
     document.getElementById("f-end").value = b.end_date || "";
     populateCategorySelect(b.category || "", b.subcategory || "");
+    populateSagaSelect(b.saga_id || "", b.saga_order ?? "");
     if (b.rating) setStar(b.rating);
 
     isReread = b.is_reread === 1;
@@ -978,6 +1252,7 @@ function openModal(id) {
     }
 
     populateCategorySelect("", "");
+    populateSagaSelect("", "");
   }
 
   document.getElementById("modal-overlay").classList.add("open");
@@ -1005,6 +1280,12 @@ async function saveBook() {
     start_date: document.getElementById("f-start").value || null,
     end_date: document.getElementById("f-end").value || null,
     is_reread: isReread,
+    saga_id: document.getElementById("f-saga").value
+      ? parseInt(document.getElementById("f-saga").value)
+      : null,
+    saga_order: document.getElementById("f-saga-order").value !== ""
+      ? parseFloat(document.getElementById("f-saga-order").value)
+      : null,
   };
 
   try {
@@ -1021,9 +1302,11 @@ async function saveBook() {
 
     closeModal();
     renderYearList();
+    await reloadSagas();
     const active = document.querySelector(".page.active");
     if (active?.id === "page-dashboard") renderDashboard();
     if (active?.id === "page-acervo") renderAcervo();
+    if (active?.id === "page-sagas") renderSagas();
   } catch (err) {
     alert("Erro ao salvar: " + err.message);
   }
@@ -1065,8 +1348,10 @@ async function deleteBook(id) {
       try {
         await removeBook(id);
         DB.books = DB.books.filter((b) => b.id !== id);
+        await reloadSagas();
         renderYearList();
         renderAcervo();
+        if (document.querySelector(".page.active")?.id === "page-sagas") renderSagas();
         showToast("Livro removido.");
       } catch (err) {
         alert("Erro ao remover: " + err.message);

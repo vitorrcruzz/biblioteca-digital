@@ -60,6 +60,17 @@ function getUserDb(uid) {
   )
 `);
 
+  db.exec(`
+  CREATE TABLE IF NOT EXISTS sagas (
+    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT    NOT NULL
+  )
+`);
+
+  // Garante que os livros existentes ganhem as colunas de saga (migração idempotente)
+  try { db.exec("ALTER TABLE books ADD COLUMN saga_id INTEGER DEFAULT NULL"); } catch (e) { }
+  try { db.exec("ALTER TABLE books ADD COLUMN saga_order REAL DEFAULT NULL"); } catch (e) { }
+
   // Pré-popula categorias padrão se ainda não existirem
   const catCount = db.prepare("SELECT COUNT(*) as c FROM categories WHERE parent_id IS NULL").get();
   if (catCount.c === 0) {

@@ -35,15 +35,15 @@ router.post("/", (req, res) => {
   // Garante que a coluna subcategory existe
   try { db.exec("ALTER TABLE books ADD COLUMN subcategory TEXT DEFAULT ''"); } catch (e) { }
 
-  const { title, author, category, subcategory, pages, year, status, start_date, end_date, rating, is_reread } = req.body;
+  const { title, author, category, subcategory, pages, year, status, start_date, end_date, rating, is_reread, saga_id, saga_order } = req.body;
   if (!title) return res.status(400).json({ error: "Título é obrigatório" });
 
   const result = db.prepare(`
-    INSERT INTO books (title, author, category, subcategory, pages, year, status, start_date, end_date, rating, is_reread)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO books (title, author, category, subcategory, pages, year, status, start_date, end_date, rating, is_reread, saga_id, saga_order)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(title, author ?? "", category ?? "", subcategory ?? "", pages ?? 0, year ?? 0,
     status ?? "reading", start_date ?? null, end_date ?? null,
-    rating ?? 0, is_reread ? 1 : 0);
+    rating ?? 0, is_reread ? 1 : 0, saga_id || null, saga_order || null);
 
   res.status(201).json(db.prepare("SELECT * FROM books WHERE id = ?").get(result.lastInsertRowid));
 });
@@ -58,12 +58,12 @@ router.put("/:id", (req, res) => {
   const book = db.prepare("SELECT * FROM books WHERE id = ?").get(req.params.id);
   if (!book) return res.status(404).json({ error: "Livro não encontrado" });
 
-  const { title, author, category, subcategory, pages, year, status, start_date, end_date, rating, is_reread } = req.body;
+  const { title, author, category, subcategory, pages, year, status, start_date, end_date, rating, is_reread, saga_id, saga_order } = req.body;
   db.prepare(`
     UPDATE books SET
       title = ?, author = ?, category = ?, subcategory = ?, pages = ?, year = ?,
       status = ?, start_date = ?, end_date = ?, rating = ?,
-      is_reread = ?, updated_at = datetime('now')
+      is_reread = ?, saga_id = ?, saga_order = ?, updated_at = datetime('now')
     WHERE id = ?
   `).run(
     title ?? book.title,
@@ -77,6 +77,8 @@ router.put("/:id", (req, res) => {
     end_date ?? book.end_date,
     rating ?? book.rating,
     is_reread !== undefined ? (is_reread ? 1 : 0) : book.is_reread,
+    saga_id !== undefined ? (saga_id || null) : book.saga_id,
+    saga_order !== undefined ? (saga_order || null) : book.saga_order,
     req.params.id
   );
 
