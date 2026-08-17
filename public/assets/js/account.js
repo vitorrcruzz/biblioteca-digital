@@ -141,10 +141,12 @@ async function sendPasswordReset() {
 // ═══════════════════════════════════════════════════
 let confirmCallback = null;
 
-function openConfirm(title, msg, onConfirm) {
+function openConfirm(title, msg, onConfirm, confirmLabel = "Confirmar", icon = "⚠️") {
   confirmCallback = onConfirm;
   document.getElementById("confirm-title").textContent = title;
   document.getElementById("confirm-msg").textContent = msg;
+  document.getElementById("confirm-yes").textContent = confirmLabel;
+  document.getElementById("confirm-icon").innerHTML = icon;
   document.getElementById("confirm-yes").onclick = () => {
     closeConfirm();
     onConfirm();
@@ -213,6 +215,29 @@ function renderYearPanelAccount() {
 function openYearModalFromPanel() {
   closeYearPanel();
   window.location.href = "/";
+}
+
+// ═══════════════════════════════════════════════════
+//  NAVEGAÇÃO MOBILE (topbar + menu hambúrguer)
+// ═══════════════════════════════════════════════════
+function openMobileMenu() {
+  document.getElementById("mobile-menu-panel").classList.add("open");
+  document.getElementById("mobile-menu-overlay").classList.add("open");
+}
+
+function closeMobileMenu() {
+  document.getElementById("mobile-menu-panel").classList.remove("open");
+  document.getElementById("mobile-menu-overlay").classList.remove("open");
+}
+
+function confirmLogout() {
+  openConfirm(
+    "Sair do sistema?",
+    "Você precisará entrar novamente para acessar sua conta.",
+    () => logout(),
+    "Sim, sair",
+    '<i class="fa-solid fa-door-open"></i>',
+  );
 }
 
 // ═══════════════════════════════════════════════════

@@ -8,9 +8,32 @@
   <link rel="shortcut icon" href="./images/icon.svg" type="image/x-icon" />
   <link rel="stylesheet" href="./assets/css/style.css" />
   <link rel="stylesheet" href="./assets/css/account.css" />
+  <script src="https://kit.fontawesome.com/36e64f3fff.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
+  <!-- Barra superior (mobile) -->
+  <header id="mobile-topbar">
+    <button class="mobile-topbar-btn" onclick="openMobileMenu()" aria-label="Menu">☰</button>
+    <span id="mobile-page-title">Configurações</span>
+    <button class="mobile-topbar-btn" onclick="confirmLogout()" title="Sair" aria-label="Sair"><i
+        class="fa-solid fa-door-closed"></i></button>
+  </header>
+
+  <!-- Menu hambúrguer (mobile) -->
+  <div id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+  <div id="mobile-menu-panel">
+    <div class="year-panel-header">
+      <span>📚 Menu</span>
+      <button onclick="closeMobileMenu()">✕</button>
+    </div>
+    <button class="year-panel-btn" onclick="window.location.href = '/'">📊 Dashboard</button>
+    <button class="year-panel-btn" onclick="window.location.href = '/?page=acervo'">📖 Minha Estante</button>
+    <button class="year-panel-btn" onclick="window.location.href = '/?page=sagas'">🗂️ Sagas/Coleção</button>
+    <button class="year-panel-btn" onclick="closeMobileMenu(); openYearPanel();">📅 Ano</button>
+    <button class="year-panel-btn" onclick="closeMobileMenu()">⚙️ Configurações</button>
+  </div>
+
   <!-- Painel de anos (mobile) -->
   <div id="year-panel-overlay" onclick="closeYearPanel()"></div>
   <div id="year-panel">
@@ -31,27 +54,30 @@
       <button onclick="closeUserPanel()">✕</button>
     </div>
     <div class="user-panel-info">
-      <span class="user-panel-icon">👤</span>
+      <span class="user-panel-icon"><i class="fa-solid fa-door-closed"></i></span>
       <span id="user-name-panel"></span>
     </div>
     <button class="year-panel-new-btn" onclick="window.location.href = '/account.html'">
       ⚙️ Configurações
     </button>
-    <button class="year-panel-logout" onclick="logout()">🚪 Sair</button>
+    <button class="year-panel-logout" onclick="logout()"><i class="fa-solid fa-door-open"></i> Sair</button>
   </div>
 
   <!-- Sidebar -->
   <aside id="sidebar">
     <div class="brand">
       <h1>📚 Biblioteca</h1>
-      <p>Acervo pessoal</p>
+      <p>Coleção pessoal</p>
     </div>
     <nav>
       <a onclick="window.location.href = '/'">
         <span class="ico">📊</span><span>Dashboard</span>
       </a>
       <a onclick="window.location.href = '/?page=acervo'">
-        <span class="ico">📖</span><span>Acervo</span>
+        <span class="ico">📖</span><span>Minha Estante</span>
+      </a>
+      <a onclick="window.location.href = '/?page=sagas'">
+        <span class="ico">🗂️</span><span>Sagas/Coleção</span>
       </a>
       <a id="year-nav-btn" onclick="openYearPanel()">
         <span class="ico">📅</span><span>Ano</span>
@@ -180,7 +206,7 @@
   <div class="overlay" id="confirm-overlay">
     <div class="modal" style="max-width: 420px">
       <button class="confirm-close" onclick="closeConfirm()">✕</button>
-      <div class="confirm-icon">⚠️</div>
+      <div class="confirm-icon" id="confirm-icon">⚠️</div>
       <h3 id="confirm-title">Confirmar</h3>
       <p id="confirm-msg" class="confirm-msg"></p>
       <div class="modal-actions" style="justify-content: center; gap: 16px; margin-top: 28px">

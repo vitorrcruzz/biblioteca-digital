@@ -12,6 +12,31 @@
 </head>
 
 <body>
+  <!-- Barra superior (mobile) -->
+  <header id="mobile-topbar">
+    <button class="mobile-topbar-btn" onclick="openMobileMenu()" aria-label="Menu">☰</button>
+    <span id="mobile-page-title">Dashboard</span>
+    <button class="mobile-topbar-btn" onclick="confirmLogout()" title="Sair" aria-label="Sair"><i
+        class="fa-solid fa-door-closed"></i></button>
+  </header>
+
+  <!-- Menu hambúrguer (mobile) -->
+  <div id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+  <div id="mobile-menu-panel">
+    <div class="year-panel-header">
+      <span>📚 Menu</span>
+      <button onclick="closeMobileMenu()">✕</button>
+    </div>
+    <button class="year-panel-btn" onclick="goToMobile('dashboard')">📊 Dashboard</button>
+    <button class="year-panel-btn" onclick="goToMobile('acervo')">📖 Minha Estante</button>
+    <button class="year-panel-btn" onclick="goToMobile('sagas')">🗂️ Sagas/Coleção</button>
+    <button class="year-panel-btn" onclick="openMobileMenuYear()">📅 Ano</button>
+    <button class="year-panel-btn" onclick="goToAccountFromMenu()">⚙️ Configurações</button>
+  </div>
+
+  <!-- Botão flutuante de adicionar (mobile) -->
+  <button id="mobile-fab" onclick="mobileFabClick()" title="Adicionar" aria-label="Adicionar">＋</button>
+
   <!-- Painel de anos (mobile) -->
   <div id="year-panel-overlay" onclick="closeYearPanel()"></div>
   <div id="year-panel">
@@ -40,23 +65,23 @@
     <button class="year-panel-new-btn" onclick="window.location.href = '/account.html'">
       ⚙️ Configurações
     </button>
-    <button class="year-panel-logout" onclick="logout()">🚪 Sair</button>
+    <button class="year-panel-logout" onclick="logout()"><i class="fa-solid fa-door-open"></i> Sair</button>
   </div>
   <!-- Sidebar -->
   <aside id="sidebar">
     <div class="brand">
       <h1>📚 Biblioteca</h1>
-      <p>Acervo pessoal</p>
+      <p>Coleção pessoal</p>
     </div>
     <nav>
       <a class="active" data-page="dashboard" onclick="goTo('dashboard')">
         <span class="ico">📊</span><span>Dashboard</span>
       </a>
       <a data-page="acervo" onclick="goTo('acervo')">
-        <span class="ico">📖</span><span>Acervo</span>
+        <span class="ico">📖</span><span>Minha Estante</span>
       </a>
       <a data-page="sagas" onclick="goTo('sagas')">
-        <span class="ico">🗂️</span><span>Sagas/coleção</span>
+        <span class="ico">🗂️</span><span>Sagas/Coleção</span>
       </a>
       <a id="year-nav-btn" onclick="openYearPanel()">
         <span class="ico">📅</span><span>Ano</span>
@@ -138,7 +163,7 @@
     <!-- ── ACERVO ── -->
     <div id="page-acervo" class="page">
       <div class="page-header">
-        <h2>Acervo completo</h2>
+        <h2>Todos os livros</h2>
         <p id="acervo-count"></p>
       </div>
       <div class="filter-bar">
@@ -155,7 +180,7 @@
           <option value="reading">⏳ Lendo</option>
           <option value="paused">📓 Pausado</option>
         </select>
-        <button class="btn-gold" onclick="openModal()">＋ Adicionar</button>
+        <button class="btn-gold" id="acervo-add-btn" onclick="openModal()">＋ Adicionar</button>
       </div>
       <div class="recent-books" style="overflow: hidden">
         <div class="acervo-row header">
@@ -173,11 +198,11 @@
     <!-- ── SAGAS ── -->
     <div id="page-sagas" class="page">
       <div class="page-header">
-        <h2>Sagas/coleção</h2>
+        <h2>Sagas/Coleção</h2>
         <p id="sagas-count"></p>
       </div>
-      <div class="filter-bar">
-        <button class="btn-gold" onclick="openNewSagaModal()">＋ Nova saga/coleção</button>
+      <div class="filter-bar" id="sagas-filter-bar">
+        <button class="btn-gold" id="saga-add-btn" onclick="openNewSagaModal()">＋ Nova saga/coleção</button>
       </div>
       <div id="sagas-list" class="sagas-list"></div>
     </div>
@@ -237,7 +262,7 @@
           <input id="f-pages" type="number" min="1" placeholder="0" />
         </div>
         <div class="field">
-          <label>Saga/coleção
+          <label>Saga/Coleção
             <span style="color: var(--muted); font-weight: 400">(opcional)</span></label>
           <div class="category-select-wrap">
             <select id="f-saga" onchange="onSagaChange()">
@@ -259,7 +284,7 @@
         </div>
         <div class="field">
           <label>Status</label>
-          <select id="f-status">
+          <select id="f-status" onchange="onStatusChange()">
             <option value="reading">⏳ Lendo</option>
             <option value="finished">✔️ Concluído</option>
             <option value="paused">📓 Pausado</option>
@@ -271,7 +296,7 @@
         </div>
         <div class="field">
           <label>Data de término</label>
-          <input id="f-end" type="date" />
+          <input id="f-end" type="date" onchange="onEndDateChange()" />
         </div>
         <div class="field">
           <label>Releitura</label>
@@ -332,11 +357,11 @@
   <div class="overlay" id="confirm-overlay">
     <div class="modal" style="max-width: 420px">
       <button class="confirm-close" onclick="closeConfirm()">✕</button>
-      <div class="confirm-icon">🗑</div>
+      <div class="confirm-icon" id="confirm-icon">🗑</div>
       <h3 id="confirm-title">Excluir livro?</h3>
       <p id="confirm-msg" class="confirm-msg"></p>
       <div class="modal-actions" style="justify-content: center; gap: 16px; margin-top: 28px">
-        <button class="btn-outline" onclick="closeConfirm()">Não</button>
+        <button class="btn-outline" id="confirm-no" onclick="closeConfirm()">Não</button>
         <button class="btn-danger-lg" id="confirm-yes">Sim, excluir</button>
       </div>
     </div>

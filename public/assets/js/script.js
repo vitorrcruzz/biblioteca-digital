@@ -93,9 +93,62 @@ function goTo(page) {
     .forEach((a) => a.classList.remove("active"));
   document.getElementById("page-" + page).classList.add("active");
   document.querySelector(`nav a[data-page="${page}"]`)?.classList.add("active");
+
+  const mobileTitles = { dashboard: "Dashboard", acervo: "Minha Estante", sagas: "Sagas/Coleção" };
+  const titleEl = document.getElementById("mobile-page-title");
+  if (titleEl) titleEl.textContent = mobileTitles[page] || "Biblioteca";
+
   if (page === "dashboard") renderDashboard();
   if (page === "acervo") renderAcervo();
   if (page === "sagas") renderSagas();
+}
+
+// ═══════════════════════════════════════════════════
+//  NAVEGAÇÃO MOBILE (topbar + menu hambúrguer + FAB)
+// ═══════════════════════════════════════════════════
+function openMobileMenu() {
+  document.getElementById("mobile-menu-panel").classList.add("open");
+  document.getElementById("mobile-menu-overlay").classList.add("open");
+}
+
+function closeMobileMenu() {
+  document.getElementById("mobile-menu-panel").classList.remove("open");
+  document.getElementById("mobile-menu-overlay").classList.remove("open");
+}
+
+function goToMobile(page) {
+  closeMobileMenu();
+  goTo(page);
+}
+
+function openMobileMenuYear() {
+  closeMobileMenu();
+  openYearPanel();
+}
+
+function goToAccountFromMenu() {
+  closeMobileMenu();
+  window.location.href = "/account.html";
+}
+
+// FAB: adiciona livro normalmente, ou uma nova saga se a tela atual for "Sagas"
+function mobileFabClick() {
+  const active = document.querySelector(".page.active");
+  if (active?.id === "page-sagas") {
+    openNewSagaModal();
+  } else {
+    openModal();
+  }
+}
+
+function confirmLogout() {
+  openConfirm(
+    "Sair do sistema?",
+    "Você precisará entrar novamente para acessar sua conta.",
+    () => logout(),
+    "Sim, sair",
+    '<i class="fa-solid fa-door-open"></i>',
+  );
 }
 
 // ═══════════════════════════════════════════════════
@@ -566,6 +619,25 @@ function toggleReread() {
   btn.classList.toggle("active", isReread);
   label.textContent = isReread ? "Releitura" : "Marcar como releitura";
 }
+
+// Ao marcar como Concluído, preenche a data de término com hoje (se ainda estiver vazia)
+function onStatusChange() {
+  const statusSel = document.getElementById("f-status");
+  const endInput = document.getElementById("f-end");
+  if (statusSel.value === "finished" && !endInput.value) {
+    endInput.value = new Date().toISOString().slice(0, 10);
+  }
+}
+
+// Ao preencher a data de término, marca o status como Concluído automaticamente
+function onEndDateChange() {
+  const endInput = document.getElementById("f-end");
+  const statusSel = document.getElementById("f-status");
+  if (endInput.value) {
+    statusSel.value = "finished";
+  }
+}
+
 function closeModal() {
   document.getElementById("modal-overlay").classList.remove("open");
 }
@@ -907,8 +979,8 @@ function confirmDeleteCategory(id, isSub) {
   const msg =
     count > 0
       ? `⚠️ Há ${count} livro${count > 1 ? "s" : ""} vinculado${count > 1 ? "s" : ""} a essa ${tipo}. ` +
-        `Se você continuar, ${count > 1 ? "esses livros ficarão" : "esse livro ficará"} sem ${tipo}, mas você ` +
-        `ainda poderá editá-lo depois para atribuir uma nova. A exclusão pode ser feita normalmente.`
+      `Se você continuar, ${count > 1 ? "esses livros ficarão" : "esse livro ficará"} sem ${tipo}, mas você ` +
+      `ainda poderá editá-lo depois para atribuir uma nova. A exclusão pode ser feita normalmente.`
       : `A ${tipo} "${cat.name}"${isSub ? "" : " e suas subcategorias"} será removida permanentemente. Nenhum livro está vinculado a ela no momento.`;
 
   openConfirm("Excluir categoria?", msg, () => deleteCategoryNow(id));
@@ -1178,10 +1250,9 @@ function renderSagas() {
         </div>
         ${total ? `<div class="saga-progress-bar"><div class="saga-progress-fill" style="width:${pct}%"></div></div>` : ""}
         <div class="saga-books">
-          ${
-            books
-              .map(
-                (b) => `
+          ${books
+          .map(
+            (b) => `
             <div class="saga-book-row">
               <span class="saga-vol">${b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== "" ? `Vol. ${b.saga_order}` : "—"}</span>
               <div class="saga-book-info">
@@ -1192,10 +1263,10 @@ function renderSagas() {
               <span class="saga-book-status">${statusHtml(b.status)}</span>
               <button class="btn-icon-sm" onclick="editBook(${b.id})" title="Editar livro">✏️</button>
             </div>`,
-              )
-              .join("") ||
-            `<p style="color:var(--muted);font-size:.85rem;padding:8px 4px">Nenhum livro nessa saga ainda. Edite um livro e selecione essa saga no campo "Saga".</p>`
-          }
+          )
+          .join("") ||
+        `<p style="color:var(--muted);font-size:.85rem;padding:8px 4px">Nenhum livro nessa saga ainda. Edite um livro e selecione essa saga no campo "Saga".</p>`
+        }
         </div>
       </div>`;
     })
@@ -1321,10 +1392,12 @@ function editBook(id) {
 // ═══════════════════════════════════════════════════
 let confirmCallback = null;
 
-function openConfirm(title, msg, onConfirm) {
+function openConfirm(title, msg, onConfirm, confirmLabel = "Sim, excluir", icon = "🗑") {
   confirmCallback = onConfirm;
   document.getElementById("confirm-title").textContent = title;
   document.getElementById("confirm-msg").textContent = msg;
+  document.getElementById("confirm-yes").textContent = confirmLabel;
+  document.getElementById("confirm-icon").innerHTML = icon;
   document.getElementById("confirm-yes").onclick = () => {
     closeConfirm();
     onConfirm();
@@ -1363,32 +1436,39 @@ async function deleteBook(id) {
 //  NEWS POPUP
 // ═══════════════════════════════════════════════════
 const NEWS_POPUP = {
-  version: "v2",                    // ← muda aqui a cada nova versão
+  version: "v3",                    // ← muda aqui a cada nova versão
   expires: "2026-08-27",            // ← 14 dias a partir do lançamento
   title: "Novidades da Biblioteca Digital",
   items: [
     {
-      icon: "📝",
-      title: "Edite suas categorias/subcategorias",
-      desc: "Agora você pode editar suas categorias e subcategorias diretamente na interface" +
-        " de edição dos livros."
+      icon: "🗂️",
+      title: "Sagas e coleções",
+      desc: "Agrupe os livros de uma mesma saga (ex: As Crônicas de Gelo & Fogo) mesmo que estejam em anos ou" +
+        " categorias diferentes. Dá pra numerar o volume e cada livro ganha um selo indicando a saga."
     },
     {
-      icon: "📖",
-      title: "Novas informações na tela acervo",
-      desc: "Agora você pode visualizar mais detalhes sobre cada livro na tela do acervo." +
-        " como data de término, categoria/subcategoria , avaliação e status de leitura."
+      icon: "🏷️",
+      title: "Gerencie suas categorias",
+      desc: "Além de criar, agora você pode renomear ou excluir categorias e subcategorias direto" +
+        " pelo app, os livros vinculados são atualizados automaticamente."
     },
-    // {
-    //   icon: "🔍",
-    //   title: "Busca por ISBN",
-    //   desc: "Adicione um livro informando o ISBN e os dados são preenchidos automaticamente via Google Books."
-    // },
-    // {
-    //   icon: "⚙️",
-    //   title: "Página de conta",
-    //   desc: "Gerencie seu perfil, altere nome, e-mail, senha e meta de leitura do ano na página de conta."
-    // },
+    {
+      icon: "📱",
+      title: "Novo layout",
+      desc: "A navegação mobile foi redesenhada: menu lateral (☰), botão de adicionar flutuante e" +
+        " telas mais limpas, sem informação duplicada."
+    },
+    {
+      icon: "✅",
+      title: "Status e data de término conectados",
+      desc: "Ao marcar um livro como Concluído, a data de término é preenchida automaticamente." +
+        " E se você preencher a data primeiro, o status já muda para Concluído sozinho."
+    },
+    {
+      icon: "🚪",
+      title: "Confirmação ao sair",
+      desc: "Agora o sistema pede confirmação antes de encerrar sua sessão, evitando logouts acidentais."
+    },
   ]
 };
 
@@ -1453,9 +1533,10 @@ async function init() {
     if (shouldShowNewsPopup()) {
       setTimeout(() => openNewsPopup(), 800);
     }
-    // Verifica se deve abrir o acervo direto
+    // Verifica se deve abrir uma página específica (ex: voltando da tela de Conta)
     const params = new URLSearchParams(window.location.search);
-    if (params.get("page") === "acervo") goTo("acervo");
+    const targetPage = params.get("page");
+    if (targetPage && ["dashboard", "acervo", "sagas"].includes(targetPage)) goTo(targetPage);
   } catch (err) {
     console.error("Erro ao carregar dados:", err);
     document.getElementById("stats-grid").innerHTML =

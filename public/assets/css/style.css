@@ -828,21 +828,21 @@ nav a .ico {
 #year-panel {
   position: fixed;
   top: 0;
-  right: -260px;
+  left: -260px;
   width: 240px;
   height: 100vh;
   background: var(--surface);
-  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
   z-index: 151;
   padding: 24px 16px;
-  transition: right 0.25s ease;
+  transition: left 0.25s ease;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
 #year-panel.open {
-  right: 0;
+  left: 0;
 }
 
 #year-panel-overlay.open {
@@ -2113,6 +2113,147 @@ nav a .ico {
   }
 
   nav a span:not(.ico) {
+    display: none;
+  }
+}
+
+/* ══════════════════════════════════════
+   NOVA NAVEGAÇÃO MOBILE
+   (topbar + menu hambúrguer + FAB — substitui a barra inferior antiga)
+   ══════════════════════════════════════ */
+
+/* Escondidos por padrão (desktop) */
+#mobile-topbar,
+#mobile-menu-overlay,
+#mobile-menu-panel,
+#mobile-fab {
+  display: none;
+}
+
+@media (max-width: 768px) {
+
+  /* A sidebar antiga (incluindo a barra inferior que ela virava no mobile)
+     dá lugar à topbar + menu hambúrguer + FAB abaixo */
+  #sidebar {
+    display: none !important;
+  }
+
+  /* ── Barra superior ── */
+  #mobile-topbar {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    z-index: 140;
+  }
+
+  #mobile-page-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .mobile-topbar-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 1.25rem;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .mobile-topbar-btn:hover {
+    background: var(--surface2);
+  }
+
+  /* ── Menu hambúrguer (slide da esquerda) ── */
+  #mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 150;
+  }
+
+  #mobile-menu-overlay.open {
+    display: block;
+  }
+
+  #mobile-menu-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 260px;
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    z-index: 151;
+    padding: 24px 16px;
+    transition: left 0.25s ease;
+  }
+
+  #mobile-menu-panel.open {
+    left: 0;
+  }
+
+  /* ── Botão flutuante de adicionar ── */
+  #mobile-fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    right: 20px;
+    bottom: 24px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #1a1a1a;
+    font-size: 1.9rem;
+    font-weight: 600;
+    line-height: 1;
+    border: none;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+    z-index: 130;
+    cursor: pointer;
+  }
+
+  /* ── Ajustes de layout: sem barra inferior, com topbar fixa e FAB ── */
+  #main {
+    margin-left: 0;
+    margin-bottom: 0;
+    padding: 72px 16px 110px;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  #app-footer {
+    margin-bottom: 90px;
+  }
+
+  /* Esconde o botão "+ Adicionar" do Acervo (a ação já fica no FAB) */
+  #acervo-add-btn {
+    display: none;
+  }
+
+  /* Sagas: some a filter-bar inteira no mobile, já que só tinha o botão "+ Nova saga" */
+  #sagas-filter-bar {
     display: none;
   }
 }
