@@ -13,6 +13,7 @@ let currentRating = null;
 let categories = []; // lista de categorias carregadas da API
 let newCatParentId = null; // null = nova categoria raiz, número = nova subcategoria
 let sagas = []; // lista de sagas carregadas da API
+let expandedSagas = new Set(); // ids das sagas com o card aberto (todas começam fechadas)
 let chartMonth = null;
 let chartCat = null;
 let isReread = false;
@@ -94,7 +95,7 @@ function goTo(page) {
   document.getElementById("page-" + page).classList.add("active");
   document.querySelector(`nav a[data-page="${page}"]`)?.classList.add("active");
 
-  const mobileTitles = { dashboard: "Dashboard", acervo: "Minha Estante", sagas: "Sagas/Coleção" };
+  const mobileTitles = { dashboard: "Dashboard", acervo: "Minha Estante", sagas: "Sagas/coleção" };
   const titleEl = document.getElementById("mobile-page-title");
   if (titleEl) titleEl.textContent = mobileTitles[page] || "Biblioteca";
 
@@ -979,8 +980,8 @@ function confirmDeleteCategory(id, isSub) {
   const msg =
     count > 0
       ? `⚠️ Há ${count} livro${count > 1 ? "s" : ""} vinculado${count > 1 ? "s" : ""} a essa ${tipo}. ` +
-      `Se você continuar, ${count > 1 ? "esses livros ficarão" : "esse livro ficará"} sem ${tipo}, mas você ` +
-      `ainda poderá editá-lo depois para atribuir uma nova. A exclusão pode ser feita normalmente.`
+        `Se você continuar, ${count > 1 ? "esses livros ficarão" : "esse livro ficará"} sem ${tipo}, mas você ` +
+        `ainda poderá editá-lo depois para atribuir uma nova. A exclusão pode ser feita normalmente.`
       : `A ${tipo} "${cat.name}"${isSub ? "" : " e suas subcategorias"} será removida permanentemente. Nenhum livro está vinculado a ela no momento.`;
 
   openConfirm("Excluir categoria?", msg, () => deleteCategoryNow(id));
@@ -1235,24 +1236,31 @@ function renderSagas() {
       const total = books.length;
       const finished = books.filter((b) => b.status === "finished").length;
       const pct = total ? Math.round((finished / total) * 100) : 0;
+      const isOpen = expandedSagas.has(s.id);
 
       return `
       <div class="saga-card">
         <div class="saga-card-header manage-cat-row" id="saga-row-${s.id}">
-          <div>
+          <div class="saga-card-title-block" onclick="toggleSagaCard(${s.id})">
             <h3 class="saga-name">${escapeHtml(s.name)}</h3>
             <p class="saga-progress">${total ? `${finished}/${total} concluído${total > 1 ? "s" : ""} · ${pct}%` : "Nenhum livro vinculado ainda"}</p>
           </div>
           <div class="manage-cat-actions">
             <button class="btn-icon-sm" onclick="startRenameSaga(${s.id})" title="Renomear saga">✏️</button>
             <button class="btn-icon-sm btn-icon-danger" onclick="confirmDeleteSaga(${s.id})" title="Excluir saga">🗑</button>
+            <button class="saga-toggle-btn" onclick="toggleSagaCard(${s.id})" title="${isOpen ? "Recolher" : "Expandir"}">
+              <span class="saga-toggle-ico${isOpen ? " open" : ""}">⌄</span>
+            </button>
           </div>
         </div>
         ${total ? `<div class="saga-progress-bar"><div class="saga-progress-fill" style="width:${pct}%"></div></div>` : ""}
-        <div class="saga-books">
-          ${books
-          .map(
-            (b) => `
+        ${
+          isOpen
+            ? `<div class="saga-books">
+          ${
+            books
+              .map(
+                (b) => `
             <div class="saga-book-row">
               <span class="saga-vol">${b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== "" ? `Vol. ${b.saga_order}` : "—"}</span>
               <div class="saga-book-info">
@@ -1263,14 +1271,25 @@ function renderSagas() {
               <span class="saga-book-status">${statusHtml(b.status)}</span>
               <button class="btn-icon-sm" onclick="editBook(${b.id})" title="Editar livro">✏️</button>
             </div>`,
-          )
-          .join("") ||
-        `<p style="color:var(--muted);font-size:.85rem;padding:8px 4px">Nenhum livro nessa saga ainda. Edite um livro e selecione essa saga no campo "Saga".</p>`
+              )
+              .join("") ||
+            `<p style="color:var(--muted);font-size:.85rem;padding:8px 4px">Nenhum livro nessa saga ainda. Edite um livro e selecione essa saga no campo "Saga".</p>`
+          }
+        </div>`
+            : ""
         }
-        </div>
       </div>`;
     })
     .join("");
+}
+
+function toggleSagaCard(id) {
+  if (expandedSagas.has(id)) {
+    expandedSagas.delete(id);
+  } else {
+    expandedSagas.add(id);
+  }
+  renderSagas();
 }
 
 // ═══════════════════════════════════════════════════
@@ -1436,25 +1455,25 @@ async function deleteBook(id) {
 //  NEWS POPUP
 // ═══════════════════════════════════════════════════
 const NEWS_POPUP = {
-  version: "v3",                    // ← muda aqui a cada nova versão
-  expires: "2026-08-27",            // ← 14 dias a partir do lançamento
+  version: "v4",                    // ← muda aqui a cada nova versão
+  expires: "2026-08-31",            // ← 14 dias a partir do lançamento
   title: "Novidades da Biblioteca Digital",
   items: [
     {
       icon: "🗂️",
       title: "Sagas e coleções",
-      desc: "Agrupe os livros de uma mesma saga (ex: As Crônicas de Gelo & Fogo) mesmo que estejam em anos ou" +
+      desc: "Agrupe os livros de uma mesma saga (ex: A Torre Negra) mesmo que estejam em anos ou" +
         " categorias diferentes. Dá pra numerar o volume e cada livro ganha um selo indicando a saga."
     },
     {
       icon: "🏷️",
       title: "Gerencie suas categorias",
       desc: "Além de criar, agora você pode renomear ou excluir categorias e subcategorias direto" +
-        " pelo app, os livros vinculados são atualizados automaticamente."
+        " pelo app — os livros vinculados são atualizados automaticamente."
     },
     {
       icon: "📱",
-      title: "Novo layout",
+      title: "Novo menu no celular",
       desc: "A navegação mobile foi redesenhada: menu lateral (☰), botão de adicionar flutuante e" +
         " telas mais limpas, sem informação duplicada."
     },
@@ -1469,6 +1488,16 @@ const NEWS_POPUP = {
       title: "Confirmação ao sair",
       desc: "Agora o sistema pede confirmação antes de encerrar sua sessão, evitando logouts acidentais."
     },
+    // {
+    //   icon: "🔍",
+    //   title: "Busca por ISBN",
+    //   desc: "Adicione um livro informando o ISBN e os dados são preenchidos automaticamente via Google Books."
+    // },
+    // {
+    //   icon: "⚙️",
+    //   title: "Página de conta",
+    //   desc: "Gerencie seu perfil, altere nome, e-mail, senha e meta de leitura do ano na página de conta."
+    // },
   ]
 };
 

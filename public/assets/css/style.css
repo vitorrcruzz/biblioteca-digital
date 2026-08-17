@@ -1309,6 +1309,57 @@ nav a .ico {
   border: none;
 }
 
+.saga-card-title-block {
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+  user-select: none;
+}
+/* ── Botão de expandir saga ── */
+.saga-toggle-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-left: 4px; /* Afasta um pouco dos botões de editar/excluir */
+}
+
+.saga-toggle-btn:hover {
+  background: var(--surface2);
+}
+
+/* ── O desenho da seta ── */
+.saga-toggle-ico {
+  display: inline-block;
+  width: 12px;        /* Tamanho da seta */
+  height: 12px;       /* Tamanho da seta */
+  border-bottom: 2px solid var(--muted);
+  border-right: 2px solid var(--muted);
+  transform: translateY(-3px) rotate(45deg); /* Aponta para baixo */
+  transition: all 0.3s ease;
+  
+  /* A mágica: esconde o caractere "⌄" de texto original do HTML */
+  font-size: 0;       
+  color: transparent; 
+}
+
+/* ── Cor dourada ao passar o mouse ── */
+.saga-toggle-btn:hover .saga-toggle-ico {
+  border-color: var(--gold);
+}
+
+/* ── Quando a saga está aberta (classe .open) ── */
+.saga-toggle-ico.open {
+  transform: translateY(3px) rotate(225deg); /* Gira a borda para apontar para cima */
+}
+
 .saga-name {
   font-size: 1.05rem;
   font-weight: 700;
@@ -2131,7 +2182,6 @@ nav a .ico {
 }
 
 @media (max-width: 768px) {
-
   /* A sidebar antiga (incluindo a barra inferior que ela virava no mobile)
      dá lugar à topbar + menu hambúrguer + FAB abaixo */
   #sidebar {
