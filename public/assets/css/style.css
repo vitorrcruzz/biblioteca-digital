@@ -661,9 +661,18 @@ nav a .ico {
   max-width: 95vw;
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 28px 32px;
   transform: translateY(20px);
   transition: transform 0.2s;
+
+  /* Esconde a barra de rolagem visualmente, mas mantém a rolagem funcional */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legado */
+}
+
+.modal::-webkit-scrollbar {
+  display: none; /* Chrome, Edge, Safari */
 }
 
 .overlay.open .modal {
@@ -681,7 +690,7 @@ nav a .ico {
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
 }
 
@@ -693,6 +702,7 @@ nav a .ico {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .field label {
@@ -713,6 +723,9 @@ nav a .ico {
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.15s;
+  min-width: 0;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .field input:focus,
@@ -1299,6 +1312,7 @@ nav a .ico {
 
 .category-select-wrap select {
   flex: 1;
+  min-width: 0;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 8px;
