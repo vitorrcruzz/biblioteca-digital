@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { getUserDb, usersDb } = require("../database");
-const { admin } = require("../auth");
+const fs = require("fs");
+const path = require("path");
+const { getUserDb, closeUserDb, usersDb } = require("../database");
+const { auth } = require("../auth");
 
 // GET /api/account — retorna dados do usuário
 router.get("/", (req, res) => {
@@ -15,9 +17,14 @@ router.put("/name", async (req, res) => {
   const { name } = req.body;
   if (!name || name.trim() === "") return res.status(400).json({ error: "Nome é obrigatório" });
 
-  await admin.auth().updateUser(req.user.uid, { displayName: name.trim() });
-  usersDb.prepare("UPDATE users SET name = ? WHERE uid = ?").run(name.trim(), req.user.uid);
-  res.json({ success: true });
+  try {
+    await auth.updateUser(req.user.uid, { displayName: name.trim() });
+    usersDb.prepare("UPDATE users SET name = ? WHERE uid = ?").run(name.trim(), req.user.uid);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Erro ao atualizar nome:", err);
+    res.status(500).json({ error: "Erro ao atualizar nome." });
+  }
 });
 // PUT /api/account/email — envia verificação para novo email
 router.put("/email", async (req, res) => {
@@ -25,7 +32,7 @@ router.put("/email", async (req, res) => {
   if (!email) return res.status(400).json({ error: "Email é obrigatório" });
 
   try {
-    await admin.auth().updateUser(req.user.uid, { email: email.trim() });
+    await auth.updateUser(req.user.uid, { email: email.trim() });
     usersDb.prepare("UPDATE users SET email = ? WHERE uid = ?").run(email.trim(), req.user.uid);
     res.json({ success: true });
   } catch (err) {
@@ -62,16 +69,16 @@ router.delete("/", async (req, res) => {
   const uid = req.user.uid;
   try {
     // Remove do Firebase
-    await admin.auth().deleteUser(uid);
+    await auth.deleteUser(uid);
     // Remove do banco de usuários
     usersDb.prepare("DELETE FROM users WHERE uid = ?").run(uid);
-    // Remove o banco de livros do usuário
-    const fs = require("fs");
-    const path = require("path");
+    // Fecha a conexão cacheada e remove o banco de livros do usuário
+    closeUserDb(uid);
     const dbPath = path.join(__dirname, "../data", `books_${uid}.db`);
     if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
     res.json({ success: true });
   } catch (err) {
+    console.error("Erro ao excluir conta:", err);
     res.status(500).json({ error: "Erro ao excluir conta" });
   }
 });

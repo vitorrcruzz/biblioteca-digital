@@ -167,14 +167,14 @@
         <p id="acervo-count"></p>
       </div>
       <div class="filter-bar">
-        <input type="text" id="search" placeholder="🔍  Buscar título ou autor..." oninput="renderAcervo()" />
-        <select id="filter-year" onchange="renderAcervo()">
+        <input type="text" id="search" placeholder="🔍  Buscar título ou autor..." oninput="filterAcervo()" />
+        <select id="filter-year" onchange="filterAcervo()">
           <option value="">Todos os anos</option>
         </select>
-        <select id="filter-cat" onchange="renderAcervo()">
+        <select id="filter-cat" onchange="filterAcervo()">
           <option value="">Todas categorias</option>
         </select>
-        <select id="filter-status" onchange="renderAcervo()">
+        <select id="filter-status" onchange="filterAcervo()">
           <option value="">Todos status</option>
           <option value="finished">✔️ Concluído</option>
           <option value="reading">⏳ Lendo</option>
@@ -194,6 +194,7 @@
         </div>
         <div id="acervo-list"></div>
       </div>
+      <div id="acervo-pagination" class="pagination"></div>
     </div>
     <!-- ── SAGAS ── -->
     <div id="page-sagas" class="page">
@@ -205,6 +206,7 @@
         <button class="btn-gold" id="saga-add-btn" onclick="openNewSagaModal()">＋ Nova saga/coleção</button>
       </div>
       <div id="sagas-list" class="sagas-list"></div>
+      <div id="saga-pagination" class="pagination"></div>
     </div>
     <!-- Footer -->
     <footer id="app-footer">
@@ -465,6 +467,7 @@
   <div id="toast">✔ Salvo com sucesso!</div>
   <script src="./assets/js/firebase-config.js"></script>
   <script type="module" src="./assets/js/app-init.js"></script>
+  <script src="./assets/js/ui-common.js"></script>
   <script src="./assets/js/script.js"></script>
 </body>
 

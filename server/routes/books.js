@@ -32,9 +32,6 @@ router.get("/:id", (req, res) => {
 router.post("/", (req, res) => {
   const db = getUserDb(req.user.uid);
 
-  // Garante que a coluna subcategory existe
-  try { db.exec("ALTER TABLE books ADD COLUMN subcategory TEXT DEFAULT ''"); } catch (e) { }
-
   const { title, author, category, subcategory, pages, year, status, start_date, end_date, rating, is_reread, saga_id, saga_order } = req.body;
   if (!title) return res.status(400).json({ error: "Título é obrigatório" });
 
@@ -51,9 +48,6 @@ router.post("/", (req, res) => {
 // PUT /api/books/:id
 router.put("/:id", (req, res) => {
   const db = getUserDb(req.user.uid);
-
-  // Garante que a coluna subcategory existe
-  try { db.exec("ALTER TABLE books ADD COLUMN subcategory TEXT DEFAULT ''"); } catch (e) { }
 
   const book = db.prepare("SELECT * FROM books WHERE id = ?").get(req.params.id);
   if (!book) return res.status(404).json({ error: "Livro não encontrado" });

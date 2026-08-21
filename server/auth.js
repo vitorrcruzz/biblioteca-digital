@@ -1,14 +1,16 @@
-const admin = require("firebase-admin");
 const path = require("path");
+const { initializeApp, getApps, cert } = require("firebase-admin/app");
+const { getAuth } = require("firebase-admin/auth");
 
 // Inicializa o Firebase Admin apenas uma vez
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(
-      path.join(__dirname, "firebase-admin-key.json")
-    ),
+// (firebase-admin v14+ usa a API modular — sem o antigo namespace admin.*)
+if (!getApps().length) {
+  initializeApp({
+    credential: cert(path.join(__dirname, "firebase-admin-key.json")),
   });
 }
+
+const auth = getAuth();
 
 async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -20,7 +22,7 @@ async function authMiddleware(req, res, next) {
   const token = authHeader.split("Bearer ")[1];
 
   try {
-    const decoded = await admin.auth().verifyIdToken(token);
+    const decoded = await auth.verifyIdToken(token);
     req.user = {
       uid: decoded.uid,
       email: decoded.email,
@@ -32,4 +34,4 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-module.exports = { authMiddleware, admin };
+module.exports = { authMiddleware, auth };

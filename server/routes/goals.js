@@ -23,8 +23,10 @@ router.post("/", (req, res) => {
 
 // DELETE /api/goals/:year
 router.delete("/:year", (req, res) => {
+  const year = Number(req.params.year);
+  if (!year) return res.status(400).json({ error: "Ano inválido" });
   const db = getUserDb(req.user.uid);
-  db.prepare("DELETE FROM goals WHERE year = ?").run(Number(req.params.year));
+  db.prepare("DELETE FROM goals WHERE year = ?").run(year);
   res.json({ deleted: true });
 });
 

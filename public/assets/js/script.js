@@ -13,6 +13,10 @@ let currentRating = null;
 let categories = []; // lista de categorias carregadas da API
 let newCatParentId = null; // null = nova categoria raiz, número = nova subcategoria
 let sagas = []; // lista de sagas carregadas da API
+const ACERVO_PAGE_SIZE = 50;
+let acervoPage = 1; // página atual da lista de livros (Minha Estante)
+const SAGA_PAGE_SIZE = 10;
+let sagaPage = 1; // página atual da lista de sagas
 let expandedSagas = new Set(); // ids das sagas com o card aberto (todas começam fechadas)
 let chartMonth = null;
 let chartCat = null;
@@ -21,46 +25,18 @@ let isReread = false;
 
 // ═══════════════════════════════════════════════════
 //  API
+//  apiRequest() é compartilhada com account.js — ver ui-common.js
 // ═══════════════════════════════════════════════════
 async function apiFetch(path, options = {}) {
-  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
-
-  const res = await fetch(API + path, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    ...options,
-  });
-
-  if (res.status === 401) {
-    window.location.href = "/login.html";
-    return;
-  }
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Erro ${res.status}`);
-  }
-
-  return res.json();
+  return apiRequest(API + path, options);
 }
 
 async function loadBooks() {
-  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
-  const headers = {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-
   const [books, goalsArr, cats, sagasArr] = await Promise.all([
     apiFetch(""),
-    fetch("/api/goals", { headers }).then((r) => {
-      if (!r.ok) throw new Error("goals 401");
-      return r.json();
-    }),
-    fetch("/api/categories", { headers }).then((r) => r.json()),
-    fetch("/api/sagas", { headers }).then((r) => r.json()),
+    apiRequest("/api/goals"),
+    apiRequest("/api/categories"),
+    apiRequest("/api/sagas"),
   ]);
 
   DB.books = books;
@@ -106,17 +82,8 @@ function goTo(page) {
 
 // ═══════════════════════════════════════════════════
 //  NAVEGAÇÃO MOBILE (topbar + menu hambúrguer + FAB)
+//  openMobileMenu/closeMobileMenu e confirmLogout — ver ui-common.js
 // ═══════════════════════════════════════════════════
-function openMobileMenu() {
-  document.getElementById("mobile-menu-panel").classList.add("open");
-  document.getElementById("mobile-menu-overlay").classList.add("open");
-}
-
-function closeMobileMenu() {
-  document.getElementById("mobile-menu-panel").classList.remove("open");
-  document.getElementById("mobile-menu-overlay").classList.remove("open");
-}
-
 function goToMobile(page) {
   closeMobileMenu();
   goTo(page);
@@ -140,16 +107,6 @@ function mobileFabClick() {
   } else {
     openModal();
   }
-}
-
-function confirmLogout() {
-  openConfirm(
-    "Sair do sistema?",
-    "Você precisará entrar novamente para acessar sua conta.",
-    () => logout(),
-    "Sim, sair",
-    '<i class="fa-solid fa-door-open"></i>',
-  );
 }
 
 // ═══════════════════════════════════════════════════
@@ -315,9 +272,8 @@ async function saveYear() {
 
   try {
     if (target) {
-      await fetch("/api/goals", {
+      await apiRequest("/api/goals", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ year, target }),
       });
       DB.goals[year] = target;
@@ -333,21 +289,8 @@ async function saveYear() {
     alert("Erro ao salvar: " + err.message);
   }
 }
-// ═══════════════════════════════════════════════════
-//  USER PANEL (mobile)
-// ═══════════════════════════════════════════════════
-function openUserPanel() {
-  const nameEl = document.getElementById("user-name-panel");
-  const userName = document.getElementById("user-name");
-  if (nameEl && userName) nameEl.textContent = userName.textContent;
-  document.getElementById("user-panel").classList.add("open");
-  document.getElementById("user-panel-overlay").classList.add("open");
-}
 
-function closeUserPanel() {
-  document.getElementById("user-panel").classList.remove("open");
-  document.getElementById("user-panel-overlay").classList.remove("open");
-}
+// openUserPanel/closeUserPanel — ver ui-common.js
 
 // ═══════════════════════════════════════════════════
 //  DASHBOARD
@@ -588,8 +531,15 @@ function renderAcervo() {
   document.getElementById("acervo-count").textContent =
     `${books.length} livro${books.length !== 1 ? "s" : ""} encontrado${books.length !== 1 ? "s" : ""}`;
 
-  document.getElementById("acervo-list").innerHTML = books.length
-    ? books
+  const totalPages = Math.max(1, Math.ceil(books.length / ACERVO_PAGE_SIZE));
+  if (acervoPage > totalPages) acervoPage = totalPages;
+  if (acervoPage < 1) acervoPage = 1;
+
+  const start = (acervoPage - 1) * ACERVO_PAGE_SIZE;
+  const pageBooks = books.slice(start, start + ACERVO_PAGE_SIZE);
+
+  document.getElementById("acervo-list").innerHTML = pageBooks.length
+    ? pageBooks
       .map(
         (b) => `
         <div class="acervo-row">
@@ -611,6 +561,37 @@ function renderAcervo() {
       )
       .join("")
     : `<div class="empty"><div class="ico">🔍</div><p>Nenhum livro encontrado</p></div>`;
+
+  renderAcervoPagination(totalPages, books.length);
+}
+
+// Reseta a paginação pra página 1 sempre que um filtro/busca mudar (não
+// confundir com clicar em "próxima/anterior", que só chama renderAcervo())
+function filterAcervo() {
+  acervoPage = 1;
+  renderAcervo();
+}
+
+function goToAcervoPage(page) {
+  acervoPage = page;
+  renderAcervo();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderAcervoPagination(totalPages, totalBooks) {
+  const el = document.getElementById("acervo-pagination");
+  if (!el) return;
+
+  if (totalPages <= 1) {
+    el.innerHTML = "";
+    return;
+  }
+
+  el.innerHTML = `
+    <button class="pagination-btn" ${acervoPage === 1 ? "disabled" : ""} onclick="goToAcervoPage(${acervoPage - 1})">‹ Anterior</button>
+    <span class="pagination-info">Página ${acervoPage} de ${totalPages} · ${totalBooks} livro${totalBooks !== 1 ? "s" : ""}</span>
+    <button class="pagination-btn" ${acervoPage === totalPages ? "disabled" : ""} onclick="goToAcervoPage(${acervoPage + 1})">Próxima ›</button>
+  `;
 }
 
 function toggleReread() {
@@ -752,24 +733,11 @@ async function saveNewCategory() {
     return;
   }
 
-  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
   try {
-    const res = await fetch("/api/categories", {
+    const newCat = await apiRequest("/api/categories", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify({ name, parent_id: newCatParentId }),
     });
-
-    if (!res.ok) {
-      const err = await res.json();
-      alert(err.error || "Erro ao salvar categoria");
-      return;
-    }
-
-    const newCat = await res.json();
 
     // Atualiza a lista local de categorias
     if (newCatParentId === null) {
@@ -905,22 +873,11 @@ async function submitRenameCategory(id) {
   const oldName = cat.name;
   const isSub = cat.parent_id !== null;
 
-  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
   try {
-    const res = await fetch(`/api/categories/${id}`, {
+    await apiRequest(`/api/categories/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify({ name: newName }),
     });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      alert(err.error || "Erro ao renomear categoria");
-      return;
-    }
 
     await loadBooks();
     renderManageCatList();
@@ -980,11 +937,11 @@ function confirmDeleteCategory(id, isSub) {
   const msg =
     count > 0
       ? `⚠️ Há ${count} livro${count > 1 ? "s" : ""} vinculado${count > 1 ? "s" : ""} a essa ${tipo}. ` +
-        `Se você continuar, ${count > 1 ? "esses livros ficarão" : "esse livro ficará"} sem ${tipo}, mas você ` +
-        `ainda poderá editá-lo depois para atribuir uma nova. A exclusão pode ser feita normalmente.`
+      `Se você continuar, ${count > 1 ? "esses livros ficarão" : "esse livro ficará"} sem ${tipo}, mas você ` +
+      `ainda poderá editá-lo depois para atribuir uma nova. A exclusão pode ser feita normalmente.`
       : `A ${tipo} "${cat.name}"${isSub ? "" : " e suas subcategorias"} será removida permanentemente. Nenhum livro está vinculado a ela no momento.`;
 
-  openConfirm("Excluir categoria?", msg, () => deleteCategoryNow(id));
+  openConfirm("Excluir categoria?", msg, () => deleteCategoryNow(id), "Sim, excluir", "🗑");
 }
 
 async function deleteCategoryNow(id) {
@@ -993,18 +950,8 @@ async function deleteCategoryNow(id) {
   const oldName = cat.name;
   const isSub = cat.parent_id !== null;
 
-  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
   try {
-    const res = await fetch(`/api/categories/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      alert(err.error || "Erro ao excluir categoria");
-      return;
-    }
+    await apiRequest(`/api/categories/${id}`, { method: "DELETE" });
 
     await loadBooks();
     renderManageCatList();
@@ -1020,12 +967,8 @@ async function deleteCategoryNow(id) {
 }
 
 async function reloadSagas() {
-  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
   try {
-    const res = await fetch("/api/sagas", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) sagas = await res.json();
+    sagas = await apiRequest("/api/sagas");
   } catch (e) {
     /* silencioso: não é crítico para o restante da tela */
   }
@@ -1082,21 +1025,12 @@ async function saveNewSaga() {
     return;
   }
 
-  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
   try {
-    const res = await fetch("/api/sagas", {
+    const newSaga = await apiRequest("/api/sagas", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ name }),
     });
 
-    if (!res.ok) {
-      const err = await res.json();
-      alert(err.error || "Erro ao salvar saga");
-      return;
-    }
-
-    const newSaga = await res.json();
     sagas.push({ ...newSaga, books: [] });
     sagas.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -1145,19 +1079,11 @@ async function submitRenameSaga(id) {
     return;
   }
 
-  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
   try {
-    const res = await fetch(`/api/sagas/${id}`, {
+    await apiRequest(`/api/sagas/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ name: newName }),
     });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      alert(err.error || "Erro ao renomear saga");
-      return;
-    }
 
     await loadBooks();
     renderSagas();
@@ -1178,22 +1104,12 @@ function confirmDeleteSaga(id) {
       ? `⚠️ Há ${count} livro${count > 1 ? "s" : ""} nessa saga. Os livros não serão excluídos — apenas deixarão de fazer parte de "${saga.name}".`
       : `A saga "${saga.name}" será removida. Nenhum livro está vinculado a ela no momento.`;
 
-  openConfirm("Excluir saga?", msg, () => deleteSagaNow(id));
+  openConfirm("Excluir saga?", msg, () => deleteSagaNow(id), "Sim, excluir", "🗑");
 }
 
 async function deleteSagaNow(id) {
-  const token = window.__getAuthToken ? await window.__getAuthToken() : null;
   try {
-    const res = await fetch(`/api/sagas/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      alert(err.error || "Erro ao excluir saga");
-      return;
-    }
+    await apiRequest(`/api/sagas/${id}`, { method: "DELETE" });
 
     await loadBooks();
     renderSagas();
@@ -1230,7 +1146,14 @@ function renderSagas() {
 
   countEl.textContent = `${sagas.length} saga${sagas.length > 1 ? "s" : ""} cadastrada${sagas.length > 1 ? "s" : ""}`;
 
-  el.innerHTML = sagas
+  const totalPages = Math.max(1, Math.ceil(sagas.length / SAGA_PAGE_SIZE));
+  if (sagaPage > totalPages) sagaPage = totalPages;
+  if (sagaPage < 1) sagaPage = 1;
+
+  const start = (sagaPage - 1) * SAGA_PAGE_SIZE;
+  const pageSagas = sagas.slice(start, start + SAGA_PAGE_SIZE);
+
+  el.innerHTML = pageSagas
     .map((s) => {
       const books = s.books || [];
       const total = books.length;
@@ -1254,13 +1177,11 @@ function renderSagas() {
           </div>
         </div>
         ${total ? `<div class="saga-progress-bar"><div class="saga-progress-fill" style="width:${pct}%"></div></div>` : ""}
-        ${
-          isOpen
-            ? `<div class="saga-books">
-          ${
-            books
-              .map(
-                (b) => `
+        ${isOpen
+          ? `<div class="saga-books">
+          ${books
+            .map(
+              (b) => `
             <div class="saga-book-row">
               <span class="saga-vol">${b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== "" ? `Vol. ${b.saga_order}` : "—"}</span>
               <div class="saga-book-info">
@@ -1271,16 +1192,40 @@ function renderSagas() {
               <span class="saga-book-status">${statusHtml(b.status)}</span>
               <button class="btn-icon-sm" onclick="editBook(${b.id})" title="Editar livro">✏️</button>
             </div>`,
-              )
-              .join("") ||
-            `<p style="color:var(--muted);font-size:.85rem;padding:8px 4px">Nenhum livro nessa saga ainda. Edite um livro e selecione essa saga no campo "Saga".</p>`
+            )
+            .join("") ||
+          `<p style="color:var(--muted);font-size:.85rem;padding:8px 4px">Nenhum livro nessa saga ainda. Edite um livro e selecione essa saga no campo "Saga".</p>`
           }
         </div>`
-            : ""
+          : ""
         }
       </div>`;
     })
     .join("");
+
+  renderSagaPagination(totalPages);
+}
+
+function goToSagaPage(page) {
+  sagaPage = page;
+  renderSagas();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderSagaPagination(totalPages) {
+  const el = document.getElementById("saga-pagination");
+  if (!el) return;
+
+  if (totalPages <= 1) {
+    el.innerHTML = "";
+    return;
+  }
+
+  el.innerHTML = `
+    <button class="pagination-btn" ${sagaPage === 1 ? "disabled" : ""} onclick="goToSagaPage(${sagaPage - 1})">‹ Anterior</button>
+    <span class="pagination-info">Página ${sagaPage} de ${totalPages}</span>
+    <button class="pagination-btn" ${sagaPage === totalPages ? "disabled" : ""} onclick="goToSagaPage(${sagaPage + 1})">Próxima ›</button>
+  `;
 }
 
 function toggleSagaCard(id) {
@@ -1407,27 +1352,8 @@ function editBook(id) {
 }
 
 // ═══════════════════════════════════════════════════
-//  CONFIRM MODAL
+//  CONFIRM MODAL — openConfirm/closeConfirm ver ui-common.js
 // ═══════════════════════════════════════════════════
-let confirmCallback = null;
-
-function openConfirm(title, msg, onConfirm, confirmLabel = "Sim, excluir", icon = "🗑") {
-  confirmCallback = onConfirm;
-  document.getElementById("confirm-title").textContent = title;
-  document.getElementById("confirm-msg").textContent = msg;
-  document.getElementById("confirm-yes").textContent = confirmLabel;
-  document.getElementById("confirm-icon").innerHTML = icon;
-  document.getElementById("confirm-yes").onclick = () => {
-    closeConfirm();
-    onConfirm();
-  };
-  document.getElementById("confirm-overlay").classList.add("open");
-}
-
-function closeConfirm() {
-  document.getElementById("confirm-overlay").classList.remove("open");
-  confirmCallback = null;
-}
 
 async function deleteBook(id) {
   const book = DB.books.find((b) => b.id === id || b.id === Number(id));
@@ -1449,6 +1375,8 @@ async function deleteBook(id) {
         alert("Erro ao remover: " + err.message);
       }
     },
+    "Sim, excluir",
+    "🗑",
   );
 }
 // ═══════════════════════════════════════════════════
@@ -1542,14 +1470,8 @@ function dismissNewsPopup() {
 }
 
 // ═══════════════════════════════════════════════════
-//  TOAST
+//  TOAST — showToast() ver ui-common.js
 // ═══════════════════════════════════════════════════
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = "✔ " + msg;
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2500);
-}
 // ═══════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════

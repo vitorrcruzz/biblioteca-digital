@@ -1,4 +1,4 @@
-import { waitForAuth, getToken, logout } from "./firebase-app.js";
+import { waitForAuth, getToken, logout } from "./firebase-core.js";
 
 window.logout = logout;
 

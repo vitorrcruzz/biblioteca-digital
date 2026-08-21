@@ -1,9 +1,8 @@
 import {
-  auth, provider, traduzirErro, afterLogin
-} from "./firebase-auth.js";
+  auth, traduzirErro, afterLogin, loginWithGoogle
+} from "./firebase-core.js";
 import {
   createUserWithEmailAndPassword,
-  signInWithPopup,
   updateProfile,
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -37,14 +36,4 @@ window.register = async function () {
   }
 };
 
-window.loginGoogle = async function () {
-  const errEl = document.getElementById("register-error");
-  errEl.style.display = "none";
-  try {
-    const { user } = await signInWithPopup(auth, provider);
-    await afterLogin(user);
-  } catch (err) {
-    errEl.textContent = traduzirErro(err.code);
-    errEl.style.display = "";
-  }
-};
+window.loginGoogle = () => loginWithGoogle("register-error");

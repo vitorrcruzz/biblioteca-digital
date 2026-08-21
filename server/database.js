@@ -18,8 +18,14 @@ usersDb.exec(`
   )
 `);
 
-// Retorna ou cria o banco de livros de um usuário
+// Cache de conexões abertas — evita abrir uma conexão SQLite nova a cada
+// chamada de getUserDb() (o que nunca fechava e vazava file handles).
+const dbCache = new Map(); // uid -> instância Database
+
+// Retorna a conexão já aberta do usuário (se existir) ou cria uma nova
 function getUserDb(uid) {
+  if (dbCache.has(uid)) return dbCache.get(uid);
+
   const dbPath = path.join(DATA_DIR, `books_${uid}.db`);
   const db = new Database(dbPath);
   db.pragma("journal_mode = WAL");
@@ -71,6 +77,9 @@ function getUserDb(uid) {
   try { db.exec("ALTER TABLE books ADD COLUMN saga_id INTEGER DEFAULT NULL"); } catch (e) { }
   try { db.exec("ALTER TABLE books ADD COLUMN saga_order REAL DEFAULT NULL"); } catch (e) { }
 
+  // Garante que os livros existentes ganhem a coluna de subcategoria (migração idempotente)
+  try { db.exec("ALTER TABLE books ADD COLUMN subcategory TEXT DEFAULT ''"); } catch (e) { }
+
   // Pré-popula categorias padrão se ainda não existirem
   const catCount = db.prepare("SELECT COUNT(*) as c FROM categories WHERE parent_id IS NULL").get();
   if (catCount.c === 0) {
@@ -79,8 +88,28 @@ function getUserDb(uid) {
     for (const name of defaults) insertCat.run(name);
   }
 
+  dbCache.set(uid, db);
   return db;
 }
+
+// Fecha e remove do cache a conexão de um usuário (ex: ao excluir a conta,
+// antes de apagar o arquivo .db do disco)
+function closeUserDb(uid) {
+  const db = dbCache.get(uid);
+  if (db) {
+    db.close();
+    dbCache.delete(uid);
+  }
+}
+
+// Fecha todas as conexões abertas ao encerrar o processo (garante checkpoint do WAL)
+function closeAllUserDbs() {
+  for (const db of dbCache.values()) db.close();
+  dbCache.clear();
+}
+process.on("exit", closeAllUserDbs);
+process.on("SIGINT", () => { closeAllUserDbs(); process.exit(0); });
+process.on("SIGTERM", () => { closeAllUserDbs(); process.exit(0); });
 
 // Registra ou atualiza usuário no banco global
 function upsertUser(uid, email, name) {
@@ -90,4 +119,4 @@ function upsertUser(uid, email, name) {
   `).run(uid, email, name || email);
 }
 
-module.exports = { getUserDb, upsertUser, usersDb };
+module.exports = { getUserDb, closeUserDb, upsertUser, usersDb };

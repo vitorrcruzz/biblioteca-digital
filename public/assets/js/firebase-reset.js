@@ -1,4 +1,4 @@
-import { auth, traduzirErro } from "./firebase-auth.js";
+import { auth, traduzirErro } from "./firebase-core.js";
 import {
   sendPasswordResetEmail,
   onAuthStateChanged,
