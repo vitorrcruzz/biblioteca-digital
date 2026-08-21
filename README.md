@@ -2,11 +2,11 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Node.js-20.x-339933?logo=node.js&logoColor=white" />
-  <img src="https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white" />
+  <img src="https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white" />
   <img src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white" />
   <img src="https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase&logoColor=white" />
   <img src="https://img.shields.io/badge/Ubuntu-24.04%20LTS-E95420?logo=ubuntu&logoColor=white" />
-  <img src="https://img.shields.io/badge/Vers%C3%A3o-v3.0-2ea44f" />
+  <img src="https://img.shields.io/badge/Vers%C3%A3o-v4.0-2ea44f" />
 </p>
 
 > **Sistema Pessoal de Gerenciamento de Acervo Literário**
@@ -23,13 +23,17 @@ O core da aplicação roda sob o princípio de infraestrutura caseira (*self-hos
 ### ✨ Funcionalidades
 
 - 📊 **Dashboard Analytics:** Gráficos e indicadores de performance de leitura (páginas lidas, score médio, dias por obra).
+- 📖 **Minha Estante:** Acervo completo com busca, filtros (ano, categoria, status) e paginação (50 livros por página) — mantém a navegação rápida mesmo com centenas de títulos cadastrados.
+- 🗂️ **Sagas/Coleções:** Agrupamento de livros de uma mesma série (ex: *A Torre Negra*) independente do ano ou categoria de cada volume, com numeração de volume, barra de progresso por saga e paginação (10 sagas por página).
+- 🏷️ **Categorias e Subcategorias Editáveis:** Criação, renomeação e exclusão de categorias diretamente pela interface, com propagação automática do novo nome para os livros já cadastrados e aviso do impacto antes de excluir.
 - 🎯 **Gestão de Metas:** Monitoramento de objetivos literários anuais com barras de progresso adaptativas.
 - 👥 **Multi-tenant Isolado:** Cada conta criada possui e gerencia uma base de dados SQLite dedicada e isolada.
 - ⭐ **Avaliação Granular:** Classificação de títulos por estrelas com suporte a frações (meias estrelas).
+- ✅ **Sincronização Status ↔ Data:** Marcar um livro como "Concluído" preenche a data de término automaticamente, e vice-versa.
 - 🔄 **Controle de Releituras:** Marcadores específicos para identificar releituras de obras do acervo.
-- 🗂️ **Gerenciamento de Anos:** Criação de anos com metas opcionais e filtros por período.
-- 📱 **Interface Responsiva:** Frontend Vanilla ES6 otimizado para dispositivos móveis e desktop.
-- 🔐 **Autenticação Avançada:** Login seguro por e-mail/senha ou Provedor Google via Firebase Authentication.
+- 🗓️ **Gerenciamento de Anos:** Criação de anos com metas opcionais e filtros por período.
+- 📱 **Navegação Mobile Dedicada:** Topbar fixa, menu hambúrguer deslizante e botão flutuante (FAB) contextual — adiciona livro ou saga dependendo da tela em que o usuário está.
+- 🔐 **Autenticação Avançada:** Login seguro por e-mail/senha ou Provedor Google via Firebase Authentication, com confirmação antes de encerrar a sessão.
 - 🔑 **Recuperação de Senha:** Redefinição de senha via link enviado ao e-mail cadastrado.
 - ⚙️ **Página de Conta:** Gerenciamento de perfil, alteração de nome, e-mail, senha e meta de leitura do ano atual.
 - 🌐 **Acesso Público:** Exposição segura via Tailscale Funnel com HTTPS automático sem domínio próprio.
@@ -50,7 +54,7 @@ Dispositivo do Usuário (Navegador / Mobile)
         ▼  Localhost Loopback
   Node.js + Express API (Porta 3000 — apenas 127.0.0.1)
    ├── Firebase Admin SDK ──→ Validação JWT
-   └── SQLite Driver       ──→ Instância por Usuário
+   └── SQLite Driver       ──→ Pool de conexões por usuário
 ```
 
 ---
@@ -61,39 +65,42 @@ Dispositivo do Usuário (Navegador / Mobile)
 biblioteca-digital/
 ├── package.json
 │
-├── public/                         # Frontend Estático
-│   ├── index.html                  # App principal (Dashboard & Acervo)
-│   ├── login.html                  # Tela de login
-│   ├── register.html               # Tela de cadastro
-│   ├── reset.html                  # Recuperação de senha
-│   ├── account.html                # Página de conta e configurações
+├── public/                          # Frontend Estático
+│   ├── index.html                   # App principal (Dashboard, Minha Estante e Sagas)
+│   ├── login.html                   # Tela de login
+│   ├── register.html                # Tela de cadastro
+│   ├── reset.html                   # Recuperação de senha
+│   ├── account.html                 # Página de conta e configurações
+│   ├── 404.html                     # Página de rota não encontrada
 │   ├── assets/
 │   │   ├── css/
-│   │   │   ├── style.css           # Estilos da aplicação
-│   │   │   ├── login.css           # Estilos das telas de autenticação
-│   │   │   └── account.css        # Estilos da página de conta
+│   │   │   ├── style.css            # Estilos da aplicação principal
+│   │   │   ├── login.css            # Estilos das telas de autenticação
+│   │   │   └── account.css          # Estilos da página de conta
 │   │   └── js/
-│   │       ├── script.js           # Lógica principal do app
-│   │       ├── app-init.js         # Inicialização Firebase + proteção de rota
-│   │       ├── account.js          # Lógica da página de conta
-│   │       ├── firebase-auth.js    # Config e funções base do Firebase
-│   │       ├── firebase-app.js     # Firebase para o app principal
-│   │       ├── firebase-login.js   # Lógica da tela de login
-│   │       ├── firebase-register.js# Lógica da tela de cadastro
-│   │       ├── firebase-reset.js   # Lógica de recuperação de senha
-│   │       └── firebase-config.js  # ⚠️ Ignorado no Git — credenciais locais
+│   │       ├── script.js            # Lógica principal do app (Dashboard/Estante/Sagas)
+│   │       ├── account.js           # Lógica da página de conta
+│   │       ├── ui-common.js         # Funções compartilhadas (modais, toast, menu mobile, apiRequest)
+│   │       ├── app-init.js          # Inicialização Firebase + proteção de rota
+│   │       ├── firebase-core.js     # Núcleo único do Firebase (app/auth/provider/login/logout)
+│   │       ├── firebase-login.js    # Lógica da tela de login
+│   │       ├── firebase-register.js # Lógica da tela de cadastro
+│   │       ├── firebase-reset.js    # Lógica de recuperação de senha
+│   │       └── firebase-config.js   # ⚠️ Ignorado no Git — credenciais locais
 │   └── images/
 │
-├── server/                         # Backend
-│   ├── index.js                    # Servidor Express
-│   ├── database.js                 # Banco isolado por usuário (SQLite)
-│   ├── auth.js                     # Middleware de validação JWT
-│   ├── migrate.js                  # Script de migração do Excel para SQLite
-│   ├── firebase-admin-key.json     # ⚠️ Ignorado no Git — chave privada
+├── server/                          # Backend
+│   ├── index.js                     # Servidor Express, CORS, 404 e erro global
+│   ├── database.js                  # Pool de conexões SQLite por usuário, schema, migrações
+│   ├── auth.js                      # Middleware de validação JWT (Firebase Admin, API modular)
+│   ├── migrate.js                   # Script de migração do Excel para SQLite (uso único, histórico)
+│   ├── firebase-admin-key.json      # ⚠️ Ignorado no Git — chave privada
 │   └── routes/
-│       ├── books.js                # API REST de livros
-│       ├── goals.js                # API REST de metas
-│       └── account.js              # API REST de conta e perfil
+│       ├── books.js                 # API REST de livros
+│       ├── goals.js                 # API REST de metas
+│       ├── categories.js            # API REST de categorias e subcategorias
+│       ├── sagas.js                 # API REST de sagas/coleções
+│       └── accountRoutes.js         # API REST de conta e perfil
 ```
 
 ---
@@ -154,6 +161,18 @@ npm start
 http://localhost:3000
 ```
 
+### Variáveis de ambiente (opcionais)
+
+| Variável | Padrão | Descrição |
+|---|---|---|
+| `PORT` | `3000` | Porta em que o servidor escuta |
+| `ALLOWED_ORIGINS` | *(vazio = CORS aberto)* | Lista de origens permitidas, separadas por vírgula (ex: `https://seudominio.com,http://localhost:3000`). Sem essa variável, o CORS mantém o comportamento aberto. |
+
+Ao definir ou alterar `ALLOWED_ORIGINS` em produção via PM2, reinicie com:
+```bash
+pm2 restart biblioteca-digital --update-env
+```
+
 ---
 
 ## 🌐 API REST
@@ -164,9 +183,18 @@ http://localhost:3000
 | POST | `/api/books` | Cadastra novo livro | ✅ |
 | PUT | `/api/books/:id` | Atualiza livro | ✅ |
 | DELETE | `/api/books/:id` | Remove livro | ✅ |
+| DELETE | `/api/books/year/:year` | Remove todos os livros de um ano | ✅ |
 | GET | `/api/goals` | Lista metas | ✅ |
 | POST | `/api/goals` | Cria ou atualiza meta | ✅ |
 | DELETE | `/api/goals/:year` | Remove meta do ano | ✅ |
+| GET | `/api/categories` | Lista categorias e subcategorias | ✅ |
+| POST | `/api/categories` | Cria categoria ou subcategoria | ✅ |
+| PUT | `/api/categories/:id` | Renomeia categoria/subcategoria (propaga para os livros) | ✅ |
+| DELETE | `/api/categories/:id` | Exclui categoria/subcategoria (desvincula dos livros) | ✅ |
+| GET | `/api/sagas` | Lista sagas com os livros vinculados | ✅ |
+| POST | `/api/sagas` | Cria saga | ✅ |
+| PUT | `/api/sagas/:id` | Renomeia saga | ✅ |
+| DELETE | `/api/sagas/:id` | Exclui saga (livros permanecem, apenas desvinculados) | ✅ |
 | GET | `/api/account` | Dados do usuário | ✅ |
 | PUT | `/api/account/name` | Atualiza nome | ✅ |
 | PUT | `/api/account/email` | Atualiza email | ✅ |
@@ -179,7 +207,9 @@ http://localhost:3000
 ## 🔐 Modelo de Segurança
 
 - **Zero Exposição Direta:** O Express escuta em `127.0.0.1:3000`. O tráfego externo passa pelo Nginx e pela VPN Tailscale.
-- **Isolamento por Usuário:** O UID extraído do JWT define qual banco SQLite é carregado — nenhum usuário acessa dados de outro.
+- **Isolamento por Usuário:** O UID extraído do JWT define qual banco SQLite é carregado — nenhum usuário acessa dados de outro. As conexões são reaproveitadas por usuário (pool), em vez de abertas a cada requisição.
+- **CORS Configurável:** A lista de origens permitidas é definida via `ALLOWED_ORIGINS`, restringindo quem pode consumir a API a partir do navegador.
+- **Tratamento de Erro Unificado:** Qualquer exceção não tratada numa rota responde no mesmo formato JSON (`{ error: "..." }`) usado no resto da API, sem vazar detalhes internos.
 - **Credenciais fora do Git:** `firebase-config.js` e `firebase-admin-key.json` estão no `.gitignore` e nunca são versionados.
 - **Firewall UFW:** Apenas portas 80 e 22 liberadas via range Tailscale (`100.0.0.0/8`).
 
