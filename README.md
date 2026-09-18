@@ -5,6 +5,7 @@
   <img src="https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white" />
   <img src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white" />
   <img src="https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase&logoColor=white" />
+  <img src="https://img.shields.io/badge/Android-APK-3DDC84?logo=android&logoColor=white" />
   <img src="https://img.shields.io/badge/Ubuntu-24.04%20LTS-E95420?logo=ubuntu&logoColor=white" />
   <img src="https://img.shields.io/badge/Vers%C3%A3o-v4.0-2ea44f" />
 </p>
@@ -37,6 +38,26 @@ O core da aplicação roda sob o princípio de infraestrutura caseira (*self-hos
 - 🔑 **Recuperação de Senha:** Redefinição de senha via link enviado ao e-mail cadastrado.
 - ⚙️ **Página de Conta:** Gerenciamento de perfil, alteração de nome, e-mail, senha e meta de leitura do ano atual.
 - 🌐 **Acesso Público:** Exposição segura via Tailscale Funnel com HTTPS automático sem domínio próprio.
+- 📱 **App Android:** Empacotado via Capacitor a partir do mesmo frontend web, disponível como APK para instalação direta (ver seção abaixo).
+
+---
+
+## 📱 App Android
+
+Disponível como APK para instalação direta (em breve na Play Store):
+
+<p align="center">
+  <a href="https://github.com/vitorrcruzz/biblioteca-digital/releases/latest/download/biblioteca-digital.apk">
+    <img src="https://img.shields.io/badge/⬇️_Baixar_APK-Android-3DDC84?logo=android&logoColor=white&style=for-the-badge" />
+  </a>
+</p>
+
+Como é instalado fora da loja oficial, o Android pede uma autorização extra na primeira instalação:
+1. Baixe o `biblioteca-digital.apk` pelo botão acima (ou na aba [Releases](https://github.com/vitorrcruzz/biblioteca-digital/releases))
+2. Ao abrir o arquivo, se aparecer aviso de bloqueio, vá em **Configurações → Instalar apps desconhecidos** e permita para o app usado para abrir o APK (Navegador, Arquivos, etc.)
+3. Instale normalmente — o app se conecta ao mesmo servidor de produção da versão web, então login e dados são os mesmos
+
+> Construído com [Capacitor](https://capacitorjs.com/), empacotando o mesmo frontend web deste repositório — sem duplicação de código entre as versões desktop e mobile.
 
 ---
 
