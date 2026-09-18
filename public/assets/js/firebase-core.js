@@ -5,7 +5,14 @@ import {
   onAuthStateChanged,
   signOut,
   signInWithPopup,
+  signInWithCredential,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+// Capacitor + FirebaseAuthentication (plugin nativo do Google Sign-In) não
+// vêm de CDN — são expostos em window.CapacitorGoogleAuth pelo bundle local
+// gerado em public/assets/js/capacitor-google-auth-bridge.js (via esbuild).
+// Um import via esm.sh causava duplicação da instância de @capacitor/core,
+// fazendo o plugin cair no fallback "web" (popup/redirect) mesmo dentro do
+// app nativo — daí o bundle local, que reaproveita a instância real.
 
 // ═══════════════════════════════════════════════════
 //  Núcleo do Firebase — única inicialização do app/auth do projeto.
@@ -65,7 +72,7 @@ function traduzirErro(code) {
     "auth/user-not-found": "Usuário não encontrado.",
     "auth/wrong-password": "Senha incorreta.",
     "auth/email-already-in-use": "Este email já está em uso.",
-    "auth/weak-password": "A senha deve ter no mínimo 6 caracteres.",
+    "auth/weak-password": "A senha deve ter no mínimo 8 caracteres.",
     "auth/too-many-requests": "Muitas tentativas. Tente novamente mais tarde.",
     "auth/popup-closed-by-user": "Login cancelado.",
     "auth/invalid-credential": "Email ou senha incorretos.",
@@ -88,11 +95,32 @@ async function afterLogin(user) {
 
 // Login/cadastro com Google — compartilhado entre login.html e register.html,
 // que só diferem no id do elemento onde o erro é exibido.
+//
+// Dentro do app nativo (Android/iOS via Capacitor), o fluxo via navegador
+// (popup/redirect) não funciona de forma confiável — o Google bloqueia OAuth
+// em WebViews, e mesmo quando abre no Chrome externo, o retorno perde o
+// estado da sessão (erro "missing initial state"). Nesse caso, usamos a tela
+// nativa de login do Google (via @capacitor-firebase/authentication) e
+// trocamos o token nativo por uma credencial do Firebase JS SDK.
 async function loginWithGoogle(errorElementId) {
   const errEl = document.getElementById(errorElementId);
   if (errEl) errEl.style.display = "none";
+
   try {
-    const { user } = await signInWithPopup(auth, provider);
+    let user;
+
+    const bridge = window.CapacitorGoogleAuth;
+
+    if (bridge?.Capacitor?.isNativePlatform?.()) {
+      const result = await bridge.FirebaseAuthentication.signInWithGoogle();
+      const credential = GoogleAuthProvider.credential(result.credential?.idToken);
+      const userCred = await signInWithCredential(auth, credential);
+      user = userCred.user;
+    } else {
+      const popupResult = await signInWithPopup(auth, provider);
+      user = popupResult.user;
+    }
+
     await afterLogin(user);
   } catch (err) {
     if (errEl) {

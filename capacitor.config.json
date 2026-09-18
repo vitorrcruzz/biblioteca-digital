@@ -1,0 +1,15 @@
+{
+  "appId": "com.vcz.bibliotecadigital.app",
+  "appName": "Biblioteca Digital",
+  "webDir": "public",
+  "server": {
+    "url": "https://serverbooks.springbok-slowworm.ts.net",
+    "cleartext": false
+  },
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": ["google.com"]
+    }
+  }
+}
