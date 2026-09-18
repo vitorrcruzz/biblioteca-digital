@@ -296,55 +296,6 @@ nav a .ico {
   overflow: hidden;
 }
 
-/* ── Paginação (Minha Estante) ── */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.pagination-btn {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text);
-  padding: 8px 16px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  border-color: var(--gold);
-  color: var(--gold);
-}
-
-.pagination-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.pagination-info {
-  font-size: 0.82rem;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-  .pagination {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .pagination-info {
-    order: -1;
-    flex-basis: 100%;
-    text-align: center;
-  }
-}
-
 .book-row {
   display: grid;
   grid-template-columns: 1fr 160px 80px 80px 80px;
@@ -661,18 +612,9 @@ nav a .ico {
   max-width: 95vw;
   max-height: 90vh;
   overflow-y: auto;
-  overflow-x: hidden;
   padding: 28px 32px;
   transform: translateY(20px);
   transition: transform 0.2s;
-
-  /* Esconde a barra de rolagem visualmente, mas mantém a rolagem funcional */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge legado */
-}
-
-.modal::-webkit-scrollbar {
-  display: none; /* Chrome, Edge, Safari */
 }
 
 .overlay.open .modal {
@@ -690,7 +632,7 @@ nav a .ico {
 
 .form-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
@@ -702,7 +644,6 @@ nav a .ico {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-width: 0;
 }
 
 .field label {
@@ -723,9 +664,6 @@ nav a .ico {
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.15s;
-  min-width: 0;
-  box-sizing: border-box;
-  width: 100%;
 }
 
 .field input:focus,
@@ -1312,7 +1250,6 @@ nav a .ico {
 
 .category-select-wrap select {
   flex: 1;
-  min-width: 0;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -1815,6 +1752,23 @@ nav a .ico {
   font-size: 0.82rem;
   color: var(--text);
   line-height: 1.5;
+}
+
+.news-item-cta {
+  display: inline-block;
+  margin-top: 10px;
+  background: var(--gold);
+  color: #0f1117;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.news-item-cta:hover {
+  opacity: 0.85;
 }
 
 .news-popup-actions {

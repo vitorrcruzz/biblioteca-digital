@@ -13,10 +13,6 @@ let currentRating = null;
 let categories = []; // lista de categorias carregadas da API
 let newCatParentId = null; // null = nova categoria raiz, número = nova subcategoria
 let sagas = []; // lista de sagas carregadas da API
-const ACERVO_PAGE_SIZE = 50;
-let acervoPage = 1; // página atual da lista de livros (Minha Estante)
-const SAGA_PAGE_SIZE = 10;
-let sagaPage = 1; // página atual da lista de sagas
 let expandedSagas = new Set(); // ids das sagas com o card aberto (todas começam fechadas)
 let chartMonth = null;
 let chartCat = null;
@@ -531,15 +527,8 @@ function renderAcervo() {
   document.getElementById("acervo-count").textContent =
     `${books.length} livro${books.length !== 1 ? "s" : ""} encontrado${books.length !== 1 ? "s" : ""}`;
 
-  const totalPages = Math.max(1, Math.ceil(books.length / ACERVO_PAGE_SIZE));
-  if (acervoPage > totalPages) acervoPage = totalPages;
-  if (acervoPage < 1) acervoPage = 1;
-
-  const start = (acervoPage - 1) * ACERVO_PAGE_SIZE;
-  const pageBooks = books.slice(start, start + ACERVO_PAGE_SIZE);
-
-  document.getElementById("acervo-list").innerHTML = pageBooks.length
-    ? pageBooks
+  document.getElementById("acervo-list").innerHTML = books.length
+    ? books
       .map(
         (b) => `
         <div class="acervo-row">
@@ -561,37 +550,6 @@ function renderAcervo() {
       )
       .join("")
     : `<div class="empty"><div class="ico">🔍</div><p>Nenhum livro encontrado</p></div>`;
-
-  renderAcervoPagination(totalPages, books.length);
-}
-
-// Reseta a paginação pra página 1 sempre que um filtro/busca mudar (não
-// confundir com clicar em "próxima/anterior", que só chama renderAcervo())
-function filterAcervo() {
-  acervoPage = 1;
-  renderAcervo();
-}
-
-function goToAcervoPage(page) {
-  acervoPage = page;
-  renderAcervo();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function renderAcervoPagination(totalPages, totalBooks) {
-  const el = document.getElementById("acervo-pagination");
-  if (!el) return;
-
-  if (totalPages <= 1) {
-    el.innerHTML = "";
-    return;
-  }
-
-  el.innerHTML = `
-    <button class="pagination-btn" ${acervoPage === 1 ? "disabled" : ""} onclick="goToAcervoPage(${acervoPage - 1})">‹ Anterior</button>
-    <span class="pagination-info">Página ${acervoPage} de ${totalPages} · ${totalBooks} livro${totalBooks !== 1 ? "s" : ""}</span>
-    <button class="pagination-btn" ${acervoPage === totalPages ? "disabled" : ""} onclick="goToAcervoPage(${acervoPage + 1})">Próxima ›</button>
-  `;
 }
 
 function toggleReread() {
@@ -1146,14 +1104,7 @@ function renderSagas() {
 
   countEl.textContent = `${sagas.length} saga${sagas.length > 1 ? "s" : ""} cadastrada${sagas.length > 1 ? "s" : ""}`;
 
-  const totalPages = Math.max(1, Math.ceil(sagas.length / SAGA_PAGE_SIZE));
-  if (sagaPage > totalPages) sagaPage = totalPages;
-  if (sagaPage < 1) sagaPage = 1;
-
-  const start = (sagaPage - 1) * SAGA_PAGE_SIZE;
-  const pageSagas = sagas.slice(start, start + SAGA_PAGE_SIZE);
-
-  el.innerHTML = pageSagas
+  el.innerHTML = sagas
     .map((s) => {
       const books = s.books || [];
       const total = books.length;
@@ -1202,30 +1153,6 @@ function renderSagas() {
       </div>`;
     })
     .join("");
-
-  renderSagaPagination(totalPages);
-}
-
-function goToSagaPage(page) {
-  sagaPage = page;
-  renderSagas();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function renderSagaPagination(totalPages) {
-  const el = document.getElementById("saga-pagination");
-  if (!el) return;
-
-  if (totalPages <= 1) {
-    el.innerHTML = "";
-    return;
-  }
-
-  el.innerHTML = `
-    <button class="pagination-btn" ${sagaPage === 1 ? "disabled" : ""} onclick="goToSagaPage(${sagaPage - 1})">‹ Anterior</button>
-    <span class="pagination-info">Página ${sagaPage} de ${totalPages}</span>
-    <button class="pagination-btn" ${sagaPage === totalPages ? "disabled" : ""} onclick="goToSagaPage(${sagaPage + 1})">Próxima ›</button>
-  `;
 }
 
 function toggleSagaCard(id) {
@@ -1383,49 +1310,21 @@ async function deleteBook(id) {
 //  NEWS POPUP
 // ═══════════════════════════════════════════════════
 const NEWS_POPUP = {
-  version: "v4",                    // ← muda aqui a cada nova versão
-  expires: "2026-08-31",            // ← 14 dias a partir do lançamento
+  version: "v5",                    // ← muda aqui a cada nova versão
+  expires: "2026-10-01",            // ← ajuste para 14 dias a partir do lançamento real
   title: "Novidades da Biblioteca Digital",
   items: [
     {
-      icon: "🗂️",
-      title: "Sagas e coleções",
-      desc: "Agrupe os livros de uma mesma saga (ex: A Torre Negra) mesmo que estejam em anos ou" +
-        " categorias diferentes. Dá pra numerar o volume e cada livro ganha um selo indicando a saga."
+      icon: "📲",
+      title: "Novo App Mobile (Android)",
+      desc: "Biblioteca Digital agora está disponível para dispositivos Android! Baixe o app e tenha" +
+        " acesso rápido ao seu acervo. Por enquanto, o app está disponivel apenas para usuários de android,"+ 
+        " mas em breve teremos na Play Store e na Apple Store.",
+      cta: {
+        label: "⬇️ Baixar Biblioteca Digital APK",
+        url: "https://github.com/vitorrcruzz/biblioteca-digital/releases/latest/download/biblioteca-digital.apk"
+      }
     },
-    {
-      icon: "🏷️",
-      title: "Gerencie suas categorias",
-      desc: "Além de criar, agora você pode renomear ou excluir categorias e subcategorias direto" +
-        " pelo app — os livros vinculados são atualizados automaticamente."
-    },
-    {
-      icon: "📱",
-      title: "Novo menu no celular",
-      desc: "A navegação mobile foi redesenhada: menu lateral (☰), botão de adicionar flutuante e" +
-        " telas mais limpas, sem informação duplicada."
-    },
-    {
-      icon: "✅",
-      title: "Status e data de término conectados",
-      desc: "Ao marcar um livro como Concluído, a data de término é preenchida automaticamente." +
-        " E se você preencher a data primeiro, o status já muda para Concluído sozinho."
-    },
-    {
-      icon: "🚪",
-      title: "Confirmação ao sair",
-      desc: "Agora o sistema pede confirmação antes de encerrar sua sessão, evitando logouts acidentais."
-    },
-    // {
-    //   icon: "🔍",
-    //   title: "Busca por ISBN",
-    //   desc: "Adicione um livro informando o ISBN e os dados são preenchidos automaticamente via Google Books."
-    // },
-    // {
-    //   icon: "⚙️",
-    //   title: "Página de conta",
-    //   desc: "Gerencie seu perfil, altere nome, e-mail, senha e meta de leitura do ano na página de conta."
-    // },
   ]
 };
 
@@ -1449,6 +1348,7 @@ function renderNewsPopup() {
       <div class="news-item-text">
         <h4>${item.title}</h4>
         <p>${item.desc}</p>
+        ${item.cta ? `<a class="news-item-cta" href="${item.cta.url}" target="_blank" rel="noopener">${item.cta.label}</a>` : ""}
       </div>
     </div>
   `).join("");
