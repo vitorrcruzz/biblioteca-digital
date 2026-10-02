@@ -551,6 +551,9 @@ function renderAcervo() {
       .join("")
     : `<div class="empty"><div class="ico">🔍</div><p>Nenhum livro encontrado</p></div>`;
 }
+function filterAcervo() {
+  renderAcervo();
+}
 
 function toggleReread() {
   isReread = !isReread;
@@ -1318,7 +1321,7 @@ const NEWS_POPUP = {
       icon: "📲",
       title: "Novo App Mobile (Android)",
       desc: "Biblioteca Digital agora está disponível para dispositivos Android! Baixe o app e tenha" +
-        " acesso rápido ao seu acervo. Por enquanto, o app está disponivel apenas para usuários de android,"+ 
+        " acesso rápido ao seu acervo. Por enquanto, o app está disponivel apenas para usuários de android," +
         " mas em breve teremos na Play Store e na Apple Store.",
       cta: {
         label: "⬇️ Baixar Biblioteca Digital APK",
