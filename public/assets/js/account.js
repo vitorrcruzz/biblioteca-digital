@@ -37,8 +37,8 @@ let cachedYears = []; // preenchido em loadYears() — usado pelo painel de ano 
 
 async function loadYears() {
   try {
-    const books = await apiRequest("/api/books");
-    cachedYears = [...new Set(books.map(b => b.year))].sort((a, b) => b - a);
+    const metadata = await apiRequest("/api/books/metadata");
+    cachedYears = metadata.years;
     const el = document.getElementById("year-list");
     if (el) {
       el.innerHTML = cachedYears.map(y => `

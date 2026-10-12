@@ -2559,3 +2559,15 @@ nav a .ico {
     min-width: 0;
   }
 }
+
+
+.saga-book-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  font-size: .8rem;
+  color: var(--muted);
+}

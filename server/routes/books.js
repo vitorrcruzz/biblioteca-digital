@@ -2,9 +2,17 @@ const express = require("express");
 const router = express.Router();
 const { getUserDb } = require("../database");
 
-// GET /api/books
+const { booksPage, metadata, dashboard } = require('../library-queries');
+
+router.get('/metadata', (req, res) => res.json(metadata(getUserDb(req.user.uid))));
+router.get('/dashboard', (req, res) => res.json(dashboard(getUserDb(req.user.uid), Number(req.query.year))));
+
+// GET /api/books (unpaged response retained for older app versions)
 router.get("/", (req, res) => {
   const db = getUserDb(req.user.uid);
+  if (req.query.page !== undefined || req.query.pageSize !== undefined) {
+    return res.json(booksPage(db, req.query));
+  }
   const { year, category, subcategory, status, search } = req.query;
 
   let query = "SELECT * FROM books WHERE 1=1";

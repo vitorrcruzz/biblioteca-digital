@@ -22,7 +22,7 @@ async function apiRequest(fullPath, options = {}) {
 
   if (res.status === 401) {
     window.location.href = "/login.html";
-    return;
+    throw new Error("Sessao expirada. Entre novamente.");
   }
 
   if (!res.ok) {

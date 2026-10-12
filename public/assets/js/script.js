@@ -6,7 +6,16 @@ const API = "/api/books";
 // ═══════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════
-let DB = { books: [], goals: {} };
+let DB = { goals: {} };
+let libraryMetadata = { years: [], categories: [], categoryCounts: [] };
+let acervoBooks = [];
+let visibleSagas = [];
+let sagaBookPages = new Map();
+let acervoRequest = 0;
+let dashboardRequest = 0;
+let sagasRequest = 0;
+let searchTimer;
+let modalRequest = 0;
 let currentYear = new Date().getFullYear();
 let editingId = null;
 let currentRating = null;
@@ -31,15 +40,19 @@ async function apiFetch(path, options = {}) {
   return apiRequest(API + path, options);
 }
 
-async function loadBooks() {
-  const [books, goalsArr, cats, sagasArr] = await Promise.all([
-    apiFetch(""),
+async function loadLibraryMetadata() {
+  ++acervoRequest;
+  ++dashboardRequest;
+  ++sagasRequest;
+  const [metadata, goalsArr, cats, sagasArr] = await Promise.all([
+    apiFetch("/metadata"),
     apiRequest("/api/goals"),
     apiRequest("/api/categories"),
-    apiRequest("/api/sagas"),
+    apiRequest("/api/sagas/options"),
   ]);
 
-  DB.books = books;
+  libraryMetadata = metadata;
+  sagaBookPages.clear();
   DB.goals = {};
   goalsArr.forEach((g) => (DB.goals[g.year] = g.target));
   categories = cats;
@@ -124,12 +137,7 @@ function mobileFabClick() {
 //  HELPERS
 // ═══════════════════════════════════════════════════
 function years() {
-  const ys = [...new Set(DB.books.map((b) => b.year))].sort((a, b) => b - a);
-  return ys;
-}
-
-function booksForYear(y) {
-  return DB.books.filter((b) => b.year === y);
+  return libraryMetadata.years;
 }
 
 function starsHtml(r) {
@@ -200,11 +208,13 @@ function renderYearList() {
 
   const fy = document.getElementById("filter-year");
   if (fy) {
+    const selected = fy.value;
     fy.innerHTML =
       '<option value="">Todos os anos</option>' +
       years()
         .map((y) => `<option value="${y}">${y}</option>`)
         .join("");
+    fy.value = selected;
   }
 }
 
@@ -306,98 +316,89 @@ async function saveYear() {
 // ═══════════════════════════════════════════════════
 //  DASHBOARD
 // ═══════════════════════════════════════════════════
-function renderDashboard() {
-  const books = booksForYear(currentYear);
-  const finished = books.filter((b) => b.status === "finished");
-  const reading = books.filter((b) => b.status === "reading");
-  const totalPages = finished.reduce((s, b) => s + (b.pages || 0), 0);
+async function renderDashboard() {
+  const request = ++dashboardRequest;
+  const year = currentYear;
+  document.getElementById("stats-grid").textContent = "Carregando resumo...";
+  document.getElementById("recent-list").textContent = "";
+  document.getElementById("goal-card").style.display = "none";
+  try {
+    const data = await apiFetch(`/dashboard?year=${year}`);
+    if (request !== dashboardRequest || year !== currentYear) return;
+    const { total, finished, reading, pages: totalPages, rating: avgRating } = data.stats;
+    const avgD = Math.round(data.stats.duration);
 
-  const ratedBooks = finished.filter((b) => b.rating);
-  const avgRating = ratedBooks.length
-    ? ratedBooks.reduce((s, b) => s + b.rating, 0) / ratedBooks.length
-    : 0;
+    document.getElementById("dash-year").textContent = currentYear;
+    document.getElementById("dash-sub").textContent =
+      `${total} livro${total !== 1 ? "s" : ""} registrado${total !== 1 ? "s" : ""} · atualizado hoje`;
 
-  const durations = finished
-    .filter((b) => b.start_date && b.end_date)
-    .map((b) => (new Date(b.end_date) - new Date(b.start_date)) / 86400000 + 1);
-  const avgD = durations.length
-    ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
-    : 0;
+    document.getElementById("stats-grid").innerHTML = `
+      <div class="stat-card">
+        <div class="label">📚 Concluídos</div>
+        <div class="value">${finished}</div>
+        <div class="sub">${reading} em andamento</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">📄 Páginas lidas</div>
+        <div class="value">${totalPages.toLocaleString("pt-BR")}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">⭐ Nota média</div>
+        <div class="value">${avgRating.toFixed(1)}</div>
+        <div class="sub">de 5.0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">⏱️ Média por livro</div>
+        <div class="value">${avgD || "—"}</div>
+        <div class="sub">dias de leitura</div>
+      </div>
+    `;
 
-  document.getElementById("dash-year").textContent = currentYear;
-  document.getElementById("dash-sub").textContent =
-    `${books.length} livro${books.length !== 1 ? "s" : ""} registrado${books.length !== 1 ? "s" : ""} · atualizado hoje`;
+    const goal = DB.goals[currentYear];
+    const gc = document.getElementById("goal-card");
+    if (goal) {
+      gc.style.display = "";
+      const pct = Math.min(100, Math.round((finished / goal) * 100));
+      document.getElementById("goal-fraction").textContent =
+        `${finished} / ${goal}`;
+      document.getElementById("goal-fill").style.width = pct + "%";
+      const left = goal - finished;
+      document.getElementById("goal-sub").textContent =
+        left > 0
+          ? `Faltam ${left} livros para atingir sua meta em ${currentYear}`
+          : `Parabéns! Meta de ${currentYear} atingida!`;
+    } else {
+      gc.style.display = "none";
+    }
 
-  document.getElementById("stats-grid").innerHTML = `
-    <div class="stat-card">
-      <div class="label">📚 Concluídos</div>
-      <div class="value">${finished.length}</div>
-      <div class="sub">${reading.length} em andamento</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">📄 Páginas lidas</div>
-      <div class="value">${totalPages.toLocaleString("pt-BR")}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">⭐ Nota média</div>
-      <div class="value">${avgRating.toFixed(1)}</div>
-      <div class="sub">de 5.0</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">⏱️ Média por livro</div>
-      <div class="value">${avgD || "—"}</div>
-      <div class="sub">dias de leitura</div>
-    </div>
-  `;
+    renderCharts(data);
+    const sorted = data.recent;
 
-  const goal = DB.goals[currentYear];
-  const gc = document.getElementById("goal-card");
-  if (goal) {
-    gc.style.display = "";
-    const pct = Math.min(100, Math.round((finished.length / goal) * 100));
-    document.getElementById("goal-fraction").textContent =
-      `${finished.length} / ${goal}`;
-    document.getElementById("goal-fill").style.width = pct + "%";
-    const left = goal - finished.length;
-    document.getElementById("goal-sub").textContent =
-      left > 0
-        ? `Faltam ${left} livros para atingir sua meta em ${currentYear}`
-        : `Parabéns! Meta de ${currentYear} atingida!`;
-  } else {
-    gc.style.display = "none";
+    document.getElementById("recent-list").innerHTML = sorted.length
+      ? sorted
+        .map(
+          (b) => `
+          <div class="book-row">
+            <div class="title-col">
+              <div class="t">${b.title}</div>
+              <div class="a">${b.author}</div>
+              ${b.saga_id ? `<div class="saga-inline-badge">${sagaBadgeHtml(b)}</div>` : ""}
+            </div>
+            <div>${badgeHtml(b.category)}</div>
+            <div style="color:var(--muted);font-size:.85rem">${b.pages || "—"}</div>
+            <div>${starsHtml(b.rating)}</div>
+            <div style="font-size:.82rem">${statusHtml(b.status)}</div>
+          </div>`,
+        )
+        .join("")
+      : `<div class="empty"><div class="ico">📭</div><p>Nenhum livro em ${currentYear}</p></div>`;
+  } catch (err) {
+    if (request !== dashboardRequest) return;
+    document.getElementById("stats-grid").innerHTML = '<div class="empty">Erro ao carregar resumo. <button class="btn-outline" onclick="renderDashboard()">Tentar novamente</button></div>';
   }
-
-  renderCharts(finished, currentYear);
-
-  const sorted = [...books]
-    .sort((a, b) =>
-      (b.end_date || b.start_date || "").localeCompare(
-        a.end_date || a.start_date || "",
-      ),
-    )
-    .slice(0, 8);
-
-  document.getElementById("recent-list").innerHTML = sorted.length
-    ? sorted
-      .map(
-        (b) => `
-        <div class="book-row">
-          <div class="title-col">
-            <div class="t">${b.title}</div>
-            <div class="a">${b.author}</div>
-            ${b.saga_id ? `<div class="saga-inline-badge">${sagaBadgeHtml(b)}</div>` : ""}
-          </div>
-          <div>${badgeHtml(b.category)}</div>
-          <div style="color:var(--muted);font-size:.85rem">${b.pages || "—"}</div>
-          <div>${starsHtml(b.rating)}</div>
-          <div style="font-size:.82rem">${statusHtml(b.status)}</div>
-        </div>`,
-      )
-      .join("")
-    : `<div class="empty"><div class="ico">📭</div><p>Nenhum livro em ${currentYear}</p></div>`;
 }
 
-function renderCharts(finished, year) {
+function renderCharts(data) {
   const months = [
     "jan",
     "fev",
@@ -412,13 +413,7 @@ function renderCharts(finished, year) {
     "nov",
     "dez",
   ];
-  const monthCount = Array(12).fill(0);
-  finished.forEach((b) => {
-    if (b.end_date) {
-      const m = parseInt(b.end_date.split("-")[1]) - 1;
-      monthCount[m]++;
-    }
-  });
+  const monthCount = data.months;
 
   if (chartMonth) chartMonth.destroy();
   chartMonth = new Chart(document.getElementById("chartMonth"), {
@@ -452,11 +447,7 @@ function renderCharts(finished, year) {
     },
   });
 
-  const catCount = {};
-  finished.forEach((b) => {
-    if (b.category) catCount[b.category] = (catCount[b.category] || 0) + 1;
-  });
-  const cats = Object.keys(catCount);
+  const cats = data.categories.map(row => row.category);
   const palette = [
     "#e8b84b",
     "#5b8ff9",
@@ -477,7 +468,7 @@ function renderCharts(finished, year) {
       labels: cats,
       datasets: [
         {
-          data: cats.map((c) => catCount[c]),
+          data: data.categories.map(row => row.total),
           backgroundColor: cats.map((_, i) => palette[i % palette.length]),
           borderWidth: 0,
         },
@@ -499,88 +490,75 @@ function renderCharts(finished, year) {
 // ═══════════════════════════════════════════════════
 //  ACERVO
 // ═══════════════════════════════════════════════════
-function renderAcervo() {
-  const cats = [
-    ...new Set(DB.books.filter((b) => b.category).map((b) => b.category)),
-  ].sort();
+async function renderAcervo() {
+  clearTimeout(searchTimer);
+  const request = ++acervoRequest;
   const fc = document.getElementById("filter-cat");
-  const current = fc.value;
-  fc.innerHTML =
-    '<option value="">Todas categorias</option>' +
-    cats
-      .map(
-        (c) =>
-          `<option value="${c}" ${c === current ? "selected" : ""}>${c}</option>`,
-      )
-      .join("");
+  const selected = fc.value;
+  fc.innerHTML = '<option value="">Todas categorias</option>' + libraryMetadata.categories
+    .map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+  fc.value = selected;
+  const params = new URLSearchParams({
+    page: acervoPage, pageSize: ACERVO_PAGE_SIZE,
+    search: document.getElementById("search").value,
+    year: document.getElementById("filter-year").value,
+    category: fc.value,
+    status: document.getElementById("filter-status").value,
+  });
+  document.getElementById("acervo-list").textContent = "Carregando livros...";
+  document.getElementById("acervo-pagination").innerHTML = "";
+  document.getElementById("acervo-count").textContent = "";
+  try {
+    const data = await apiFetch(`?${params}`);
+    if (request !== acervoRequest) return;
+    acervoPage = data.page;
+    acervoBooks = data.items;
+    const pageBooks = data.items;
+    document.getElementById("acervo-count").textContent =
+      `${data.total} livro${data.total !== 1 ? "s" : ""} encontrado${data.total !== 1 ? "s" : ""}`;
+    renderAcervoPagination(data.total, data.totalPages, (data.page - 1) * data.pageSize);
 
-  const q = document.getElementById("search").value.toLowerCase();
-  const fy = document.getElementById("filter-year").value;
-  const fcat = document.getElementById("filter-cat").value;
-  const fst = document.getElementById("filter-status").value;
-
-  let books = [...DB.books]
-    .filter((b) => {
-      if (b._placeholder) return false;
-      if (fy && b.year !== Number(fy)) return false;
-      if (fcat && b.category !== fcat) return false;
-      if (fst && b.status !== fst) return false;
-      if (
-        q &&
-        !b.title.toLowerCase().includes(q) &&
-        !b.author.toLowerCase().includes(q)
-      )
-        return false;
-      return true;
-    })
-    .sort((a, b) =>
-      (b.end_date || b.start_date || "").localeCompare(
-        a.end_date || a.start_date || "",
-      ),
-    );
-
-  document.getElementById("acervo-count").textContent =
-    `${books.length} livro${books.length !== 1 ? "s" : ""} encontrado${books.length !== 1 ? "s" : ""}`;
-
-  const totalPages = Math.max(1, Math.ceil(books.length / ACERVO_PAGE_SIZE));
-  acervoPage = Math.min(Math.max(1, acervoPage), totalPages);
-  const start = (acervoPage - 1) * ACERVO_PAGE_SIZE;
-  const pageBooks = books.slice(start, start + ACERVO_PAGE_SIZE);
-  renderAcervoPagination(books.length, totalPages, start);
-
-  document.getElementById("acervo-list").innerHTML = pageBooks.length
-    ? pageBooks
-      .map(
-        (b) => `
-        <div class="acervo-row">
-          <div>
-            <div class="t">${b.title}${b.is_reread ? ' <span class="badge-reread"><i class="fa-solid fa-arrows-rotate" style="color: rgb(255, 255, 255);"></i> Releitura</span>' : ""}</div>
-            <div class="a">${b.author}</div>
-            ${b.saga_id ? `<div class="saga-inline-badge">${sagaBadgeHtml(b)}</div>` : ""}
-          </div>
-          <div class="hide-sm">${badgeHtml(b.category, b.subcategory)}</div>
-          <div style="color:var(--muted);font-size:.84rem">${b.pages || "—"}</div>
-          <div class="hide-sm" style="color:var(--muted);font-size:.82rem">${fmtDate(b.start_date)}</div>
-          <div class="hide-sm" style="color:var(--muted);font-size:.82rem">${fmtDate(b.end_date)}</div>
-          <div>${starsHtml(b.rating)}</div>
-          <div class="actions-col">
-            <button class="btn-edit"   onclick="editBook(${b.id})">✏️</button>
-            <button class="btn-danger" onclick="deleteBook(${b.id})">🗑</button>
-          </div>
-        </div>`,
-      )
-      .join("")
-    : `<div class="empty"><div class="ico">🔍</div><p>Nenhum livro encontrado</p></div>`;
+    document.getElementById("acervo-list").innerHTML = pageBooks.length
+      ? pageBooks
+        .map(
+          (b) => `
+          <div class="acervo-row">
+            <div>
+              <div class="t">${b.title}${b.is_reread ? ' <span class="badge-reread"><i class="fa-solid fa-arrows-rotate" style="color: rgb(255, 255, 255);"></i> Releitura</span>' : ""}</div>
+              <div class="a">${b.author}</div>
+              ${b.saga_id ? `<div class="saga-inline-badge">${sagaBadgeHtml(b)}</div>` : ""}
+            </div>
+            <div class="hide-sm">${badgeHtml(b.category, b.subcategory)}</div>
+            <div style="color:var(--muted);font-size:.84rem">${b.pages || "—"}</div>
+            <div class="hide-sm" style="color:var(--muted);font-size:.82rem">${fmtDate(b.start_date)}</div>
+            <div class="hide-sm" style="color:var(--muted);font-size:.82rem">${fmtDate(b.end_date)}</div>
+            <div>${starsHtml(b.rating)}</div>
+            <div class="actions-col">
+              <button class="btn-edit"   onclick="editBook(${b.id})">✏️</button>
+              <button class="btn-danger" onclick="deleteBook(${b.id})">🗑</button>
+            </div>
+          </div>`,
+        )
+        .join("")
+      : `<div class="empty"><div class="ico">🔍</div><p>Nenhum livro encontrado</p></div>`;
+  } catch (err) {
+    if (request !== acervoRequest) return;
+    document.getElementById("acervo-list").innerHTML = '<div class="empty">Erro ao carregar livros. <button class="btn-outline" onclick="renderAcervo()">Tentar novamente</button></div>';
+  }
 }
-function filterAcervo() {
+function filterAcervo(debounce = false) {
   acervoPage = 1;
-  renderAcervo();
+  ++acervoRequest; // Invalidate pending results immediately, even during debounce.
+  clearTimeout(searchTimer);
+  if (debounce) searchTimer = setTimeout(renderAcervo, 250);
+  else renderAcervo();
 }
 
-function changeAcervoPage(page) {
+async function changeAcervoPage(page) {
   if (!Number.isInteger(page) || page < 1) return;
   acervoPage = page;
-  renderAcervo();
+  await renderAcervo();
+  if (!document.getElementById("page-acervo").classList.contains("active")) return;
   document.getElementById("page-acervo").scrollIntoView({ block: "start" });
   document.querySelector('#acervo-pagination [aria-current="page"]')?.focus({ preventScroll: true });
 }
@@ -646,6 +624,7 @@ function onEndDateChange() {
 }
 
 function closeModal() {
+  ++modalRequest;
   document.getElementById("modal-overlay").classList.remove("open");
 }
 
@@ -904,7 +883,7 @@ async function submitRenameCategory(id) {
       body: JSON.stringify({ name: newName }),
     });
 
-    await loadBooks();
+    await loadLibraryMetadata();
     renderManageCatList();
     renderYearList();
     const active = document.querySelector(".page.active");
@@ -945,11 +924,9 @@ function findParentCategoryName(subId) {
 }
 
 function countBooksUsingCategory(cat, isSub) {
-  if (isSub) {
-    const parentName = findParentCategoryName(cat.id);
-    return DB.books.filter((b) => b.category === parentName && b.subcategory === cat.name).length;
-  }
-  return DB.books.filter((b) => b.category === cat.name).length;
+  const parentName = isSub ? findParentCategoryName(cat.id) : cat.name;
+  return libraryMetadata.categoryCounts.filter(row => row.category === parentName &&
+    (!isSub || row.subcategory === cat.name)).reduce((total, row) => total + row.total, 0);
 }
 
 function confirmDeleteCategory(id, isSub) {
@@ -978,7 +955,7 @@ async function deleteCategoryNow(id) {
   try {
     await apiRequest(`/api/categories/${id}`, { method: "DELETE" });
 
-    await loadBooks();
+    await loadLibraryMetadata();
     renderManageCatList();
     renderYearList();
     const active = document.querySelector(".page.active");
@@ -988,14 +965,6 @@ async function deleteCategoryNow(id) {
     showToast("Categoria removida.");
   } catch (err) {
     alert("Erro ao excluir: " + err.message);
-  }
-}
-
-async function reloadSagas() {
-  try {
-    sagas = await apiRequest("/api/sagas");
-  } catch (e) {
-    /* silencioso: não é crítico para o restante da tela */
   }
 }
 
@@ -1110,7 +1079,7 @@ async function submitRenameSaga(id) {
       body: JSON.stringify({ name: newName }),
     });
 
-    await loadBooks();
+    await loadLibraryMetadata();
     renderSagas();
     resyncBookModalSagaField();
     showToast("Saga atualizada!");
@@ -1122,7 +1091,7 @@ async function submitRenameSaga(id) {
 function confirmDeleteSaga(id) {
   const saga = sagas.find((s) => s.id === id);
   if (!saga) return;
-  const count = (saga.books || []).length;
+  const count = visibleSagas.find(s => s.id === id)?.total || 0;
 
   const msg =
     count > 0
@@ -1136,7 +1105,7 @@ async function deleteSagaNow(id) {
   try {
     await apiRequest(`/api/sagas/${id}`, { method: "DELETE" });
 
-    await loadBooks();
+    await loadLibraryMetadata();
     renderSagas();
     resyncBookModalSagaField();
     showToast("Saga removida.");
@@ -1158,38 +1127,54 @@ function resyncBookModalSagaField() {
 }
 
 // ── Página Sagas ──
-function changeSagaPage(page) {
+async function changeSagaPage(page) {
   if (!Number.isInteger(page) || page < 1) return;
   sagaPage = page;
-  renderSagas();
+  await renderSagas();
+  if (!document.getElementById("page-sagas").classList.contains("active")) return;
   document.getElementById("page-sagas").scrollIntoView({ block: "start" });
   document.querySelector('#saga-pagination [aria-current="page"]')?.focus({ preventScroll: true });
 }
 
-function renderSagas() {
+async function renderSagas() {
+  const request = ++sagasRequest;
+  visibleSagas = [];
+  document.getElementById("sagas-list").textContent = "Carregando sagas...";
+  document.getElementById("saga-pagination").innerHTML = "";
+  document.getElementById("sagas-count").textContent = "";
+  try {
+    const data = await apiRequest(`/api/sagas?page=${sagaPage}&pageSize=${SAGA_PAGE_SIZE}`);
+    if (request !== sagasRequest) return;
+    sagaPage = data.page;
+    visibleSagas = data.items;
+    const ids = new Set(visibleSagas.map(s => s.id));
+    for (const id of sagaBookPages.keys()) if (!ids.has(id)) sagaBookPages.delete(id);
+    renderPagination("saga-pagination", data.total, data.totalPages,
+      (data.page - 1) * data.pageSize, data.page, data.pageSize, "sagas", "changeSagaPage");
+    document.getElementById("sagas-count").textContent = `${data.total} saga${data.total !== 1 ? "s" : ""} cadastrada${data.total !== 1 ? "s" : ""}`;
+    drawSagas();
+    for (const saga of visibleSagas) {
+      if (expandedSagas.has(saga.id) && !sagaBookPages.has(saga.id)) loadSagaBooks(saga.id);
+    }
+  } catch (err) {
+    if (request !== sagasRequest) return;
+    document.getElementById("sagas-list").innerHTML = '<div class="empty">Erro ao carregar sagas. <button class="btn-outline" onclick="renderSagas()">Tentar novamente</button></div>';
+  }
+}
+
+function drawSagas() {
   const el = document.getElementById("sagas-list");
-  const countEl = document.getElementById("sagas-count");
-  if (!el) return;
-
-  const totalPages = Math.max(1, Math.ceil(sagas.length / SAGA_PAGE_SIZE));
-  sagaPage = Math.min(Math.max(1, sagaPage), totalPages);
-  const start = (sagaPage - 1) * SAGA_PAGE_SIZE;
-  renderPagination("saga-pagination", sagas.length, totalPages, start, sagaPage,
-    SAGA_PAGE_SIZE, "sagas", "changeSagaPage");
-
-  if (!sagas.length) {
-    countEl.textContent = "";
+  if (!visibleSagas.length) {
     el.innerHTML = `<p style="color:var(--muted);text-align:center;padding:32px 0">Nenhuma saga cadastrada ainda. Clique em "＋ Nova saga" para agrupar os livros de uma série (ex: A Torre Negra).</p>`;
     return;
   }
 
-  countEl.textContent = `${sagas.length} saga${sagas.length > 1 ? "s" : ""} cadastrada${sagas.length > 1 ? "s" : ""}`;
-
-  el.innerHTML = sagas.slice(start, start + SAGA_PAGE_SIZE)
+  el.innerHTML = visibleSagas
     .map((s) => {
-      const books = s.books || [];
-      const total = books.length;
-      const finished = books.filter((b) => b.status === "finished").length;
+      const bookPage = sagaBookPages.get(s.id);
+      const books = bookPage?.items || [];
+      const total = s.total;
+      const finished = s.finished;
       const pct = total ? Math.round((finished / total) * 100) : 0;
       const isOpen = expandedSagas.has(s.id);
 
@@ -1226,8 +1211,14 @@ function renderSagas() {
             </div>`,
             )
             .join("") ||
+          (!bookPage || bookPage.loading ? '<p>Carregando livros...</p>' : bookPage.error ? `<button class="btn-outline" onclick="loadSagaBooks(${s.id})">Tentar novamente</button>` : "") ||
           `<p style="color:var(--muted);font-size:.85rem;padding:8px 4px">Nenhum livro nessa saga ainda. Edite um livro e selecione essa saga no campo "Saga".</p>`
           }
+          ${bookPage?.totalPages > 1 ? `<div class="saga-book-pagination">
+            <button class="btn-outline" onclick="loadSagaBooks(${s.id}, ${bookPage.page - 1})" ${bookPage.page === 1 ? "disabled" : ""}>Anterior</button>
+            <span>Página ${bookPage.page} de ${bookPage.totalPages}</span>
+            <button class="btn-outline" onclick="loadSagaBooks(${s.id}, ${bookPage.page + 1})" ${bookPage.page === bookPage.totalPages ? "disabled" : ""}>Próxima</button>
+          </div>` : ""}
         </div>`
           : ""
         }
@@ -1236,19 +1227,41 @@ function renderSagas() {
     .join("");
 }
 
-function toggleSagaCard(id) {
-  if (expandedSagas.has(id)) {
-    expandedSagas.delete(id);
-  } else {
-    expandedSagas.add(id);
+async function loadSagaBooks(id, page = 1) {
+  const pending = { loading: true };
+  sagaBookPages.set(id, pending);
+  drawSagas();
+  try {
+    const data = await apiFetch(`?saga_id=${id}&page=${page}&pageSize=50`);
+    if (sagaBookPages.get(id) !== pending) return;
+    sagaBookPages.set(id, data);
+  } catch (err) {
+    if (sagaBookPages.get(id) !== pending) return;
+    sagaBookPages.set(id, { error: true });
   }
-  renderSagas();
+  drawSagas();
+}
+
+function toggleSagaCard(id) {
+  if (expandedSagas.has(id)) expandedSagas.delete(id);
+  else {
+    expandedSagas.add(id);
+    if (!sagaBookPages.has(id)) { loadSagaBooks(id); return; }
+  }
+  drawSagas();
 }
 
 // ═══════════════════════════════════════════════════
 //  MODAL
 // ═══════════════════════════════════════════════════
-function openModal(id) {
+async function openModal(id) {
+  const request = ++modalRequest;
+  let book;
+  if (id) {
+    try { book = await apiFetch(`/${id}`); }
+    catch (err) { if (request === modalRequest) alert("Erro ao carregar livro: " + err.message); return; }
+    if (request !== modalRequest) return;
+  }
   editingId = id || null;
   currentRating = null;
   document.getElementById("modal-title").textContent = id
@@ -1259,7 +1272,7 @@ function openModal(id) {
   const label = document.getElementById("reread-label");
 
   if (id) {
-    const b = DB.books.find((x) => x.id === id || x.id === Number(id));
+    const b = book;
     document.getElementById("f-title").value = b.title || "";
     document.getElementById("f-author").value = b.author || "";
     document.getElementById("f-pages").value = b.pages || "";
@@ -1333,19 +1346,16 @@ async function saveBook() {
 
   try {
     if (editingId) {
-      const updated = await updateBook(editingId, payload);
-      const idx = DB.books.findIndex((b) => b.id === editingId);
-      DB.books[idx] = updated;
+      await updateBook(editingId, payload);
       showToast("Livro atualizado!");
     } else {
-      const created = await createBook(payload);
-      DB.books.unshift(created);
+      await createBook(payload);
       showToast("Livro adicionado!");
     }
 
     closeModal();
+    await loadLibraryMetadata();
     renderYearList();
-    await reloadSagas();
     const active = document.querySelector(".page.active");
     if (active?.id === "page-dashboard") renderDashboard();
     if (active?.id === "page-acervo") renderAcervo();
@@ -1364,7 +1374,7 @@ function editBook(id) {
 // ═══════════════════════════════════════════════════
 
 async function deleteBook(id) {
-  const book = DB.books.find((b) => b.id === id || b.id === Number(id));
+  const book = acervoBooks.find((b) => b.id === id || b.id === Number(id));
   if (!book) return;
 
   openConfirm(
@@ -1373,8 +1383,7 @@ async function deleteBook(id) {
     async () => {
       try {
         await removeBook(id);
-        DB.books = DB.books.filter((b) => b.id !== id);
-        await reloadSagas();
+        await loadLibraryMetadata();
         renderYearList();
         renderAcervo();
         if (document.querySelector(".page.active")?.id === "page-sagas") renderSagas();
@@ -1458,7 +1467,7 @@ function dismissNewsPopup() {
 // ═══════════════════════════════════════════════════
 async function init() {
   try {
-    await loadBooks();
+    await loadLibraryMetadata();
     renderYearList();
     // Mostra popup de novidades se aplicável
     if (shouldShowNewsPopup()) {

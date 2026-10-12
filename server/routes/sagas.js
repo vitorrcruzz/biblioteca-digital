@@ -1,10 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const { getUserDb } = require("../database");
+const { sagasPage } = require('../library-queries');
+
+// Lightweight options for the book form; never includes book payloads.
+router.get('/options', (req, res) => {
+  res.json(getUserDb(req.user.uid).prepare('SELECT id, name FROM sagas ORDER BY name, id').all());
+});
 
 // GET /api/sagas — lista todas as sagas com os livros vinculados, em ordem de volume
 router.get("/", (req, res) => {
   const db = getUserDb(req.user.uid);
+  if (req.query.page !== undefined || req.query.pageSize !== undefined) {
+    return res.json(sagasPage(db, req.query));
+  }
   const sagas = db.prepare("SELECT * FROM sagas ORDER BY name").all();
   const result = sagas.map((s) => ({
     ...s,

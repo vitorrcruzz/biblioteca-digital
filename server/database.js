@@ -88,6 +88,14 @@ function getUserDb(uid) {
     for (const name of defaults) insertCat.run(name);
   }
 
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS books_year_idx ON books(year);
+    CREATE INDEX IF NOT EXISTS books_saga_idx ON books(saga_id, saga_order);
+    CREATE INDEX IF NOT EXISTS books_category_idx ON books(category, subcategory);
+    CREATE INDEX IF NOT EXISTS books_reading_order_idx ON books(
+      COALESCE(NULLIF(end_date, ''), NULLIF(start_date, ''), '') DESC, created_at DESC, id DESC
+    );
+  `);
   dbCache.set(uid, db);
   return db;
 }
