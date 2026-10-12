@@ -17,6 +17,10 @@ let expandedSagas = new Set(); // ids das sagas com o card aberto (todas começa
 let chartMonth = null;
 let chartCat = null;
 let isReread = false;
+const ACERVO_PAGE_SIZE = 50;
+let acervoPage = 1;
+const SAGA_PAGE_SIZE = 10;
+let sagaPage = 1;
 
 
 // ═══════════════════════════════════════════════════
@@ -74,6 +78,17 @@ function goTo(page) {
   if (page === "dashboard") renderDashboard();
   if (page === "acervo") renderAcervo();
   if (page === "sagas") renderSagas();
+
+  // Reposiciona tambem no proximo frame, depois da troca de layout.
+  scrollPageToTop();
+  requestAnimationFrame(scrollPageToTop);
+}
+
+function scrollPageToTop() {
+  const options = { top: 0, left: 0, behavior: "instant" };
+  document.getElementById("main")?.scrollTo(options);
+  document.scrollingElement?.scrollTo(options);
+  window.scrollTo(options);
 }
 
 // ═══════════════════════════════════════════════════
@@ -527,8 +542,14 @@ function renderAcervo() {
   document.getElementById("acervo-count").textContent =
     `${books.length} livro${books.length !== 1 ? "s" : ""} encontrado${books.length !== 1 ? "s" : ""}`;
 
-  document.getElementById("acervo-list").innerHTML = books.length
-    ? books
+  const totalPages = Math.max(1, Math.ceil(books.length / ACERVO_PAGE_SIZE));
+  acervoPage = Math.min(Math.max(1, acervoPage), totalPages);
+  const start = (acervoPage - 1) * ACERVO_PAGE_SIZE;
+  const pageBooks = books.slice(start, start + ACERVO_PAGE_SIZE);
+  renderAcervoPagination(books.length, totalPages, start);
+
+  document.getElementById("acervo-list").innerHTML = pageBooks.length
+    ? pageBooks
       .map(
         (b) => `
         <div class="acervo-row">
@@ -552,7 +573,50 @@ function renderAcervo() {
     : `<div class="empty"><div class="ico">🔍</div><p>Nenhum livro encontrado</p></div>`;
 }
 function filterAcervo() {
+  acervoPage = 1;
   renderAcervo();
+}
+
+function changeAcervoPage(page) {
+  if (!Number.isInteger(page) || page < 1) return;
+  acervoPage = page;
+  renderAcervo();
+  document.getElementById("page-acervo").scrollIntoView({ block: "start" });
+  document.querySelector('#acervo-pagination [aria-current="page"]')?.focus({ preventScroll: true });
+}
+
+function renderAcervoPagination(total, totalPages, start) {
+  renderPagination("acervo-pagination", total, totalPages, start, acervoPage,
+    ACERVO_PAGE_SIZE, "livros", "changeAcervoPage");
+}
+
+function renderPagination(containerId, total, totalPages, start, currentPage, pageSize, itemLabel, changePage) {
+  const container = document.getElementById(containerId);
+  if (totalPages <= 1) {
+    container.innerHTML = "";
+    return;
+  }
+
+  // Cinco paginas proximas; os extremos e as reticencias aparecem no desktop.
+  const first = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+  const nearby = Array.from({ length: Math.min(5, totalPages) }, (_, i) => first + i);
+  const pages = [...new Set([1, ...nearby, totalPages])].sort((a, b) => a - b);
+  const buttons = pages.map((page, index) => {
+    const gap = index > 0 && page - pages[index - 1] > 1
+      ? '<span class="pagination-gap pagination-desktop" aria-hidden="true">&hellip;</span>' : "";
+    const desktopOnly = nearby.includes(page) ? "" : " pagination-desktop";
+    return `${gap}<button type="button" class="pagination-button${desktopOnly}" onclick="${changePage}(${page})"
+      aria-label="Página ${page}" ${page === currentPage ? 'aria-current="page"' : ""}>${page}</button>`;
+  }).join("");
+  const arrow = (direction) => `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true" focusable="false"><path d="${direction === "left" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"}" /></svg>`;
+
+  container.innerHTML = `
+    <p class="pagination-summary" role="status">Exibindo ${start + 1}–${Math.min(start + pageSize, total)} de ${total} ${itemLabel} · Página ${currentPage} de ${totalPages}</p>
+    <div class="pagination-controls">
+      <button type="button" class="pagination-button pagination-arrow" aria-label="Página anterior" onclick="${changePage}(${currentPage - 1})" ${currentPage === 1 ? "disabled" : ""}>${arrow("left")}</button>
+      ${buttons}
+      <button type="button" class="pagination-button pagination-arrow" aria-label="Próxima página" onclick="${changePage}(${currentPage + 1})" ${currentPage === totalPages ? "disabled" : ""}>${arrow("right")}</button>
+    </div>`;
 }
 
 function toggleReread() {
@@ -1094,10 +1158,24 @@ function resyncBookModalSagaField() {
 }
 
 // ── Página Sagas ──
+function changeSagaPage(page) {
+  if (!Number.isInteger(page) || page < 1) return;
+  sagaPage = page;
+  renderSagas();
+  document.getElementById("page-sagas").scrollIntoView({ block: "start" });
+  document.querySelector('#saga-pagination [aria-current="page"]')?.focus({ preventScroll: true });
+}
+
 function renderSagas() {
   const el = document.getElementById("sagas-list");
   const countEl = document.getElementById("sagas-count");
   if (!el) return;
+
+  const totalPages = Math.max(1, Math.ceil(sagas.length / SAGA_PAGE_SIZE));
+  sagaPage = Math.min(Math.max(1, sagaPage), totalPages);
+  const start = (sagaPage - 1) * SAGA_PAGE_SIZE;
+  renderPagination("saga-pagination", sagas.length, totalPages, start, sagaPage,
+    SAGA_PAGE_SIZE, "sagas", "changeSagaPage");
 
   if (!sagas.length) {
     countEl.textContent = "";
@@ -1107,7 +1185,7 @@ function renderSagas() {
 
   countEl.textContent = `${sagas.length} saga${sagas.length > 1 ? "s" : ""} cadastrada${sagas.length > 1 ? "s" : ""}`;
 
-  el.innerHTML = sagas
+  el.innerHTML = sagas.slice(start, start + SAGA_PAGE_SIZE)
     .map((s) => {
       const books = s.books || [];
       const total = books.length;
@@ -1382,15 +1460,18 @@ async function init() {
   try {
     await loadBooks();
     renderYearList();
-    renderDashboard();
     // Mostra popup de novidades se aplicável
     if (shouldShowNewsPopup()) {
       setTimeout(() => openNewsPopup(), 800);
     }
-    // Verifica se deve abrir uma página específica (ex: voltando da tela de Conta)
-    const params = new URLSearchParams(window.location.search);
-    const targetPage = params.get("page");
-    if (targetPage && ["dashboard", "acervo", "sagas"].includes(targetPage)) goTo(targetPage);
+    // Consome o destino da tela de Conta; novas cargas usam o Dashboard.
+    const url = new URL(window.location.href);
+    const targetPage = url.searchParams.get("page");
+    if (url.searchParams.has("page")) {
+      url.searchParams.delete("page");
+      window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+    }
+    goTo(["dashboard", "acervo", "sagas"].includes(targetPage) ? targetPage : "dashboard");
   } catch (err) {
     console.error("Erro ao carregar dados:", err);
     document.getElementById("stats-grid").innerHTML =

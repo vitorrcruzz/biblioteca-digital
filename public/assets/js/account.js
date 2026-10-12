@@ -1,4 +1,6 @@
 const currentYear = new Date().getFullYear();
+let currentGoalTarget = null;
+let goalBusy = false;
 let currentUserEmail = ""; // preenchido em loadAccount() — evita depender do placeholder do input
 
 // ═══════════════════════════════════════════════════
@@ -25,12 +27,7 @@ async function loadAccount() {
     const goals = await apiRequest("/api/goals");
 
     const currentGoal = goals.find(g => g.year === currentYear);
-    if (currentGoal) {
-      document.getElementById("a-goal").value = currentGoal.target;
-      document.getElementById("goal-hint").textContent = `Meta atual: ${currentGoal.target} livros em ${currentYear}`;
-    } else {
-      document.getElementById("goal-hint").textContent = `Nenhuma meta definida para ${currentYear}`;
-    }
+    renderAccountGoal(currentGoal?.target ?? null);
   } catch (err) {
     console.error("Erro ao carregar conta:", err);
   }
@@ -97,19 +94,61 @@ async function saveEmail() {
   }
 }
 
+function renderAccountGoal(target) {
+  currentGoalTarget = target;
+  document.getElementById("a-goal").value = target ?? "";
+  document.getElementById("goal-hint").textContent = target === null
+    ? `Nenhuma meta definida para ${currentYear}`
+    : `Meta atual: ${target} livros em ${currentYear}`;
+  document.getElementById("delete-goal-btn").hidden = target === null;
+}
+
+function setGoalBusy(busy) {
+  goalBusy = busy;
+  document.getElementById("a-goal").disabled = busy;
+  document.getElementById("save-goal-btn").disabled = busy;
+  document.getElementById("delete-goal-btn").disabled = busy;
+}
+
 async function saveGoal() {
+  if (goalBusy) return;
   const target = parseInt(document.getElementById("a-goal").value);
-  if (!target || target < 1) { alert("Informe uma meta válida."); return; }
+  if (!target || target < 1) { alert("Informe uma meta v\u00e1lida."); return; }
+  setGoalBusy(true);
   try {
     await accountFetch("/goal", {
       method: "PUT",
       body: JSON.stringify({ year: currentYear, target }),
     });
-    document.getElementById("goal-hint").textContent = `Meta atual: ${target} livros em ${currentYear}`;
+    renderAccountGoal(target);
     showToast("Meta atualizada!");
   } catch (err) {
     alert("Erro ao salvar meta: " + err.message);
+  } finally {
+    setGoalBusy(false);
   }
+}
+
+function confirmDeleteGoal() {
+  if (goalBusy || currentGoalTarget === null) return;
+  openConfirm(
+    "Excluir meta?",
+    `Deseja excluir a meta de leitura de ${currentYear}? Seus livros e leituras ser\u00e3o mantidos.`,
+    async () => {
+      if (goalBusy || currentGoalTarget === null) return;
+      setGoalBusy(true);
+      try {
+        await apiRequest(`/api/goals/${currentYear}`, { method: "DELETE" });
+        renderAccountGoal(null);
+        showToast("Meta exclu\u00edda.");
+      } catch (err) {
+        alert("Erro ao excluir meta: " + err.message);
+      } finally {
+        setGoalBusy(false);
+      }
+    },
+    "Sim, excluir"
+  );
 }
 
 async function sendPasswordReset() {
@@ -135,6 +174,7 @@ function confirmDeleteBooks() {
     async () => {
       try {
         await accountFetch("/books", { method: "DELETE" });
+        renderAccountGoal(null);
         showToast("Acervo excluído.");
       } catch (err) {
         alert("Erro ao excluir acervo: " + err.message);

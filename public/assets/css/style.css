@@ -139,6 +139,8 @@ nav a .ico {
 
 /* ── Main ── */
 #main {
+  min-width: 0;
+  overflow-anchor: none;
   margin-left: 220px;
   flex: 1;
   padding: 32px 36px;
@@ -248,12 +250,15 @@ nav a .ico {
 /* ── Charts row ── */
 .charts-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   margin-bottom: 28px;
 }
 
 .chart-card {
+  min-width: 0;
+  max-width: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -270,7 +275,14 @@ nav a .ico {
 
 .chart-wrap {
   position: relative;
+  min-width: 0;
+  width: 100%;
   height: 200px;
+}
+
+.chart-wrap canvas {
+  display: block;
+  max-width: 100%;
 }
 
 /* ── Section header ── */
@@ -1924,7 +1936,12 @@ nav a .ico {
 
   /* ── Charts — 1 coluna ── */
   .charts-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .chart-card {
+    padding: 16px;
   }
 
   /* ── Page header ── */
@@ -2322,5 +2339,223 @@ nav a .ico {
   /* Sagas: some a filter-bar inteira no mobile, já que só tinha o botão "+ Nova saga" */
   #sagas-filter-bar {
     display: none;
+  }
+}
+
+/* Paginacao da Minha Estante e de Sagas/Colecao */
+:is(#acervo-pagination, #saga-pagination) {
+  margin-top: 24px;
+  text-align: center;
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-summary {
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-controls {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-button,
+:is(#acervo-pagination, #saga-pagination) .pagination-gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  width: 48px;
+  height: 48px;
+  padding: 0 4px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: .95rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-button {
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-button:last-child {
+  border-right: 0;
+  border-radius: 0 5px 5px 0;
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-button:first-child {
+  border-radius: 5px 0 0 5px;
+}
+
+@media (hover: hover) {
+  :is(#acervo-pagination, #saga-pagination) .pagination-button:hover:not(:disabled):not([aria-current]) {
+    background: var(--surface2);
+    color: var(--gold);
+  }
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-button[aria-current="page"] {
+  background: var(--gold);
+  color: #1a1a1a;
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-button:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-button:disabled svg {
+  opacity: .4;
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+:is(#acervo-pagination, #saga-pagination) .pagination-gap {
+  width: 32px;
+  color: var(--muted);
+}
+
+@media (max-width: 600px) {
+  :is(#acervo-pagination, #saga-pagination) .pagination-desktop {
+    display: none;
+  }
+
+  :is(#acervo-pagination, #saga-pagination) .pagination-button {
+    width: 36px;
+    height: 44px;
+    font-size: .85rem;
+  }
+
+  :is(#acervo-pagination, #saga-pagination) .pagination-arrow {
+    width: 42px;
+  }
+
+  :is(#acervo-pagination, #saga-pagination) .pagination-summary {
+    font-size: .75rem;
+    padding: 0 4px;
+  }
+}
+
+
+/* Modal de livro: campos flexiveis, cabecalho e acoes sempre visiveis. */
+#modal-overlay {
+  padding: 16px;
+}
+
+#modal-overlay > .modal {
+  display: flex;
+  flex-direction: column;
+  width: 640px;
+  max-width: 100%;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  padding: 20px 24px;
+  overflow: hidden;
+}
+
+#modal-overlay .modal h3 {
+  flex-shrink: 0;
+  margin-bottom: 16px;
+}
+
+#modal-overlay .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--surface);
+  padding: 2px;
+}
+
+#modal-overlay .form-grid .full {
+  grid-column: 1 / -1;
+}
+
+#modal-overlay .field,
+#modal-overlay .category-select-wrap {
+  min-width: 0;
+}
+
+#modal-overlay .field input,
+#modal-overlay .field select {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+}
+
+#modal-overlay .category-select-wrap select {
+  width: 0;
+}
+
+#modal-overlay .btn-reread {
+  height: auto;
+  min-height: 40px;
+}
+
+#modal-overlay .star-rating {
+  flex-wrap: wrap;
+  min-height: 32px;
+}
+
+#modal-overlay .modal-actions {
+  flex-shrink: 0;
+  flex-direction: row;
+  margin-top: 16px;
+}
+
+#modal-overlay .modal-actions button {
+  min-height: 44px;
+}
+
+@media (max-width: 480px) {
+  #modal-overlay {
+    padding: 10px;
+  }
+
+  #modal-overlay > .modal {
+    padding: 16px;
+    max-height: calc(100vh - 20px);
+    max-height: calc(100dvh - 20px);
+  }
+
+  #modal-overlay .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #modal-overlay .field input,
+  #modal-overlay .field select {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  #modal-overlay .btn-add-cat {
+    width: 44px;
+    height: 44px;
+  }
+
+  #modal-overlay .modal-actions button {
+    flex: 1;
+    min-width: 0;
   }
 }

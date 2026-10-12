@@ -154,9 +154,10 @@
           <label>Meta para <span id="current-year-label"></span></label>
           <div class="account-input-row">
             <input id="a-goal" type="number" min="1" placeholder="Ex: 20 livros" />
-            <button class="btn-save" onclick="saveGoal()">Salvar</button>
+            <button id="save-goal-btn" class="btn-save" onclick="saveGoal()">Salvar</button>
           </div>
-          <p class="account-hint" id="goal-hint"></p>
+          <p class="account-hint" id="goal-hint" role="status"></p>
+          <button type="button" id="delete-goal-btn" class="btn-danger-action" onclick="confirmDeleteGoal()" hidden>Excluir meta</button>
         </div>
       </div>
     </div>

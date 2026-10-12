@@ -181,3 +181,14 @@
     text-align: center;
   }
 }
+
+#delete-goal-btn {
+  align-self: flex-start;
+  min-height: 44px;
+}
+
+#save-goal-btn:disabled,
+#delete-goal-btn:disabled {
+  opacity: .5;
+  cursor: wait;
+}
