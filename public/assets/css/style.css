@@ -1701,10 +1701,16 @@ nav a .ico {
   max-width: 95vw;
   max-height: 85vh;
   overflow-y: auto;
+  scrollbar-width: none;
   padding: 32px;
   transform: translateY(20px);
   transition: transform 0.2s;
   position: relative;
+}
+
+/* Keep touch, wheel and keyboard scrolling without a visible scrollbar. */
+.news-popup::-webkit-scrollbar {
+  display: none;
 }
 
 #news-popup-overlay.open .news-popup {
