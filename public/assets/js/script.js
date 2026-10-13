@@ -1400,8 +1400,8 @@ async function deleteBook(id) {
 //  NEWS POPUP
 // ═══════════════════════════════════════════════════
 const NEWS_POPUP = {
-  version: "v5",                    // ← muda aqui a cada nova versão
-  expires: "2026-10-01",            // ← ajuste para 14 dias a partir do lançamento real
+  version: "v6",                    // ← muda aqui a cada nova versão
+  expires: "2026-11-01",            // ← ajuste para 14 dias a partir do lançamento real
   title: "Novidades da Biblioteca Digital",
   items: [
     {
@@ -1414,6 +1414,22 @@ const NEWS_POPUP = {
         label: "⬇️ Baixar Biblioteca Digital APK",
         url: "https://github.com/vitorrcruzz/biblioteca-digital/releases/latest/download/biblioteca-digital.apk"
       }
+    },
+    {
+      icon: "📄",
+      title: "Minha Estante paginada",
+      desc: "A aba Minha Estante agora é paginada, deixando a navegação mais rápida" + 
+      " e organizada, mesmo com um acervo grande.",
+    },
+    {
+      icon: "📊",
+      title: "Exporte seus livros para Excel",
+      desc: "Nas configurações da conta, você já pode exportar uma planilha Excel com todos os livros registrados no sistema.",
+    },
+    {
+      icon: "🎯",
+      title: "Edite e/ou exclua suas metas anuais",
+      desc: "Agora é possível editar ou excluir as metas dos anos já registrados, mantendo seu planejamento de leitura sempre atualizado.",
     },
   ]
 };
