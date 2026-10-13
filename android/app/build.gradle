@@ -72,3 +72,8 @@ try {
 } catch(Exception ignored) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
+// Optional machine-local configuration; absent in production checkouts.
+def localDebugConfig = file("local-debug.gradle")
+if (localDebugConfig.exists()) {
+    apply from: localDebugConfig
+}

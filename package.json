@@ -8,7 +8,10 @@
     "dev": "nodemon server/index.js",
     "build:bridge": "esbuild build/capacitor-google-auth-bridge.js --bundle --outfile=public/assets/js/capacitor-google-auth-bridge.js --format=iife",
     "presync": "npm run build:bridge",
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/*.test.js",
+    "android:local": "node build/android-local.cjs",
+    "android:connect": "node build/android-local.cjs --connect-only",
+    "build:android": "powershell -NoProfile -ExecutionPolicy Bypass -File build/android-release.ps1"
   },
   "keywords": [],
   "author": "",
