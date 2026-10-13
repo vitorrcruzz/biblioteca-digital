@@ -54,3 +54,13 @@ ios/DerivedData/
 
 # Editores/IDEs de mobile
 .idea/
+# Machine-local Android tests and development configuration
+/build/android-local.cjs
+/android/app/local-debug.gradle
+/android/app/src/debug/
+*.apk
+*.aab
+
+# Android test sources stay on this machine
+/android/app/src/test/
+/android/app/src/androidTest/
