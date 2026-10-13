@@ -1,6 +1,8 @@
 # Dependências
 node_modules/
 .vscode/
+tests/
+docs/
 
 # Banco de dados local (não sobe pro GitHub)
 *.db
