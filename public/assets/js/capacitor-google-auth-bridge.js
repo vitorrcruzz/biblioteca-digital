@@ -144,7 +144,7 @@
                 callbackId
               }, callback);
             };
-            const p = new Promise((resolve) => call.then(() => resolve({ remove })));
+            const p = new Promise((resolve2) => call.then(() => resolve2({ remove })));
             p.remove = async () => {
               console.warn(`Using addListener() without 'await' is deprecated.`);
               await remove();
@@ -348,11 +348,11 @@
       CapacitorCookies = registerPlugin("CapacitorCookies", {
         web: () => new CapacitorCookiesPluginWeb()
       });
-      readBlobAsBase64 = async (blob) => new Promise((resolve, reject) => {
+      readBlobAsBase64 = async (blob) => new Promise((resolve2, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
           const base64String = reader.result;
-          resolve(base64String.indexOf(",") >= 0 ? base64String.split(",")[1] : base64String);
+          resolve2(base64String.indexOf(",") >= 0 ? base64String.split(",")[1] : base64String);
         };
         reader.onerror = (error) => reject(error);
         reader.readAsDataURL(blob);
@@ -611,7 +611,7 @@
     }
   }
   function validateIndexedDBOpenable() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve2, reject) => {
       try {
         let preExist = true;
         const DB_CHECK_NAME = "validate-browser-context-for-indexeddb-analytics-module";
@@ -621,7 +621,7 @@
           if (!preExist) {
             self.indexedDB.deleteDatabase(DB_CHECK_NAME);
           }
-          resolve(true);
+          resolve2(true);
         };
         request.onupgradeneeded = () => {
           preExist = false;
@@ -809,9 +809,9 @@
             const c2 = bytes[pos++];
             const c3 = bytes[pos++];
             const c4 = bytes[pos++];
-            const u = ((c1 & 7) << 18 | (c2 & 63) << 12 | (c3 & 63) << 6 | c4 & 63) - 65536;
-            out[c++] = String.fromCharCode(55296 + (u >> 10));
-            out[c++] = String.fromCharCode(56320 + (u & 1023));
+            const u2 = ((c1 & 7) << 18 | (c2 & 63) << 12 | (c3 & 63) << 6 | c4 & 63) - 65536;
+            out[c++] = String.fromCharCode(55296 + (u2 >> 10));
+            out[c++] = String.fromCharCode(56320 + (u2 & 1023));
           } else {
             const c2 = bytes[pos++];
             const c3 = bytes[pos++];
@@ -1059,8 +1059,8 @@
           };
           this.resolve = () => {
           };
-          this.promise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
+          this.promise = new Promise((resolve2, reject) => {
+            this.resolve = resolve2;
             this.reject = reject;
           });
         }
@@ -1678,13 +1678,13 @@
     ]);
   }
   function promisifyRequest(request) {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve2, reject) => {
       const unlisten = () => {
         request.removeEventListener("success", success);
         request.removeEventListener("error", error);
       };
       const success = () => {
-        resolve(wrap(request.result));
+        resolve2(wrap(request.result));
         unlisten();
       };
       const error = () => {
@@ -1706,14 +1706,14 @@
   function cacheDonePromiseForTransaction(tx) {
     if (transactionDoneMap.has(tx))
       return;
-    const done = new Promise((resolve, reject) => {
+    const done = new Promise((resolve2, reject) => {
       const unlisten = () => {
         tx.removeEventListener("complete", complete);
         tx.removeEventListener("error", error);
         tx.removeEventListener("abort", error);
       };
       const complete = () => {
-        resolve();
+        resolve2();
         unlisten();
       };
       const error = () => {
@@ -4000,7 +4000,7 @@
   }
   function _openDatabase() {
     const request = indexedDB.open(DB_NAME2, DB_VERSION2);
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve2, reject) => {
       request.addEventListener("error", () => {
         reject(request.error);
       });
@@ -4017,9 +4017,9 @@
         if (!db.objectStoreNames.contains(DB_OBJECTSTORE_NAME)) {
           db.close();
           await _deleteDatabase();
-          resolve(await _openDatabase());
+          resolve2(await _openDatabase());
         } else {
-          resolve(db);
+          resolve2(db);
         }
       });
     });
@@ -4054,12 +4054,12 @@
   }
   function domReady() {
     let resolver = null;
-    return new Promise((resolve) => {
+    return new Promise((resolve2) => {
       if (document.readyState === "complete") {
-        resolve();
+        resolve2();
         return;
       }
-      resolver = () => resolve();
+      resolver = () => resolve2();
       window.addEventListener("load", resolver);
     }).catch((e) => {
       if (resolver) {
@@ -4490,12 +4490,12 @@
     }
   }
   function loadGapi(auth) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve2, reject) => {
       function loadGapiIframe() {
         resetUnloadedGapiModules();
         gapi.load("gapi.iframes", {
           callback: () => {
-            resolve(gapi.iframes.getContext());
+            resolve2(gapi.iframes.getContext());
           },
           ontimeout: () => {
             resetUnloadedGapiModules();
@@ -4509,7 +4509,7 @@
         });
       }
       if (_window().gapi?.iframes?.Iframe) {
-        resolve(gapi.iframes.getContext());
+        resolve2(gapi.iframes.getContext());
       } else if (!!_window().gapi?.load) {
         loadGapiIframe();
       } else {
@@ -4575,7 +4575,7 @@
       messageHandlersFilter: gapi2.iframes.CROSS_ORIGIN_IFRAMES_FILTER,
       attributes: IFRAME_ATTRIBUTES,
       dontclear: true
-    }, (iframe) => new Promise(async (resolve, reject) => {
+    }, (iframe) => new Promise(async (resolve2, reject) => {
       await iframe.restyle({
         // Prevent iframe from closing on mouse out.
         setHideOnLeave: false
@@ -4590,7 +4590,7 @@
       }, PING_TIMEOUT.get());
       function clearTimerAndResolve() {
         _window().clearTimeout(networkErrorTimer);
-        resolve(iframe);
+        resolve2(iframe);
       }
       iframe.ping(clearTimerAndResolve).then(clearTimerAndResolve, () => {
         reject(networkError);
@@ -5776,10 +5776,10 @@
           this.queue = [];
         }
         pushCallback(callback, onAbort) {
-          const wrappedCallback = (user) => new Promise((resolve, reject) => {
+          const wrappedCallback = (user) => new Promise((resolve2, reject) => {
             try {
               const result = callback(user);
-              resolve(result);
+              resolve2(result);
             } catch (e) {
               reject(e);
             }
@@ -5970,7 +5970,7 @@
           this.frameworks = [];
           this.name = app.name;
           this.clientVersion = config.sdkClientVersion;
-          this._persistenceManagerAvailable = new Promise((resolve) => this._resolvePersistenceManagerAvailable = resolve);
+          this._persistenceManagerAvailable = new Promise((resolve2) => this._resolvePersistenceManagerAvailable = resolve2);
         }
         _initializeWithPersistence(persistenceHierarchy, popupRedirectResolver) {
           if (popupRedirectResolver) {
@@ -6036,8 +6036,8 @@
           if (_isFirebaseServerApp(this.app)) {
             const idToken = this.app.settings.authIdToken;
             if (idToken) {
-              return new Promise((resolve) => {
-                setTimeout(() => this.initializeCurrentUserFromIdToken(idToken).then(resolve, resolve));
+              return new Promise((resolve2) => {
+                setTimeout(() => this.initializeCurrentUserFromIdToken(idToken).then(resolve2, resolve2));
               });
             } else {
               return this.directlySetCurrentUser(null);
@@ -6220,13 +6220,13 @@
           return this.registerStateListener(this.idTokenSubscription, nextOrObserver, error, completed);
         }
         authStateReady() {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve2, reject) => {
             if (this.currentUser) {
-              resolve();
+              resolve2();
             } else {
               const unsubscribe = this.onAuthStateChanged(() => {
                 unsubscribe();
-                resolve();
+                resolve2();
               }, reject);
             }
           });
@@ -6627,7 +6627,7 @@
                 return auth._tenantRecaptchaConfigs[auth.tenantId].siteKey;
               }
             }
-            return new Promise(async (resolve, reject) => {
+            return new Promise(async (resolve2, reject) => {
               getRecaptchaConfig(auth, {
                 clientType: "CLIENT_TYPE_WEB",
                 version: "RECAPTCHA_ENTERPRISE"
@@ -6642,21 +6642,21 @@
                   } else {
                     auth._tenantRecaptchaConfigs[auth.tenantId] = config;
                   }
-                  return resolve(config.siteKey);
+                  return resolve2(config.siteKey);
                 }
               }).catch((error) => {
                 reject(error);
               });
             });
           }
-          function retrieveRecaptchaToken(siteKey, resolve, reject) {
+          function retrieveRecaptchaToken(siteKey, resolve2, reject) {
             const grecaptcha = window.grecaptcha;
             if (isEnterprise(grecaptcha)) {
               grecaptcha.enterprise.ready(() => {
                 grecaptcha.enterprise.execute(siteKey, { action }).then((token) => {
-                  resolve(token);
+                  resolve2(token);
                 }).catch(() => {
-                  resolve(FAKE_TOKEN);
+                  resolve2(FAKE_TOKEN);
                 });
               });
             } else {
@@ -6667,13 +6667,13 @@
             const mockRecaptcha = new MockGreCAPTCHATopLevel();
             return mockRecaptcha.execute("siteKey", { action: "verify" });
           }
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve2, reject) => {
             retrieveSiteKey(this.auth).then(async (siteKey) => {
               if (!forceRefresh && isEnterprise(window.grecaptcha) && // If download has already been initiated, do not trigger another
               // download, await the promise here.
               _RecaptchaEnterpriseVerifier.scriptInjectionDeferred) {
                 await _RecaptchaEnterpriseVerifier.scriptInjectionDeferred.promise;
-                retrieveRecaptchaToken(siteKey, resolve, reject);
+                retrieveRecaptchaToken(siteKey, resolve2, reject);
               } else {
                 if (typeof window === "undefined") {
                   reject(new Error("RecaptchaVerifier is only supported in browser"));
@@ -6688,7 +6688,7 @@
                   _RecaptchaEnterpriseVerifier.scriptInjectionDeferred?.resolve();
                 };
                 _loadJS(url).then(() => _RecaptchaEnterpriseVerifier.scriptInjectionDeferred?.promise).then(() => {
-                  retrieveRecaptchaToken(siteKey, resolve, reject);
+                  retrieveRecaptchaToken(siteKey, resolve2, reject);
                 }).catch((error) => {
                   reject(error);
                 });
@@ -8043,7 +8043,7 @@
           }
           let completionTimer;
           let handler;
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve2, reject) => {
             const eventId = _generateEventId("", 20);
             messageChannel.port1.start();
             const ackTimer = setTimeout(() => {
@@ -8075,7 +8075,7 @@
                     break;
                   case "done":
                     clearTimeout(completionTimer);
-                    resolve(messageEvent.data.response);
+                    resolve2(messageEvent.data.response);
                     break;
                   default:
                     clearTimeout(ackTimer);
@@ -8111,9 +8111,9 @@
           this.request = request;
         }
         toPromise() {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve2, reject) => {
             this.request.addEventListener("success", () => {
-              resolve(this.request.result);
+              resolve2(this.request.result);
             });
             this.request.addEventListener("error", () => {
               reject(this.request.error);
@@ -8429,7 +8429,7 @@
           if (this.shouldResolveImmediately(hl) && isV2(_window().grecaptcha)) {
             return Promise.resolve(_window().grecaptcha);
           }
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve2, reject) => {
             const networkTimeout = _window().setTimeout(() => {
               reject(_createError(
                 auth,
@@ -8456,7 +8456,7 @@
                 return widgetId;
               };
               this.hostLanguage = hl;
-              resolve(recaptcha);
+              resolve2(recaptcha);
             };
             const url = `${_recaptchaV2ScriptUrl()}?${querystring({
               onload: _JSLOAD_CALLBACK,
@@ -8555,13 +8555,13 @@
           if (response) {
             return response;
           }
-          return new Promise((resolve) => {
+          return new Promise((resolve2) => {
             const tokenChange = (token) => {
               if (!token) {
                 return;
               }
               this.tokenChangeListeners.delete(tokenChange);
-              resolve(token);
+              resolve2(token);
             };
             this.tokenChangeListeners.add(tokenChange);
             if (this.isInvisible) {
@@ -8877,8 +8877,8 @@
           this.filter = Array.isArray(filter) ? filter : [filter];
         }
         execute() {
-          return new Promise(async (resolve, reject) => {
-            this.pendingPromise = { resolve, reject };
+          return new Promise(async (resolve2, reject) => {
+            this.pendingPromise = { resolve: resolve2, reject };
             try {
               this.eventManager = await this.resolver._initialize(this.auth);
               await this.onExecution();
@@ -9585,10 +9585,10 @@
       };
       _setExternalJSProvider({
         loadJS(url) {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve2, reject) => {
             const el = document.createElement("script");
             el.setAttribute("src", url);
-            el.onload = resolve;
+            el.onload = resolve2;
             el.onerror = (e) => {
               const error = _createError(
                 "internal-error"
@@ -10238,12 +10238,726 @@
     }
   });
 
+  // node_modules/@capacitor/synapse/dist/synapse.mjs
+  function s(t) {
+    t.CapacitorUtils.Synapse = new Proxy(
+      {},
+      {
+        get(e, n) {
+          return new Proxy({}, {
+            get(w, o) {
+              return (c, p, r) => {
+                const i = t.Capacitor.Plugins[n];
+                if (i === void 0) {
+                  r(new Error(`Capacitor plugin ${n} not found`));
+                  return;
+                }
+                if (typeof i[o] != "function") {
+                  r(new Error(`Method ${o} not found in Capacitor plugin ${n}`));
+                  return;
+                }
+                (async () => {
+                  try {
+                    const a = await i[o](c);
+                    p(a);
+                  } catch (a) {
+                    r(a);
+                  }
+                })();
+              };
+            }
+          });
+        }
+      }
+    );
+  }
+  function u(t) {
+    t.CapacitorUtils.Synapse = new Proxy(
+      {},
+      {
+        get(e, n) {
+          return t.cordova.plugins[n];
+        }
+      }
+    );
+  }
+  function f(t = false) {
+    typeof window > "u" || (window.CapacitorUtils = window.CapacitorUtils || {}, window.Capacitor !== void 0 && !t ? s(window) : window.cordova !== void 0 && u(window));
+  }
+  var init_synapse = __esm({
+    "node_modules/@capacitor/synapse/dist/synapse.mjs"() {
+    }
+  });
+
+  // node_modules/@capacitor/filesystem/dist/esm/definitions.js
+  var Directory, Encoding;
+  var init_definitions2 = __esm({
+    "node_modules/@capacitor/filesystem/dist/esm/definitions.js"() {
+      (function(Directory2) {
+        Directory2["Documents"] = "DOCUMENTS";
+        Directory2["Data"] = "DATA";
+        Directory2["Library"] = "LIBRARY";
+        Directory2["Cache"] = "CACHE";
+        Directory2["External"] = "EXTERNAL";
+        Directory2["ExternalStorage"] = "EXTERNAL_STORAGE";
+        Directory2["ExternalCache"] = "EXTERNAL_CACHE";
+        Directory2["LibraryNoCloud"] = "LIBRARY_NO_CLOUD";
+        Directory2["Temporary"] = "TEMPORARY";
+      })(Directory || (Directory = {}));
+      (function(Encoding2) {
+        Encoding2["UTF8"] = "utf8";
+        Encoding2["ASCII"] = "ascii";
+        Encoding2["UTF16"] = "utf16";
+      })(Encoding || (Encoding = {}));
+    }
+  });
+
+  // node_modules/@capacitor/filesystem/dist/esm/web.js
+  var web_exports2 = {};
+  __export(web_exports2, {
+    FilesystemWeb: () => FilesystemWeb
+  });
+  function resolve(path) {
+    const posix = path.split("/").filter((item) => item !== ".");
+    const newPosix = [];
+    posix.forEach((item) => {
+      if (item === ".." && newPosix.length > 0 && newPosix[newPosix.length - 1] !== "..") {
+        newPosix.pop();
+      } else {
+        newPosix.push(item);
+      }
+    });
+    return newPosix.join("/");
+  }
+  function isPathParent(parent, children) {
+    parent = resolve(parent);
+    children = resolve(children);
+    const pathsA = parent.split("/");
+    const pathsB = children.split("/");
+    return parent !== children && pathsA.every((value, index) => value === pathsB[index]);
+  }
+  var FilesystemWeb;
+  var init_web2 = __esm({
+    "node_modules/@capacitor/filesystem/dist/esm/web.js"() {
+      init_dist();
+      init_definitions2();
+      FilesystemWeb = class _FilesystemWeb extends WebPlugin {
+        constructor() {
+          super(...arguments);
+          this.DB_VERSION = 1;
+          this.DB_NAME = "Disc";
+          this._writeCmds = ["add", "put", "delete"];
+          this.downloadFile = async (options) => {
+            var _a, _b;
+            const requestInit = buildRequestInit(options, options.webFetchExtra);
+            const response = await fetch(options.url, requestInit);
+            let blob;
+            if (!options.progress)
+              blob = await response.blob();
+            else if (!(response === null || response === void 0 ? void 0 : response.body))
+              blob = new Blob();
+            else {
+              const reader = response.body.getReader();
+              let bytes = 0;
+              const chunks = [];
+              const contentType = response.headers.get("content-type");
+              const contentLength = parseInt(response.headers.get("content-length") || "0", 10);
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done)
+                  break;
+                chunks.push(value);
+                bytes += (value === null || value === void 0 ? void 0 : value.length) || 0;
+                const status = {
+                  url: options.url,
+                  bytes,
+                  contentLength
+                };
+                this.notifyListeners("progress", status);
+              }
+              const allChunks = new Uint8Array(bytes);
+              let position = 0;
+              for (const chunk of chunks) {
+                if (typeof chunk === "undefined")
+                  continue;
+                allChunks.set(chunk, position);
+                position += chunk.length;
+              }
+              blob = new Blob([allChunks.buffer], { type: contentType || void 0 });
+            }
+            const result = await this.writeFile({
+              path: options.path,
+              directory: (_a = options.directory) !== null && _a !== void 0 ? _a : void 0,
+              recursive: (_b = options.recursive) !== null && _b !== void 0 ? _b : false,
+              data: blob
+            });
+            return { path: result.uri, blob };
+          };
+        }
+        readFileInChunks(_options, _callback) {
+          throw this.unavailable("Method not implemented.");
+        }
+        async initDb() {
+          if (this._db !== void 0) {
+            return this._db;
+          }
+          if (!("indexedDB" in window)) {
+            throw this.unavailable("This browser doesn't support IndexedDB");
+          }
+          return new Promise((resolve2, reject) => {
+            const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
+            request.onupgradeneeded = _FilesystemWeb.doUpgrade;
+            request.onsuccess = () => {
+              this._db = request.result;
+              resolve2(request.result);
+            };
+            request.onerror = () => reject(request.error);
+            request.onblocked = () => {
+              console.warn("db blocked");
+            };
+          });
+        }
+        static doUpgrade(event) {
+          const eventTarget = event.target;
+          const db = eventTarget.result;
+          switch (event.oldVersion) {
+            case 0:
+            case 1:
+            default: {
+              if (db.objectStoreNames.contains("FileStorage")) {
+                db.deleteObjectStore("FileStorage");
+              }
+              const store = db.createObjectStore("FileStorage", { keyPath: "path" });
+              store.createIndex("by_folder", "folder");
+            }
+          }
+        }
+        async dbRequest(cmd, args) {
+          const readFlag = this._writeCmds.indexOf(cmd) !== -1 ? "readwrite" : "readonly";
+          return this.initDb().then((conn) => {
+            return new Promise((resolve2, reject) => {
+              const tx = conn.transaction(["FileStorage"], readFlag);
+              const store = tx.objectStore("FileStorage");
+              const req = store[cmd](...args);
+              req.onsuccess = () => resolve2(req.result);
+              req.onerror = () => reject(req.error);
+            });
+          });
+        }
+        async dbIndexRequest(indexName, cmd, args) {
+          const readFlag = this._writeCmds.indexOf(cmd) !== -1 ? "readwrite" : "readonly";
+          return this.initDb().then((conn) => {
+            return new Promise((resolve2, reject) => {
+              const tx = conn.transaction(["FileStorage"], readFlag);
+              const store = tx.objectStore("FileStorage");
+              const index = store.index(indexName);
+              const req = index[cmd](...args);
+              req.onsuccess = () => resolve2(req.result);
+              req.onerror = () => reject(req.error);
+            });
+          });
+        }
+        getPath(directory, uriPath) {
+          const cleanedUriPath = uriPath !== void 0 ? uriPath.replace(/^[/]+|[/]+$/g, "") : "";
+          let fsPath = "";
+          if (directory !== void 0)
+            fsPath += "/" + directory;
+          if (uriPath !== "")
+            fsPath += "/" + cleanedUriPath;
+          return fsPath;
+        }
+        async clear() {
+          const conn = await this.initDb();
+          const tx = conn.transaction(["FileStorage"], "readwrite");
+          const store = tx.objectStore("FileStorage");
+          store.clear();
+        }
+        /**
+         * Read a file from disk
+         * @param options options for the file read
+         * @return a promise that resolves with the read file data result
+         */
+        async readFile(options) {
+          const path = this.getPath(options.directory, options.path);
+          const entry = await this.dbRequest("get", [path]);
+          if (entry === void 0)
+            throw Error("File does not exist.");
+          return { data: entry.content ? entry.content : "" };
+        }
+        /**
+         * Write a file to disk in the specified location on device
+         * @param options options for the file write
+         * @return a promise that resolves with the file write result
+         */
+        async writeFile(options) {
+          const path = this.getPath(options.directory, options.path);
+          let data = options.data;
+          const encoding = options.encoding;
+          const doRecursive = options.recursive;
+          const occupiedEntry = await this.dbRequest("get", [path]);
+          if (occupiedEntry && occupiedEntry.type === "directory")
+            throw Error("The supplied path is a directory.");
+          const parentPath = path.substr(0, path.lastIndexOf("/"));
+          const parentEntry = await this.dbRequest("get", [parentPath]);
+          if (parentEntry === void 0) {
+            const subDirIndex = parentPath.indexOf("/", 1);
+            if (subDirIndex !== -1) {
+              const parentArgPath = parentPath.substr(subDirIndex);
+              await this.mkdir({
+                path: parentArgPath,
+                directory: options.directory,
+                recursive: doRecursive
+              });
+            }
+          }
+          if (!encoding && !(data instanceof Blob)) {
+            data = data.indexOf(",") >= 0 ? data.split(",")[1] : data;
+            if (!this.isBase64String(data))
+              throw Error("The supplied data is not valid base64 content.");
+          }
+          const now = Date.now();
+          const pathObj = {
+            path,
+            folder: parentPath,
+            type: "file",
+            size: data instanceof Blob ? data.size : data.length,
+            ctime: now,
+            mtime: now,
+            content: data
+          };
+          await this.dbRequest("put", [pathObj]);
+          return {
+            uri: pathObj.path
+          };
+        }
+        /**
+         * Append to a file on disk in the specified location on device
+         * @param options options for the file append
+         * @return a promise that resolves with the file write result
+         */
+        async appendFile(options) {
+          const path = this.getPath(options.directory, options.path);
+          let data = options.data;
+          const encoding = options.encoding;
+          const parentPath = path.substr(0, path.lastIndexOf("/"));
+          const now = Date.now();
+          let ctime = now;
+          const occupiedEntry = await this.dbRequest("get", [path]);
+          if (occupiedEntry && occupiedEntry.type === "directory")
+            throw Error("The supplied path is a directory.");
+          const parentEntry = await this.dbRequest("get", [parentPath]);
+          if (parentEntry === void 0) {
+            const subDirIndex = parentPath.indexOf("/", 1);
+            if (subDirIndex !== -1) {
+              const parentArgPath = parentPath.substr(subDirIndex);
+              await this.mkdir({
+                path: parentArgPath,
+                directory: options.directory,
+                recursive: true
+              });
+            }
+          }
+          if (!encoding && !this.isBase64String(data))
+            throw Error("The supplied data is not valid base64 content.");
+          if (occupiedEntry !== void 0) {
+            if (occupiedEntry.content instanceof Blob) {
+              throw Error("The occupied entry contains a Blob object which cannot be appended to.");
+            }
+            if (occupiedEntry.content !== void 0 && !encoding) {
+              data = btoa(atob(occupiedEntry.content) + atob(data));
+            } else {
+              data = occupiedEntry.content + data;
+            }
+            ctime = occupiedEntry.ctime;
+          }
+          const pathObj = {
+            path,
+            folder: parentPath,
+            type: "file",
+            size: data.length,
+            ctime,
+            mtime: now,
+            content: data
+          };
+          await this.dbRequest("put", [pathObj]);
+        }
+        /**
+         * Delete a file from disk
+         * @param options options for the file delete
+         * @return a promise that resolves with the deleted file data result
+         */
+        async deleteFile(options) {
+          const path = this.getPath(options.directory, options.path);
+          const entry = await this.dbRequest("get", [path]);
+          if (entry === void 0)
+            throw Error("File does not exist.");
+          const entries = await this.dbIndexRequest("by_folder", "getAllKeys", [IDBKeyRange.only(path)]);
+          if (entries.length !== 0)
+            throw Error("Folder is not empty.");
+          await this.dbRequest("delete", [path]);
+        }
+        /**
+         * Create a directory.
+         * @param options options for the mkdir
+         * @return a promise that resolves with the mkdir result
+         */
+        async mkdir(options) {
+          const path = this.getPath(options.directory, options.path);
+          const doRecursive = options.recursive;
+          const parentPath = path.substr(0, path.lastIndexOf("/"));
+          const depth = (path.match(/\//g) || []).length;
+          const parentEntry = await this.dbRequest("get", [parentPath]);
+          const occupiedEntry = await this.dbRequest("get", [path]);
+          if (depth === 1)
+            throw Error("Cannot create Root directory");
+          if (occupiedEntry !== void 0)
+            throw Error("Current directory does already exist.");
+          if (!doRecursive && depth !== 2 && parentEntry === void 0)
+            throw Error("Parent directory must exist");
+          if (doRecursive && depth !== 2 && parentEntry === void 0) {
+            const parentArgPath = parentPath.substr(parentPath.indexOf("/", 1));
+            await this.mkdir({
+              path: parentArgPath,
+              directory: options.directory,
+              recursive: doRecursive
+            });
+          }
+          const now = Date.now();
+          const pathObj = {
+            path,
+            folder: parentPath,
+            type: "directory",
+            size: 0,
+            ctime: now,
+            mtime: now
+          };
+          await this.dbRequest("put", [pathObj]);
+        }
+        /**
+         * Remove a directory
+         * @param options the options for the directory remove
+         */
+        async rmdir(options) {
+          const { path, directory, recursive } = options;
+          const fullPath = this.getPath(directory, path);
+          const entry = await this.dbRequest("get", [fullPath]);
+          if (entry === void 0)
+            throw Error("Folder does not exist.");
+          if (entry.type !== "directory")
+            throw Error("Requested path is not a directory");
+          const readDirResult = await this.readdir({ path, directory });
+          if (readDirResult.files.length !== 0 && !recursive)
+            throw Error("Folder is not empty");
+          for (const entry2 of readDirResult.files) {
+            const entryPath = `${path}/${entry2.name}`;
+            const entryObj = await this.stat({ path: entryPath, directory });
+            if (entryObj.type === "file") {
+              await this.deleteFile({ path: entryPath, directory });
+            } else {
+              await this.rmdir({ path: entryPath, directory, recursive });
+            }
+          }
+          await this.dbRequest("delete", [fullPath]);
+        }
+        /**
+         * Return a list of files from the directory (not recursive)
+         * @param options the options for the readdir operation
+         * @return a promise that resolves with the readdir directory listing result
+         */
+        async readdir(options) {
+          const path = this.getPath(options.directory, options.path);
+          const entry = await this.dbRequest("get", [path]);
+          if (options.path !== "" && entry === void 0)
+            throw Error("Folder does not exist.");
+          const entries = await this.dbIndexRequest("by_folder", "getAllKeys", [IDBKeyRange.only(path)]);
+          const files = await Promise.all(entries.map(async (e) => {
+            let subEntry = await this.dbRequest("get", [e]);
+            if (subEntry === void 0) {
+              subEntry = await this.dbRequest("get", [e + "/"]);
+            }
+            return {
+              name: e.substring(path.length + 1),
+              type: subEntry.type,
+              size: subEntry.size,
+              ctime: subEntry.ctime,
+              mtime: subEntry.mtime,
+              uri: subEntry.path
+            };
+          }));
+          return { files };
+        }
+        /**
+         * Return full File URI for a path and directory
+         * @param options the options for the stat operation
+         * @return a promise that resolves with the file stat result
+         */
+        async getUri(options) {
+          const path = this.getPath(options.directory, options.path);
+          let entry = await this.dbRequest("get", [path]);
+          if (entry === void 0) {
+            entry = await this.dbRequest("get", [path + "/"]);
+          }
+          return {
+            uri: (entry === null || entry === void 0 ? void 0 : entry.path) || path
+          };
+        }
+        /**
+         * Return data about a file
+         * @param options the options for the stat operation
+         * @return a promise that resolves with the file stat result
+         */
+        async stat(options) {
+          const path = this.getPath(options.directory, options.path);
+          let entry = await this.dbRequest("get", [path]);
+          if (entry === void 0) {
+            entry = await this.dbRequest("get", [path + "/"]);
+          }
+          if (entry === void 0)
+            throw Error("Entry does not exist.");
+          return {
+            name: entry.path.substring(path.length + 1),
+            type: entry.type,
+            size: entry.size,
+            ctime: entry.ctime,
+            mtime: entry.mtime,
+            uri: entry.path
+          };
+        }
+        /**
+         * Rename a file or directory
+         * @param options the options for the rename operation
+         * @return a promise that resolves with the rename result
+         */
+        async rename(options) {
+          await this._copy(options, true);
+          return;
+        }
+        /**
+         * Copy a file or directory
+         * @param options the options for the copy operation
+         * @return a promise that resolves with the copy result
+         */
+        async copy(options) {
+          return this._copy(options, false);
+        }
+        async requestPermissions() {
+          return { publicStorage: "granted" };
+        }
+        async checkPermissions() {
+          return { publicStorage: "granted" };
+        }
+        /**
+         * Function that can perform a copy or a rename
+         * @param options the options for the rename operation
+         * @param doRename whether to perform a rename or copy operation
+         * @return a promise that resolves with the result
+         */
+        async _copy(options, doRename = false) {
+          let { toDirectory } = options;
+          const { to, from, directory: fromDirectory } = options;
+          if (!to || !from) {
+            throw Error("Both to and from must be provided");
+          }
+          if (!toDirectory) {
+            toDirectory = fromDirectory;
+          }
+          const fromPath = this.getPath(fromDirectory, from);
+          const toPath = this.getPath(toDirectory, to);
+          if (fromPath === toPath) {
+            return {
+              uri: toPath
+            };
+          }
+          if (isPathParent(fromPath, toPath)) {
+            throw Error("To path cannot contain the from path");
+          }
+          let toObj;
+          try {
+            toObj = await this.stat({
+              path: to,
+              directory: toDirectory
+            });
+          } catch (e) {
+            const toPathComponents = to.split("/");
+            toPathComponents.pop();
+            const toPath2 = toPathComponents.join("/");
+            if (toPathComponents.length > 0) {
+              const toParentDirectory = await this.stat({
+                path: toPath2,
+                directory: toDirectory
+              });
+              if (toParentDirectory.type !== "directory") {
+                throw new Error("Parent directory of the to path is a file");
+              }
+            }
+          }
+          if (toObj && toObj.type === "directory") {
+            throw new Error("Cannot overwrite a directory with a file");
+          }
+          const fromObj = await this.stat({
+            path: from,
+            directory: fromDirectory
+          });
+          const updateTime = async (path, ctime2, mtime) => {
+            const fullPath = this.getPath(toDirectory, path);
+            const entry = await this.dbRequest("get", [fullPath]);
+            entry.ctime = ctime2;
+            entry.mtime = mtime;
+            await this.dbRequest("put", [entry]);
+          };
+          const ctime = fromObj.ctime ? fromObj.ctime : Date.now();
+          switch (fromObj.type) {
+            // The "from" object is a file
+            case "file": {
+              const file = await this.readFile({
+                path: from,
+                directory: fromDirectory
+              });
+              if (doRename) {
+                await this.deleteFile({
+                  path: from,
+                  directory: fromDirectory
+                });
+              }
+              let encoding;
+              if (!(file.data instanceof Blob) && !this.isBase64String(file.data)) {
+                encoding = Encoding.UTF8;
+              }
+              const writeResult = await this.writeFile({
+                path: to,
+                directory: toDirectory,
+                data: file.data,
+                encoding
+              });
+              if (doRename) {
+                await updateTime(to, ctime, fromObj.mtime);
+              }
+              return writeResult;
+            }
+            case "directory": {
+              if (toObj) {
+                throw Error("Cannot move a directory over an existing object");
+              }
+              try {
+                await this.mkdir({
+                  path: to,
+                  directory: toDirectory,
+                  recursive: false
+                });
+                if (doRename) {
+                  await updateTime(to, ctime, fromObj.mtime);
+                }
+              } catch (e) {
+              }
+              const contents = (await this.readdir({
+                path: from,
+                directory: fromDirectory
+              })).files;
+              for (const filename of contents) {
+                await this._copy({
+                  from: `${from}/${filename.name}`,
+                  to: `${to}/${filename.name}`,
+                  directory: fromDirectory,
+                  toDirectory
+                }, doRename);
+              }
+              if (doRename) {
+                await this.rmdir({
+                  path: from,
+                  directory: fromDirectory
+                });
+              }
+            }
+          }
+          return {
+            uri: toPath
+          };
+        }
+        isBase64String(str) {
+          try {
+            return btoa(atob(str)) == str;
+          } catch (err) {
+            return false;
+          }
+        }
+      };
+      FilesystemWeb._debug = true;
+    }
+  });
+
+  // node_modules/@capacitor/filesystem/dist/esm/index.js
+  var Filesystem;
+  var init_esm3 = __esm({
+    "node_modules/@capacitor/filesystem/dist/esm/index.js"() {
+      init_dist();
+      init_synapse();
+      init_definitions2();
+      Filesystem = registerPlugin("Filesystem", {
+        web: () => Promise.resolve().then(() => (init_web2(), web_exports2)).then((m) => new m.FilesystemWeb())
+      });
+      f();
+    }
+  });
+
+  // node_modules/@capacitor/share/dist/esm/definitions.js
+  var init_definitions3 = __esm({
+    "node_modules/@capacitor/share/dist/esm/definitions.js"() {
+    }
+  });
+
+  // node_modules/@capacitor/share/dist/esm/web.js
+  var web_exports3 = {};
+  __export(web_exports3, {
+    ShareWeb: () => ShareWeb
+  });
+  var ShareWeb;
+  var init_web3 = __esm({
+    "node_modules/@capacitor/share/dist/esm/web.js"() {
+      init_dist();
+      ShareWeb = class extends WebPlugin {
+        async canShare() {
+          if (typeof navigator === "undefined" || !navigator.share) {
+            return { value: false };
+          } else {
+            return { value: true };
+          }
+        }
+        async share(options) {
+          if (typeof navigator === "undefined" || !navigator.share) {
+            throw this.unavailable("Share API not available in this browser");
+          }
+          await navigator.share({
+            title: options.title,
+            text: options.text,
+            url: options.url
+          });
+          return {};
+        }
+      };
+    }
+  });
+
+  // node_modules/@capacitor/share/dist/esm/index.js
+  var Share;
+  var init_esm4 = __esm({
+    "node_modules/@capacitor/share/dist/esm/index.js"() {
+      init_dist();
+      init_definitions3();
+      Share = registerPlugin("Share", {
+        web: () => Promise.resolve().then(() => (init_web3(), web_exports3)).then((m) => new m.ShareWeb())
+      });
+    }
+  });
+
   // build/capacitor-google-auth-bridge.js
   var require_capacitor_google_auth_bridge = __commonJS({
     "build/capacitor-google-auth-bridge.js"() {
       init_dist();
       init_esm2();
+      init_esm3();
+      init_esm4();
       window.CapacitorGoogleAuth = { Capacitor, FirebaseAuthentication };
+      window.LibraryFiles = { Capacitor, Filesystem, Directory, Share };
     }
   });
   require_capacitor_google_auth_bridge();

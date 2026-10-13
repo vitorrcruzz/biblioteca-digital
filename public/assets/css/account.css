@@ -192,3 +192,28 @@
   opacity: .5;
   cursor: wait;
 }
+
+
+#a-goal-year,
+#export-year {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface2);
+  color: var(--text);
+  font: inherit;
+}
+
+#a-goal-year:focus-visible,
+#export-year:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+#a-goal-year:disabled {
+  opacity: .5;
+}
+
+#export-excel-btn:disabled, #export-year:disabled { opacity: .5; cursor: default; }

@@ -10,6 +10,7 @@
 //  endpoint sob /api (livros, metas, categorias, sagas, conta...)
 // ─────────────────────────────────────────────────
 async function apiRequest(fullPath, options = {}) {
+  const { responseType, ...fetchOptions } = options;
   const token = window.__getAuthToken ? await window.__getAuthToken() : null;
 
   const res = await fetch(fullPath, {
@@ -17,7 +18,7 @@ async function apiRequest(fullPath, options = {}) {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    ...options,
+    ...fetchOptions,
   });
 
   if (res.status === 401) {
@@ -30,7 +31,7 @@ async function apiRequest(fullPath, options = {}) {
     throw new Error(err.error || `Erro ${res.status}`);
   }
 
-  return res.json();
+  return responseType === "blob" ? res.blob() : res.json();
 }
 
 // ─────────────────────────────────────────────────

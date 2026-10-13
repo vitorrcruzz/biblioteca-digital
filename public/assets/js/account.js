@@ -1,6 +1,10 @@
 const currentYear = new Date().getFullYear();
+let selectedGoalYear = currentYear;
+let accountGoals = new Map();
+let goalsLoaded = false;
 let currentGoalTarget = null;
 let goalBusy = false;
+let exportBusy = false;
 let currentUserEmail = ""; // preenchido em loadAccount() — evita depender do placeholder do input
 
 // ═══════════════════════════════════════════════════
@@ -22,12 +26,7 @@ async function loadAccount() {
     document.getElementById("a-name").value = user.name || "";
     document.getElementById("a-email").placeholder = user.email || "";
     currentUserEmail = user.email || "";
-    document.getElementById("current-year-label").textContent = currentYear;
 
-    const goals = await apiRequest("/api/goals");
-
-    const currentGoal = goals.find(g => g.year === currentYear);
-    renderAccountGoal(currentGoal?.target ?? null);
   } catch (err) {
     console.error("Erro ao carregar conta:", err);
   }
@@ -46,7 +45,7 @@ async function loadYears() {
       `).join("");
     }
   } catch (err) {
-    console.error("Erro ao carregar anos:", err);
+    throw err;
   }
 }
 
@@ -94,33 +93,77 @@ async function saveEmail() {
   }
 }
 
+function renderGoalYears() {
+  const years = new Set([...cachedYears, ...accountGoals.keys()]);
+  if (!years.size) years.add(currentYear);
+  if (!years.has(selectedGoalYear)) selectedGoalYear = Math.max(...years);
+  const select = document.getElementById("a-goal-year");
+  select.innerHTML = [...years].sort((a, b) => b - a)
+    .map(year => `<option value="${year}">${year}</option>`).join("");
+  select.value = selectedGoalYear;
+  renderExportYears();
+}
+
+async function loadGoals() {
+  if (goalBusy) return;
+  setGoalBusy(true);
+  document.getElementById("goal-retry-btn").hidden = true;
+  document.getElementById("goal-hint").textContent = "Carregando metas...";
+  renderGoalYears();
+  try {
+    const [goals] = await Promise.all([apiRequest("/api/goals"), loadYears()]);
+    accountGoals = new Map(goals.map(goal => [Number(goal.year), goal.target]));
+    goalsLoaded = true;
+    renderGoalYears();
+    renderAccountGoal(accountGoals.get(selectedGoalYear) ?? null);
+  } catch (err) {
+    goalsLoaded = false;
+    document.getElementById("goal-hint").textContent = "Erro ao carregar metas.";
+    document.getElementById("goal-retry-btn").hidden = false;
+  } finally {
+    setGoalBusy(false);
+  }
+}
+
+function changeGoalYear() {
+  if (goalBusy || !goalsLoaded) return;
+  selectedGoalYear = Number(document.getElementById("a-goal-year").value);
+  renderAccountGoal(accountGoals.get(selectedGoalYear) ?? null);
+}
+
 function renderAccountGoal(target) {
   currentGoalTarget = target;
+  document.getElementById("current-year-label").textContent = selectedGoalYear;
   document.getElementById("a-goal").value = target ?? "";
   document.getElementById("goal-hint").textContent = target === null
-    ? `Nenhuma meta definida para ${currentYear}`
-    : `Meta atual: ${target} livros em ${currentYear}`;
+    ? `Nenhuma meta definida para ${selectedGoalYear}`
+    : `Meta atual: ${target} livros em ${selectedGoalYear}`;
   document.getElementById("delete-goal-btn").hidden = target === null;
 }
 
 function setGoalBusy(busy) {
   goalBusy = busy;
-  document.getElementById("a-goal").disabled = busy;
-  document.getElementById("save-goal-btn").disabled = busy;
-  document.getElementById("delete-goal-btn").disabled = busy;
+  const disabled = busy || !goalsLoaded;
+  document.getElementById("a-goal-year").disabled = disabled;
+  document.getElementById("a-goal").disabled = disabled;
+  document.getElementById("save-goal-btn").disabled = disabled;
+  document.getElementById("delete-goal-btn").disabled = disabled;
+  renderExportYears();
 }
 
 async function saveGoal() {
-  if (goalBusy) return;
-  const target = parseInt(document.getElementById("a-goal").value);
-  if (!target || target < 1) { alert("Informe uma meta v\u00e1lida."); return; }
+  if (goalBusy || !goalsLoaded) return;
+  const year = selectedGoalYear;
+  const target = Number(document.getElementById("a-goal").value);
+  if (!Number.isSafeInteger(target) || target < 1) { alert("Informe uma meta v\u00e1lida."); return; }
   setGoalBusy(true);
   try {
     await accountFetch("/goal", {
       method: "PUT",
-      body: JSON.stringify({ year: currentYear, target }),
+      body: JSON.stringify({ year, target }),
     });
-    renderAccountGoal(target);
+    accountGoals.set(year, target);
+    if (selectedGoalYear === year) renderAccountGoal(target);
     showToast("Meta atualizada!");
   } catch (err) {
     alert("Erro ao salvar meta: " + err.message);
@@ -130,16 +173,19 @@ async function saveGoal() {
 }
 
 function confirmDeleteGoal() {
-  if (goalBusy || currentGoalTarget === null) return;
+  if (goalBusy || !goalsLoaded || currentGoalTarget === null) return;
+  const year = selectedGoalYear;
   openConfirm(
     "Excluir meta?",
-    `Deseja excluir a meta de leitura de ${currentYear}? Seus livros e leituras ser\u00e3o mantidos.`,
+    `Deseja excluir a meta de leitura de ${year}? Seus livros e leituras ser\u00e3o mantidos.`,
     async () => {
-      if (goalBusy || currentGoalTarget === null) return;
+      if (goalBusy || !accountGoals.has(year)) return;
       setGoalBusy(true);
       try {
-        await apiRequest(`/api/goals/${currentYear}`, { method: "DELETE" });
-        renderAccountGoal(null);
+        await apiRequest(`/api/goals/${year}`, { method: "DELETE" });
+        accountGoals.delete(year);
+        renderGoalYears();
+        renderAccountGoal(accountGoals.get(selectedGoalYear) ?? null);
         showToast("Meta exclu\u00edda.");
       } catch (err) {
         alert("Erro ao excluir meta: " + err.message);
@@ -174,6 +220,9 @@ function confirmDeleteBooks() {
     async () => {
       try {
         await accountFetch("/books", { method: "DELETE" });
+        accountGoals.clear();
+        cachedYears = [];
+        renderGoalYears();
         renderAccountGoal(null);
         showToast("Acervo excluído.");
       } catch (err) {
@@ -231,10 +280,61 @@ function openYearModalFromPanel() {
 // ═══════════════════════════════════════════════════
 if (window.__authReady) {
   loadAccount();
-  loadYears();
+  loadGoals();
 } else {
   window.addEventListener("authReady", () => {
     loadAccount();
-    loadYears();
+    loadGoals();
   });
+}
+function renderExportYears() {
+  const select = document.getElementById("export-year");
+  if (!select) return;
+  const selected = select.value;
+  const years = [...new Set([...cachedYears, ...accountGoals.keys()])].sort((a,b) => b-a);
+  select.innerHTML = '<option value="all">Todos os anos</option>' + years
+    .map(year => `<option value="${year}">${year}</option>`).join("");
+  select.value = years.includes(Number(selected)) ? selected : "all";
+  select.disabled = exportBusy || goalBusy || !goalsLoaded || !years.length;
+  document.getElementById("export-excel-btn").disabled = select.disabled;
+}
+
+async function exportExcel() {
+  if (exportBusy || !goalsLoaded) return;
+  const year = document.getElementById("export-year").value;
+  const hint = document.getElementById("export-hint");
+  const filename = `biblioteca-${year === "all" ? "todos-os-anos" : year}.xlsx`;
+  exportBusy = true;
+  renderExportYears();
+  hint.textContent = "Preparando planilha...";
+  try {
+    const blob = await apiRequest(`/api/exports/excel?year=${encodeURIComponent(year)}`, { responseType: "blob" });
+    const native = window.LibraryFiles;
+    if (native?.Capacitor.isNativePlatform()) {
+      if (!native.Capacitor.isPluginAvailable("Filesystem") || !native.Capacitor.isPluginAvailable("Share")) {
+        throw new Error("Atualize o aplicativo para exportar arquivos.");
+      }
+      const data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(",")[1]);
+        reader.onerror = () => reject(new Error("Falha ao preparar o arquivo."));
+        reader.readAsDataURL(blob);
+      });
+      const file = await native.Filesystem.writeFile({path: filename, data, directory: native.Directory.Cache});
+      await native.Share.share({title: "Minha Biblioteca", files: [file.uri], dialogTitle: "Salvar ou compartilhar planilha"});
+      hint.textContent = "Planilha preparada. Escolha onde salvar ou compartilhar.";
+    } else {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url; link.download = filename;
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      hint.textContent = "Download da planilha iniciado.";
+    }
+  } catch (err) {
+    hint.textContent = "Não foi possível exportar: " + err.message;
+  } finally {
+    exportBusy = false;
+    renderExportYears();
+  }
 }

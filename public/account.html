@@ -151,13 +151,29 @@
       <h3 class="account-section-title">🎯 Meta de leitura</h3>
       <div class="account-card">
         <div class="account-field">
-          <label>Meta para <span id="current-year-label"></span></label>
+          <label for="a-goal-year">Ano da meta</label>
+          <select id="a-goal-year" onchange="changeGoalYear()" disabled></select>
+          <label for="a-goal">Meta para <span id="current-year-label"></span></label>
           <div class="account-input-row">
-            <input id="a-goal" type="number" min="1" placeholder="Ex: 20 livros" />
-            <button id="save-goal-btn" class="btn-save" onclick="saveGoal()">Salvar</button>
+            <input id="a-goal" type="number" min="1" step="1" disabled placeholder="Ex: 20 livros" />
+            <button id="save-goal-btn" class="btn-save" disabled onclick="saveGoal()">Salvar</button>
           </div>
           <p class="account-hint" id="goal-hint" role="status"></p>
+          <button type="button" id="goal-retry-btn" class="btn-outline-full" onclick="loadGoals()" hidden>Tentar novamente</button>
           <button type="button" id="delete-goal-btn" class="btn-danger-action" onclick="confirmDeleteGoal()" hidden>Excluir meta</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="account-section">
+      <h3 class="account-section-title">Exportar para Excel</h3>
+      <div class="account-card">
+        <div class="account-field">
+          <label for="export-year">Anos da exportação</label>
+          <select id="export-year" disabled><option value="all">Todos os anos</option></select>
+          <p class="account-hint">Uma aba por ano, com livros, fórmulas, gráficos e metas. Inclui todos os registros do período.</p>
+          <button type="button" id="export-excel-btn" class="btn-save" onclick="exportExcel()" disabled>Exportar Excel (.xlsx)</button>
+          <p id="export-hint" class="account-hint" role="status"></p>
         </div>
       </div>
     </div>
@@ -227,6 +243,7 @@
   <script src="./assets/js/firebase-config.js"></script>
   <script type="module" src="./assets/js/app-init.js"></script>
   <script src="./assets/js/ui-common.js"></script>
+  <script src="./assets/js/capacitor-google-auth-bridge.js"></script>
   <script src="./assets/js/account.js"></script>
 </body>
 
