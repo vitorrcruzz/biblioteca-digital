@@ -358,10 +358,11 @@ async function renderDashboard() {
     const gc = document.getElementById("goal-card");
     if (goal) {
       gc.style.display = "";
-      const pct = Math.min(100, Math.round((finished / goal) * 100));
+      const pct = Math.round((finished / goal) * 100);
       document.getElementById("goal-fraction").textContent =
         `${finished} / ${goal}`;
-      document.getElementById("goal-fill").style.width = pct + "%";
+      document.getElementById("goal-fill").style.width = Math.min(100, pct) + "%";
+      document.getElementById("goal-percentage").textContent = pct + "%";
       const left = goal - finished;
       document.getElementById("goal-sub").textContent =
         left > 0

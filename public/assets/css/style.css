@@ -227,7 +227,25 @@ nav a .ico {
   color: var(--gold);
 }
 
+.goal-progress {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.goal-percentage {
+  flex-shrink: 0;
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .goal-bar {
+  min-width: 0;
   height: 10px;
   background: var(--surface2);
   border-radius: 99px;
@@ -242,9 +260,11 @@ nav a .ico {
 }
 
 .goal-sub {
+  flex: 1;
+  min-width: 0;
   font-size: 0.78rem;
   color: var(--muted);
-  margin-top: 8px;
+  margin: 0;
 }
 
 /* ── Charts row ── */
