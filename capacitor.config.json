@@ -4,12 +4,15 @@
   "webDir": "public",
   "server": {
     "url": "https://serverbooks.springbok-slowworm.ts.net",
-    "cleartext": false
+    "cleartext": false,
+    "errorPath": "connection-error.html"
   },
   "plugins": {
     "FirebaseAuthentication": {
       "skipNativeAuth": false,
-      "providers": ["google.com"]
+      "providers": [
+        "google.com"
+      ]
     }
   }
 }

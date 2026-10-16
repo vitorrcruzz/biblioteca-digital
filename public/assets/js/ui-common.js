@@ -13,13 +13,20 @@ async function apiRequest(fullPath, options = {}) {
   const { responseType, ...fetchOptions } = options;
   const token = window.__getAuthToken ? await window.__getAuthToken() : null;
 
-  const res = await fetch(fullPath, {
+  let res;
+  try {
+    res = await fetch(fullPath, {
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     ...fetchOptions,
-  });
+    });
+  } catch (error) {
+    if (error.name !== "AbortError") showConnectionNotice();
+    throw error;
+  }
+  if (res.status >= 502 && res.status <= 504) showConnectionNotice();
 
   if (res.status === 401) {
     window.location.href = "/login.html";
@@ -104,4 +111,35 @@ function openUserPanel() {
 function closeUserPanel() {
   document.getElementById("user-panel").classList.remove("open");
   document.getElementById("user-panel-overlay").classList.remove("open");
+}
+
+// Keep the current page and unsaved fields when an API request cannot connect.
+function showConnectionNotice() {
+  let notice = document.getElementById('connection-notice');
+  if (notice) { notice.hidden = false; return; }
+  notice = document.createElement('aside');
+  notice.id = 'connection-notice';
+  notice.setAttribute('aria-label', 'Estado da conexão');
+  notice.style.cssText = 'position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(440px,calc(100% - 32px));box-sizing:border-box;background:#191d29;color:#e8e9f0;border:1px solid #eebf48;border-radius:12px;padding:16px;z-index:10000;box-shadow:0 8px 24px #0006;font:14px/1.5 system-ui';
+  notice.innerHTML = '<p role="status" style="margin:0 0 12px">Conexão indisponível. Verifique sua internet ou aguarde o servidor voltar.</p><div style="display:flex;gap:12px;flex-wrap:wrap"><button type="button" data-retry style="padding:10px 14px;border:0;border-radius:8px;background:#eebf48;color:#171717;font:600 14px system-ui;cursor:pointer">Tentar novamente</button><button type="button" data-close style="padding:10px 14px;border:1px solid #7b88a8;border-radius:8px;background:transparent;color:#e8e9f0;cursor:pointer">Fechar aviso</button></div>';
+  document.body.appendChild(notice);
+  notice.querySelector('[data-close]').onclick = () => { notice.hidden = true; };
+  const retry = notice.querySelector('[data-retry]');
+  retry.onclick = async () => {
+    const message = notice.querySelector('[role="status"]');
+    retry.disabled = true;
+    message.textContent = 'Verificando conexão…';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    try {
+      const response = await fetch('/api/health', {cache:'no-store', signal:controller.signal});
+      if (!response.ok || (await response.json()).status !== 'ok') throw new Error();
+      message.textContent = 'Conexão restabelecida. Tente novamente a ação que estava realizando.';
+    } catch {
+      message.textContent = 'Ainda não foi possível conectar. Tente novamente em instantes.';
+    } finally {
+      clearTimeout(timeout);
+      retry.disabled = false;
+    }
+  };
 }
