@@ -62,6 +62,12 @@ O aplicativo usa **Capacitor** e carrega o site configurado em `capacitor.config
 
 > Mudanças nas páginas e na API precisam ser disponibilizadas no servidor. Alterações em plugins ou configurações nativas também exigem um novo APK.
 
+### Recuperação de conexão no Android
+
+A partir do APK 1.5, falhas ao carregar o servidor exibem uma tela incluída no próprio aplicativo, com **Tentar novamente**. Uma navegação que não termina em 20 segundos também oferece essa recuperação. O botão usa o endereço da variante instalada: produção no release e servidor local no debug.
+
+Se a página já estiver aberta, falhas de rede ou respostas 502–504 da API mostram um aviso sem descartar o formulário. O botão verifica a disponibilidade pelo endpoint público `GET /api/health`; nenhuma operação de cadastro, edição ou exclusão é reenviada automaticamente. Após reconectar, o usuário pode tentar a ação novamente.
+
 ## Tecnologias e arquitetura
 
 | Camada | Tecnologias |
