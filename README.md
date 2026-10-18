@@ -68,6 +68,13 @@ A partir do APK 1.5, falhas ao carregar o servidor exibem uma tela incluída no 
 
 Se a página já estiver aberta, falhas de rede ou respostas 502–504 da API mostram um aviso sem descartar o formulário. O botão verifica a disponibilidade pelo endpoint público `GET /api/health`; nenhuma operação de cadastro, edição ou exclusão é reenviada automaticamente. Após reconectar, o usuário pode tentar a ação novamente.
 
+### Lembretes de leitura no Android
+
+No APK 1.6 ou superior, acesse **Minha conta → Lembretes de leitura**, ative a opção, escolha os dias e o horário e salve. A permissão de notificações é solicitada somente ao ativar o recurso. O horário é aproximado e pode variar com a economia de bateria do Android.
+
+Os lembretes ficam neste aparelho, separados por conta, e reúnem todos os livros com status **Lendo**, de qualquer ano. São cancelados ao sair da conta, desativar a opção ou sincronizar um acervo sem leituras em andamento. A preferência permanece salva para futuras leituras. Ao tocar na notificação, o aplicativo é aberto.
+
+Após agendados, os avisos não dependem do servidor. Alterações feitas pelo site só atualizam os lembretes quando o aplicativo volta a sincronizar com conexão. A opção não aparece no navegador nem em APKs sem o plugin de notificações.
 ## Tecnologias e arquitetura
 
 | Camada | Tecnologias |
@@ -229,3 +236,5 @@ Chaves de serviço, credenciais de assinatura, bancos e configurações locais s
 <p align="center">
   Desenvolvido com ☕ e 📚 por Vitor -2026.
 </p>
+
+<!-- Android: build/patch-reading-reminders.cjs preserves allowWhileIdle for weekly recurrence in Capacitor Local Notifications 8.3.1. Review this patch when upgrading the plugin. -->
