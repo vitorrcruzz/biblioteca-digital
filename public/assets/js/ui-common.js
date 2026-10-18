@@ -38,7 +38,16 @@ async function apiRequest(fullPath, options = {}) {
     throw new Error(err.error || `Erro ${res.status}`);
   }
 
-  return responseType === "blob" ? res.blob() : res.json();
+  const result = await (responseType === "blob" ? res.blob() : res.json());
+  const method = (fetchOptions.method || 'GET').toUpperCase();
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    if (fullPath === '/api/account/' && method === 'DELETE') {
+      await window.ReadingReminders?.clearSession();
+    } else if (fullPath.startsWith('/api/books') || fullPath === '/api/account/books') {
+      if (window.dispatchEvent) window.dispatchEvent(new Event('libraryChanged'));
+    }
+  }
+  return result;
 }
 
 // ─────────────────────────────────────────────────

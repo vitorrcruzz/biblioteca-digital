@@ -6,12 +6,13 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
-    "build:bridge": "esbuild build/capacitor-google-auth-bridge.js --bundle --outfile=public/assets/js/capacitor-google-auth-bridge.js --format=iife",
+    "build:bridge": "node build/patch-reading-reminders.cjs && esbuild build/capacitor-google-auth-bridge.js --bundle --outfile=public/assets/js/capacitor-google-auth-bridge.js --format=iife",
     "presync": "npm run build:bridge",
     "test": "node --test tests/*.test.js",
     "android:local": "node build/android-local.cjs",
     "android:connect": "node build/android-local.cjs --connect-only",
-    "build:android": "powershell -NoProfile -ExecutionPolicy Bypass -File build/android-release.ps1"
+    "build:android": "powershell -NoProfile -ExecutionPolicy Bypass -File build/android-release.ps1",
+    "postinstall": "node build/patch-reading-reminders.cjs"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
     "@capacitor/core": "^8.5.0",
     "@capacitor/filesystem": "^8.1.4",
     "@capacitor/ios": "^8.5.0",
+    "@capacitor/local-notifications": "^8.3.1",
     "@capacitor/share": "^8.0.3",
     "better-sqlite3": "^12.9.0",
     "cors": "^2.8.6",

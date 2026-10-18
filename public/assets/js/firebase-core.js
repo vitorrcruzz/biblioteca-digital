@@ -44,6 +44,7 @@ function waitForAuth() {
         localStorage.setItem("fb_token", authToken);
         resolve(user);
       } else {
+        await window.ReadingReminders?.clearSession();
         window.location.href = "/login.html";
       }
     });
@@ -59,6 +60,7 @@ async function getToken() {
 }
 
 async function logout() {
+  await window.ReadingReminders?.clearSession();
   await signOut(auth);
   localStorage.removeItem("fb_token");
   window.location.href = "/login.html";
