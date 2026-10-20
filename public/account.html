@@ -193,7 +193,7 @@
         <div class="reminder-schedule">
           <div class="reminder-time-row">
             <label for="reminder-time"><strong>Qual o melhor horário?</strong><small>Uma pausa no dia para os livros</small></label>
-            <input id="reminder-time" type="time" value="20:00">
+            <button id="reminder-time" type="button" value="20:00" aria-haspopup="dialog" aria-controls="reminder-time-dialog" aria-label="Escolher horário do lembrete">20:00</button>
           </div>
           <fieldset class="reminder-days">
             <legend>Em quais dias?</legend>
@@ -283,6 +283,24 @@
 
   <div id="toast">✔ Salvo com sucesso!</div>
 
+  <dialog id="reminder-time-dialog" aria-labelledby="time-picker-title">
+    <form id="reminder-time-form">
+      <p class="time-picker-eyebrow">LEMBRETES DE LEITURA</p>
+      <h2 id="time-picker-title">Seu momento de leitura</h2>
+      <p class="time-picker-description">Escolha um horário para fazer uma pausa e ler.</p>
+      <div class="time-picker-fields">
+        <label>Hora<input id="reminder-hour" type="text" inputmode="numeric" pattern="([01]?[0-9]|2[0-3])" maxlength="2" required aria-label="Hora, de 00 a 23" autocomplete="off"></label>
+        <span aria-hidden="true">:</span>
+        <label>Minuto<input id="reminder-minute" type="text" inputmode="numeric" pattern="[0-5]?[0-9]" maxlength="2" required aria-label="Minuto, de 00 a 59" autocomplete="off"></label>
+      </div>
+      <p class="time-picker-description">Formato de 24 horas</p>
+      <div class="time-picker-actions">
+        <button id="reminder-time-cancel" type="button">Cancelar</button>
+        <button class="btn-save" type="submit">Definir horário</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="./assets/js/reminder-time-picker.js"></script>
   <script src="./assets/js/firebase-config.js"></script>
   <script type="module" src="./assets/js/app-init.js"></script>
   <script src="./assets/js/ui-common.js"></script>

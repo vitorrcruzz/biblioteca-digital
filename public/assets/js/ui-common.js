@@ -70,7 +70,7 @@ function openConfirm(title, msg, onConfirm, confirmLabel = "Confirmar", icon = "
   document.getElementById("confirm-title").textContent = title;
   document.getElementById("confirm-msg").textContent = msg;
   document.getElementById("confirm-yes").textContent = confirmLabel;
-  document.getElementById("confirm-icon").innerHTML = icon;
+  document.getElementById("confirm-icon").textContent = icon;
   document.getElementById("confirm-yes").onclick = () => {
     closeConfirm();
     onConfirm();

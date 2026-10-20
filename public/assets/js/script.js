@@ -137,7 +137,7 @@ function mobileFabClick() {
 //  HELPERS
 // ═══════════════════════════════════════════════════
 function years() {
-  return libraryMetadata.years;
+  return libraryMetadata.years.map(Number).filter(Number.isSafeInteger);
 }
 
 function starsHtml(r) {
@@ -158,13 +158,14 @@ function starsHtml(r) {
 }
 function badgeHtml(cat, sub) {
   if (!cat) return "";
-  const c = cat
+  const c = String(cat)
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s/g, "-");
-  const subHtml = sub ? `<span class="badge-sub">• ${sub}</span>` : "";
-  return `<span class="badge badge-${c}">${cat}${subHtml}</span>`;
+    .replace(/\s/g, "-")
+    .replace(/[^a-z0-9_-]/g, "");
+  const subHtml = sub ? `<span class="badge-sub">• ${escapeHtml(sub)}</span>` : "";
+  return `<span class="badge badge-${c}">${escapeHtml(cat)}${subHtml}</span>`;
 }
 
 function sagaBadgeHtml(b) {
@@ -173,7 +174,7 @@ function sagaBadgeHtml(b) {
   if (!saga) return "";
   const vol =
     b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== ""
-      ? ` <span class="badge-sub">· Vol. ${b.saga_order}</span>`
+      ? ` <span class="badge-sub">· Vol. ${escapeHtml(b.saga_order)}</span>`
       : "";
   return `<span class="badge badge-saga">🗂️ ${escapeHtml(saga.name)}${vol}</span>`;
 }
@@ -189,7 +190,7 @@ function statusHtml(s) {
 }
 
 function fmtDate(d) {
-  if (!d) return "—";
+  if (typeof d !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return "—";
   const [y, m, day] = d.split("-");
   return `${day}/${m}/${y}`;
 }
@@ -381,12 +382,12 @@ async function renderDashboard() {
           (b) => `
           <div class="book-row">
             <div class="title-col">
-              <div class="t">${b.title}</div>
-              <div class="a">${b.author}</div>
+              <div class="t">${escapeHtml(b.title)}</div>
+              <div class="a">${escapeHtml(b.author)}</div>
               ${b.saga_id ? `<div class="saga-inline-badge">${sagaBadgeHtml(b)}</div>` : ""}
             </div>
             <div>${badgeHtml(b.category)}</div>
-            <div style="color:var(--muted);font-size:.85rem">${b.pages || "—"}</div>
+            <div style="color:var(--muted);font-size:.85rem">${escapeHtml(b.pages || "—")}</div>
             <div>${starsHtml(b.rating)}</div>
             <div style="font-size:.82rem">${statusHtml(b.status)}</div>
           </div>`,
@@ -525,12 +526,12 @@ async function renderAcervo() {
           (b) => `
           <div class="acervo-row">
             <div>
-              <div class="t">${b.title}${b.is_reread ? ' <span class="badge-reread"><i class="fa-solid fa-arrows-rotate" style="color: rgb(255, 255, 255);"></i> Releitura</span>' : ""}</div>
-              <div class="a">${b.author}</div>
+              <div class="t">${escapeHtml(b.title)}${b.is_reread ? ' <span class="badge-reread"><i class="fa-solid fa-arrows-rotate" style="color: rgb(255, 255, 255);"></i> Releitura</span>' : ""}</div>
+              <div class="a">${escapeHtml(b.author)}</div>
               ${b.saga_id ? `<div class="saga-inline-badge">${sagaBadgeHtml(b)}</div>` : ""}
             </div>
             <div class="hide-sm">${badgeHtml(b.category, b.subcategory)}</div>
-            <div style="color:var(--muted);font-size:.84rem">${b.pages || "—"}</div>
+            <div style="color:var(--muted);font-size:.84rem">${escapeHtml(b.pages || "—")}</div>
             <div class="hide-sm" style="color:var(--muted);font-size:.82rem">${fmtDate(b.start_date)}</div>
             <div class="hide-sm" style="color:var(--muted);font-size:.82rem">${fmtDate(b.end_date)}</div>
             <div>${starsHtml(b.rating)}</div>
@@ -661,7 +662,7 @@ function populateCategorySelect(selectedCat, selectedSub) {
     categories
       .map(
         (c) =>
-          `<option value="${c.name}" ${c.name === selectedCat ? "selected" : ""}>${c.name}</option>`,
+          `<option value="${escapeHtml(c.name)}" ${c.name === selectedCat ? "selected" : ""}>${escapeHtml(c.name)}</option>`,
       )
       .join("");
 
@@ -683,7 +684,7 @@ function populateSubcategorySelect(catName, selectedSub) {
       cat.subcategories
         .map(
           (s) =>
-            `<option value="${s.name}" ${s.name === selectedSub ? "selected" : ""}>${s.name}</option>`,
+            `<option value="${escapeHtml(s.name)}" ${s.name === selectedSub ? "selected" : ""}>${escapeHtml(s.name)}</option>`,
         )
         .join("");
     field.style.display = "";
@@ -779,7 +780,8 @@ function escapeHtml(str) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function openManageCategoriesModal() {
@@ -1201,10 +1203,10 @@ function drawSagas() {
             .map(
               (b) => `
             <div class="saga-book-row">
-              <span class="saga-vol">${b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== "" ? `Vol. ${b.saga_order}` : "—"}</span>
+              <span class="saga-vol">${b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== "" ? `Vol. ${escapeHtml(b.saga_order)}` : "—"}</span>
               <div class="saga-book-info">
                 <span class="t">${escapeHtml(b.title)}</span>
-                <span class="a">${escapeHtml(b.author || "")} ${b.year ? `· ${b.year}` : ""}</span>
+                <span class="a">${escapeHtml(b.author || "")} ${b.year ? `· ${escapeHtml(b.year)}` : ""}</span>
               </div>
               ${badgeHtml(b.category, b.subcategory)}
               <span class="saga-book-status">${statusHtml(b.status)}</span>

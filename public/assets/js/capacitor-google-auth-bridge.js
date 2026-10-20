@@ -11382,6 +11382,7 @@
           const settings = reminders.settings();
           document.getElementById("reminder-enabled").checked = settings.enabled;
           document.getElementById("reminder-time").value = settings.time;
+          document.getElementById("reminder-time").textContent = settings.time;
           panel.querySelectorAll('[name="reminder-day"]').forEach((input) => {
             input.checked = settings.days.includes(Number(input.value));
           });
