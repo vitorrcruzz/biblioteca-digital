@@ -28,6 +28,12 @@ app.use(
 );
 app.use(express.json());
 
+// A lightweight probe for recovery, without account data or authentication.
+app.get('/api/health', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({status: 'ok'});
+});
+
 // Serve o frontend estático — não precisa de autenticação
 app.use(express.static(path.join(__dirname, "../public")));
 

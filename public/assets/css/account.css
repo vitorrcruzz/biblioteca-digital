@@ -217,3 +217,65 @@
 }
 
 #export-excel-btn:disabled, #export-year:disabled { opacity: .5; cursor: default; }
+
+#reading-reminders[hidden] { display: none; }
+.reminder-card { overflow: hidden; gap: 0; }
+#reminder-options[hidden] { display:none; }
+.reminder-intro { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+.reminder-icon { display:grid; place-items:center; width:48px; height:48px; flex-shrink:0; border-radius:14px; background:var(--surface2); font-size:1.5rem; }
+.reminder-intro h4 { margin:0 0 5px; color:var(--text); font-size:1.05rem; }
+.reminder-intro p, .reminder-caption { margin:0; font-size:.82rem; color:var(--muted); line-height:1.6; }
+.reminder-toggle { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px; background:var(--surface2); border:1px solid var(--border); border-radius:12px; cursor:pointer; }
+.reminder-toggle strong, .reminder-time-row strong { display:block; font-size:.9rem; color:var(--text); font-weight:600; }
+.reminder-toggle small, .reminder-time-row small { display:block; margin-top:4px; color:var(--muted); font-size:.76rem; line-height:1.5; }
+.reminder-switch { position:relative; display:inline-flex; align-items:center; width:48px; height:44px; flex-shrink:0; }
+.reminder-switch input, .reminder-day-options input { position:absolute; inset:0; width:100%; height:100%; margin:0; opacity:0; cursor:pointer; z-index:1; }
+.reminder-switch > span { width:48px; height:28px; background:var(--border); border-radius:20px; transition:background .15s; }
+.reminder-switch > span::after { content:""; display:block; margin:4px; width:20px; height:20px; background:var(--text); border-radius:50%; transition:transform .15s; }
+.reminder-switch input:checked + span { background:var(--gold); }
+.reminder-switch input:checked + span::after { transform:translateX(20px); background:#171717; }
+.reminder-switch input:focus-visible + span, .reminder-day-options input:focus-visible + span { outline:2px solid var(--gold); outline-offset:4px; }
+.reminder-schedule { padding:24px 0 18px; }
+.reminder-time-row { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+#reminder-time { width:138px; max-width:100%; min-width:0; min-height:48px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--surface2); color:var(--text); color-scheme:dark; font-family:inherit; font-size:1.1rem; font-weight:600; flex-shrink:0; }
+#reminder-time:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+.reminder-days { min-width:0; padding:0; border:0; margin:24px 0 0; }
+.reminder-days legend { margin-bottom:12px; font-size:.9rem; font-weight:600; color:var(--text); }
+.reminder-day-options { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; }
+.reminder-day-options label { position:relative; min-width:0; }
+.reminder-day-options span { display:grid; place-items:center; min-height:44px; border:1px solid var(--border); border-radius:10px; background:var(--surface2); color:var(--muted); font-size:.82rem; font-weight:600; transition:background .15s,color .15s; }
+.reminder-day-options input:checked + span { background:var(--gold); border-color:var(--gold); color:#171717; }
+.reminder-details { margin-top:10px; color:var(--muted); font-size:.78rem; line-height:1.6; }
+.reminder-details summary { cursor:pointer; padding:8px 0; width:fit-content; }
+.reminder-details p { margin:8px 0; }
+.reminder-footer { margin-top:18px; padding-top:20px; border-top:1px solid var(--border); }
+#reminder-save { width:100%; min-height:46px; }
+#reminder-save:disabled { opacity:.5; cursor:default; }
+#reminder-hint { margin:12px 0 0; text-align:center; line-height:1.6; }
+#reminder-hint:empty { display:none; }
+@media (max-width:480px) {
+  .reminder-day-options { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .reminder-time-row { flex-wrap:wrap; }
+  #reminder-time { flex-grow:1; }
+  .reminder-toggle { padding:12px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .reminder-switch > span, .reminder-switch > span::after, .reminder-day-options span { transition:none; }
+}
+
+/* Time picker shares the account palette instead of the Android clock dialog. */
+#reminder-time { cursor:pointer; color:var(--gold); font-variant-numeric:tabular-nums; }
+#reminder-time-dialog { width:min(400px, calc(100vw - 32px)); max-height:calc(100dvh - 32px); box-sizing:border-box; margin:auto; padding:26px; overflow:auto; border:1px solid var(--border); border-radius:20px; background:var(--surface); color:var(--text); box-shadow:0 24px 80px #0008; }
+#reminder-time-dialog::backdrop { background:rgba(0,0,0,.7); }
+.time-picker-eyebrow { color:var(--gold); font-size:.7rem; letter-spacing:.08em; margin:0 0 10px; }
+#time-picker-title { margin:0 0 8px; font-size:1.25rem; }
+.time-picker-description { color:var(--muted); font-size:.8rem; line-height:1.5; margin:0; }
+.time-picker-fields { display:grid; grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr); gap:12px; align-items:end; margin:24px 0 12px; }
+.time-picker-fields label { color:var(--muted); font-size:.8rem; }
+.time-picker-fields input { display:block; box-sizing:border-box; width:100%; margin-top:8px; padding:12px 4px; border:1px solid var(--border); border-radius:12px; background:var(--surface2); color:var(--gold); font:600 2.8rem/1.2 inherit; font-family:inherit; font-size:2.8rem; font-weight:600; text-align:center; font-variant-numeric:tabular-nums; }
+.time-picker-fields > span { align-self:center; padding-top:20px; text-align:center; color:var(--muted); font-size:2rem; }
+.time-picker-fields input:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+.time-picker-actions { display:flex; gap:12px; margin-top:26px; }
+.time-picker-actions button { flex:1; min-height:46px; padding:10px; border-radius:10px; font:600 .85rem inherit; font-family:inherit; cursor:pointer; }
+#reminder-time-cancel { border:1px solid var(--border); background:transparent; color:var(--muted); }
+@media (max-width:360px) { #reminder-time-dialog { padding:20px; } }

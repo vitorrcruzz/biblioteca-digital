@@ -178,6 +178,49 @@
       </div>
     </div>
 
+    <section class="account-section" id="reading-reminders" hidden>
+      <h3 class="account-section-title">Lembretes de leitura</h3>
+      <div class="account-card reminder-card">
+        <div class="reminder-intro">
+          <span class="reminder-icon" aria-hidden="true">📖</span>
+          <div><h4>Um momento para ler</h4><p>Reserve um tempo para suas leituras em andamento.</p></div>
+        </div>
+        <label class="reminder-toggle" for="reminder-enabled">
+          <span><strong>Receber lembretes</strong><small>Somente neste aparelho</small></span>
+          <span class="reminder-switch"><input type="checkbox" id="reminder-enabled" role="switch" aria-controls="reminder-options"><span aria-hidden="true"></span></span>
+        </label>
+        <div id="reminder-options" hidden>
+        <div class="reminder-schedule">
+          <div class="reminder-time-row">
+            <label for="reminder-time"><strong>Qual o melhor horário?</strong><small>Uma pausa no dia para os livros</small></label>
+            <button id="reminder-time" type="button" value="20:00" aria-haspopup="dialog" aria-controls="reminder-time-dialog" aria-label="Escolher horário do lembrete">20:00</button>
+          </div>
+          <fieldset class="reminder-days">
+            <legend>Em quais dias?</legend>
+            <div class="reminder-day-options">
+              <label><input type="checkbox" name="reminder-day" value="1" aria-label="Domingo"><span>Dom</span></label>
+              <label><input type="checkbox" name="reminder-day" value="2" aria-label="Segunda-feira"><span>Seg</span></label>
+              <label><input type="checkbox" name="reminder-day" value="3" aria-label="Terça-feira"><span>Ter</span></label>
+              <label><input type="checkbox" name="reminder-day" value="4" aria-label="Quarta-feira"><span>Qua</span></label>
+              <label><input type="checkbox" name="reminder-day" value="5" aria-label="Quinta-feira"><span>Qui</span></label>
+              <label><input type="checkbox" name="reminder-day" value="6" aria-label="Sexta-feira"><span>Sex</span></label>
+              <label><input type="checkbox" name="reminder-day" value="7" aria-label="Sábado"><span>Sáb</span></label>
+            </div>
+          </fieldset>
+        </div>
+        <p class="reminder-caption">Um único lembrete para todas as suas leituras.</p>
+        <details class="reminder-details">
+          <summary>Como os lembretes funcionam</summary>
+          <p>Incluímos os livros com status Lendo, de qualquer ano. O Android pode ajustar o horário para economizar bateria.</p>
+          <p>Os avisos funcionam offline após o agendamento. Alterações feitas pelo site são sincronizadas ao abrir o aplicativo com conexão.</p>
+        </details>
+        <div class="reminder-footer">
+          <button type="button" class="btn-save" id="reminder-save" disabled>Salvar lembretes</button>
+        </div>
+        </div>
+        <p class="account-hint" id="reminder-hint" role="status"></p>
+      </div>
+    </section>
     <!-- Zona de perigo -->
     <div class="account-section">
       <h3 class="account-section-title danger-title">⚠️ Zona de perigo</h3>
@@ -240,6 +283,24 @@
 
   <div id="toast">✔ Salvo com sucesso!</div>
 
+  <dialog id="reminder-time-dialog" aria-labelledby="time-picker-title">
+    <form id="reminder-time-form">
+      <p class="time-picker-eyebrow">LEMBRETES DE LEITURA</p>
+      <h2 id="time-picker-title">Seu momento de leitura</h2>
+      <p class="time-picker-description">Escolha um horário para fazer uma pausa e ler.</p>
+      <div class="time-picker-fields">
+        <label>Hora<input id="reminder-hour" type="text" inputmode="numeric" pattern="([01]?[0-9]|2[0-3])" maxlength="2" required aria-label="Hora, de 00 a 23" autocomplete="off"></label>
+        <span aria-hidden="true">:</span>
+        <label>Minuto<input id="reminder-minute" type="text" inputmode="numeric" pattern="[0-5]?[0-9]" maxlength="2" required aria-label="Minuto, de 00 a 59" autocomplete="off"></label>
+      </div>
+      <p class="time-picker-description">Formato de 24 horas</p>
+      <div class="time-picker-actions">
+        <button id="reminder-time-cancel" type="button">Cancelar</button>
+        <button class="btn-save" type="submit">Definir horário</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="./assets/js/reminder-time-picker.js"></script>
   <script src="./assets/js/firebase-config.js"></script>
   <script type="module" src="./assets/js/app-init.js"></script>
   <script src="./assets/js/ui-common.js"></script>

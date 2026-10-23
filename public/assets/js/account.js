@@ -37,7 +37,7 @@ let cachedYears = []; // preenchido em loadYears() — usado pelo painel de ano 
 async function loadYears() {
   try {
     const metadata = await apiRequest("/api/books/metadata");
-    cachedYears = metadata.years;
+    cachedYears = metadata.years.map(Number).filter(Number.isSafeInteger);
     const el = document.getElementById("year-list");
     if (el) {
       el.innerHTML = cachedYears.map(y => `
@@ -112,7 +112,7 @@ async function loadGoals() {
   renderGoalYears();
   try {
     const [goals] = await Promise.all([apiRequest("/api/goals"), loadYears()]);
-    accountGoals = new Map(goals.map(goal => [Number(goal.year), goal.target]));
+    accountGoals = new Map(goals.map(goal => [Number(goal.year), goal.target]).filter(([year]) => Number.isSafeInteger(year)));
     goalsLoaded = true;
     renderGoalYears();
     renderAccountGoal(accountGoals.get(selectedGoalYear) ?? null);

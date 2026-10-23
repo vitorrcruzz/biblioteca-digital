@@ -1,13 +1,13 @@
 # 📚 Biblioteca Digital
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Node.js-20.x-339933?logo=node.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/Node.js-22%20%7C%2024-339933?logo=node.js&logoColor=white" />
   <img src="https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white" />
   <img src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white" />
   <img src="https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase&logoColor=white" />
   <img src="https://img.shields.io/badge/Android-APK-3DDC84?logo=android&logoColor=white" />
   <img src="https://img.shields.io/badge/Ubuntu-24.04%20LTS-E95420?logo=ubuntu&logoColor=white" />
-  <img src="https://img.shields.io/badge/Vers%C3%A3o-v5.0-2ea44f" />
+  <img src="https://img.shields.io/badge/Vers%C3%A3o-v5.1-2ea44f" />
 </p>
 
 <p align="center">
@@ -62,6 +62,19 @@ O aplicativo usa **Capacitor** e carrega o site configurado em `capacitor.config
 
 > Mudanças nas páginas e na API precisam ser disponibilizadas no servidor. Alterações em plugins ou configurações nativas também exigem um novo APK.
 
+### Recuperação de conexão no Android
+
+A partir do APK 1.5, falhas ao carregar o servidor exibem uma tela incluída no próprio aplicativo, com **Tentar novamente**. Uma navegação que não termina em 20 segundos também oferece essa recuperação. O botão usa o endereço da variante instalada: produção no release e servidor local no debug.
+
+Se a página já estiver aberta, falhas de rede ou respostas 502–504 da API mostram um aviso sem descartar o formulário. O botão verifica a disponibilidade pelo endpoint público `GET /api/health`; nenhuma operação de cadastro, edição ou exclusão é reenviada automaticamente. Após reconectar, o usuário pode tentar a ação novamente.
+
+### Lembretes de leitura no Android
+
+No APK 1.6 ou superior, acesse **Minha conta → Lembretes de leitura**, ative a opção, escolha os dias e o horário e salve. A permissão de notificações é solicitada somente ao ativar o recurso. O horário é aproximado e pode variar com a economia de bateria do Android.
+
+Os lembretes ficam neste aparelho, separados por conta, e reúnem todos os livros com status **Lendo**, de qualquer ano. São cancelados ao sair da conta, desativar a opção ou sincronizar um acervo sem leituras em andamento. A preferência permanece salva para futuras leituras. Ao tocar na notificação, o aplicativo é aberto.
+
+Após agendados, os avisos não dependem do servidor. Alterações feitas pelo site só atualizam os lembretes quando o aplicativo volta a sincronizar com conexão. A opção não aparece no navegador nem em APKs sem o plugin de notificações.
 ## Tecnologias e arquitetura
 
 | Camada | Tecnologias |
@@ -142,7 +155,7 @@ Adicione a chave de conta de serviço do Firebase Admin em `server/firebase-admi
 npm start
 ```
 
-Abra **http://localhost:3000**. Para desenvolver com reinicialização automática do servidor, use `npm run dev`.
+Abra **http://localhost:3000**. Para desenvolver com reinicialização automática do servidor, use `npm run dev` (modo de observação nativo do Node.js).
 
 ### Configuração do servidor
 
@@ -152,6 +165,12 @@ Abra **http://localhost:3000**. Para desenvolver com reinicialização automáti
 | `ALLOWED_ORIGINS` | Não definida | Origens aceitas pelo CORS, separadas por vírgula. Sem definição, o CORS fica aberto. |
 
 Defina as variáveis no ambiente que inicia o processo. Em uma instalação com PM2, alterações no ambiente podem ser aplicadas com `pm2 restart biblioteca-digital --update-env`, usando o nome atribuído à aplicação.
+
+### Manutenção das dependências
+
+Use `npm ci` após atualizar o código no servidor quando o `package-lock.json` mudar. Para conferir os avisos de segurança, execute `npm audit` (ou `npm audit --omit=dev` para as dependências de produção).
+
+Os `overrides` em `package.json` selecionam versões corrigidas de dependências internas do Firebase, ExcelJS e das ferramentas Android/iOS. Revise-os ao atualizar esses pacotes. A instalação também reaplica a correção de recorrência dos lembretes; uma atualização do plugin de notificações exige revisar `build/patch-reading-reminders.cjs`.
 
 <a id="gerar-o-apk"></a>
 ## Gerar o APK
@@ -223,3 +242,5 @@ Chaves de serviço, credenciais de assinatura, bancos e configurações locais s
 <p align="center">
   Desenvolvido com ☕ e 📚 por Vitor -2026.
 </p>
+
+<!-- Android: build/patch-reading-reminders.cjs preserves allowWhileIdle for weekly recurrence in Capacitor Local Notifications 8.3.1. Review this patch when upgrading the plugin. -->

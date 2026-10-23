@@ -45,6 +45,7 @@ try {
     } else {
         Write-Host 'Sem testes locais neste checkout; a verificacao automatizada do APK continua.'
     }
+    Invoke-Checked 'node' @('build/patch-reading-reminders.cjs')
     Invoke-Checked 'node' @('node_modules/esbuild/bin/esbuild','build/capacitor-google-auth-bridge.js','--bundle','--outfile=public/assets/js/capacitor-google-auth-bridge.js','--format=iife')
     Invoke-Checked 'node' @('node_modules/@capacitor/cli/bin/capacitor','sync','android')
     Set-Location -LiteralPath (Join-Path $projectRoot 'android')

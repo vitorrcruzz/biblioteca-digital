@@ -5,13 +5,14 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "nodemon server/index.js",
-    "build:bridge": "esbuild build/capacitor-google-auth-bridge.js --bundle --outfile=public/assets/js/capacitor-google-auth-bridge.js --format=iife",
+    "dev": "node --watch server/index.js",
+    "build:bridge": "node build/patch-reading-reminders.cjs && esbuild build/capacitor-google-auth-bridge.js --bundle --outfile=public/assets/js/capacitor-google-auth-bridge.js --format=iife",
     "presync": "npm run build:bridge",
     "test": "node --test tests/*.test.js",
     "android:local": "node build/android-local.cjs",
     "android:connect": "node build/android-local.cjs --connect-only",
-    "build:android": "powershell -NoProfile -ExecutionPolicy Bypass -File build/android-release.ps1"
+    "build:android": "powershell -NoProfile -ExecutionPolicy Bypass -File build/android-release.ps1",
+    "postinstall": "node build/patch-reading-reminders.cjs"
   },
   "keywords": [],
   "author": "",
@@ -19,10 +20,11 @@
   "type": "commonjs",
   "dependencies": {
     "@capacitor-firebase/authentication": "^8.4.0",
-    "@capacitor/android": "^8.5.0",
-    "@capacitor/core": "^8.5.0",
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
     "@capacitor/filesystem": "^8.1.4",
-    "@capacitor/ios": "^8.5.0",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/local-notifications": "^8.3.1",
     "@capacitor/share": "^8.0.3",
     "better-sqlite3": "^12.9.0",
     "cors": "^2.8.6",
@@ -34,8 +36,24 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
-    "@capacitor/cli": "^8.5.0",
-    "esbuild": "^0.28.2",
-    "nodemon": "^3.1.14"
+    "@capacitor/cli": "^8.5.3",
+    "esbuild": "^0.28.2"
+  },
+  "overrides": {
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "^1.13.6"
+    },
+    "exceljs": {
+      "uuid": "^11.1.1"
+    },
+    "xcode": {
+      "uuid": "^11.1.1"
+    },
+    "@capacitor/assets": {
+      "sharp": "^0.35.5",
+      "@capacitor/cli": {
+        "tar": "^7.5.22"
+      }
+    }
   }
 }

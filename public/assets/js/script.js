@@ -137,7 +137,7 @@ function mobileFabClick() {
 //  HELPERS
 // ═══════════════════════════════════════════════════
 function years() {
-  return libraryMetadata.years;
+  return libraryMetadata.years.map(Number).filter(Number.isSafeInteger);
 }
 
 function starsHtml(r) {
@@ -158,13 +158,14 @@ function starsHtml(r) {
 }
 function badgeHtml(cat, sub) {
   if (!cat) return "";
-  const c = cat
+  const c = String(cat)
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s/g, "-");
-  const subHtml = sub ? `<span class="badge-sub">• ${sub}</span>` : "";
-  return `<span class="badge badge-${c}">${cat}${subHtml}</span>`;
+    .replace(/\s/g, "-")
+    .replace(/[^a-z0-9_-]/g, "");
+  const subHtml = sub ? `<span class="badge-sub">• ${escapeHtml(sub)}</span>` : "";
+  return `<span class="badge badge-${c}">${escapeHtml(cat)}${subHtml}</span>`;
 }
 
 function sagaBadgeHtml(b) {
@@ -173,7 +174,7 @@ function sagaBadgeHtml(b) {
   if (!saga) return "";
   const vol =
     b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== ""
-      ? ` <span class="badge-sub">· Vol. ${b.saga_order}</span>`
+      ? ` <span class="badge-sub">· Vol. ${escapeHtml(b.saga_order)}</span>`
       : "";
   return `<span class="badge badge-saga">🗂️ ${escapeHtml(saga.name)}${vol}</span>`;
 }
@@ -189,7 +190,7 @@ function statusHtml(s) {
 }
 
 function fmtDate(d) {
-  if (!d) return "—";
+  if (typeof d !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return "—";
   const [y, m, day] = d.split("-");
   return `${day}/${m}/${y}`;
 }
@@ -358,10 +359,11 @@ async function renderDashboard() {
     const gc = document.getElementById("goal-card");
     if (goal) {
       gc.style.display = "";
-      const pct = Math.min(100, Math.round((finished / goal) * 100));
+      const pct = Math.round((finished / goal) * 100);
       document.getElementById("goal-fraction").textContent =
         `${finished} / ${goal}`;
-      document.getElementById("goal-fill").style.width = pct + "%";
+      document.getElementById("goal-fill").style.width = Math.min(100, pct) + "%";
+      document.getElementById("goal-percentage").textContent = pct + "%";
       const left = goal - finished;
       document.getElementById("goal-sub").textContent =
         left > 0
@@ -380,12 +382,12 @@ async function renderDashboard() {
           (b) => `
           <div class="book-row">
             <div class="title-col">
-              <div class="t">${b.title}</div>
-              <div class="a">${b.author}</div>
+              <div class="t">${escapeHtml(b.title)}</div>
+              <div class="a">${escapeHtml(b.author)}</div>
               ${b.saga_id ? `<div class="saga-inline-badge">${sagaBadgeHtml(b)}</div>` : ""}
             </div>
             <div>${badgeHtml(b.category)}</div>
-            <div style="color:var(--muted);font-size:.85rem">${b.pages || "—"}</div>
+            <div style="color:var(--muted);font-size:.85rem">${escapeHtml(b.pages || "—")}</div>
             <div>${starsHtml(b.rating)}</div>
             <div style="font-size:.82rem">${statusHtml(b.status)}</div>
           </div>`,
@@ -524,12 +526,12 @@ async function renderAcervo() {
           (b) => `
           <div class="acervo-row">
             <div>
-              <div class="t">${b.title}${b.is_reread ? ' <span class="badge-reread"><i class="fa-solid fa-arrows-rotate" style="color: rgb(255, 255, 255);"></i> Releitura</span>' : ""}</div>
-              <div class="a">${b.author}</div>
+              <div class="t">${escapeHtml(b.title)}${b.is_reread ? ' <span class="badge-reread"><i class="fa-solid fa-arrows-rotate" style="color: rgb(255, 255, 255);"></i> Releitura</span>' : ""}</div>
+              <div class="a">${escapeHtml(b.author)}</div>
               ${b.saga_id ? `<div class="saga-inline-badge">${sagaBadgeHtml(b)}</div>` : ""}
             </div>
             <div class="hide-sm">${badgeHtml(b.category, b.subcategory)}</div>
-            <div style="color:var(--muted);font-size:.84rem">${b.pages || "—"}</div>
+            <div style="color:var(--muted);font-size:.84rem">${escapeHtml(b.pages || "—")}</div>
             <div class="hide-sm" style="color:var(--muted);font-size:.82rem">${fmtDate(b.start_date)}</div>
             <div class="hide-sm" style="color:var(--muted);font-size:.82rem">${fmtDate(b.end_date)}</div>
             <div>${starsHtml(b.rating)}</div>
@@ -660,7 +662,7 @@ function populateCategorySelect(selectedCat, selectedSub) {
     categories
       .map(
         (c) =>
-          `<option value="${c.name}" ${c.name === selectedCat ? "selected" : ""}>${c.name}</option>`,
+          `<option value="${escapeHtml(c.name)}" ${c.name === selectedCat ? "selected" : ""}>${escapeHtml(c.name)}</option>`,
       )
       .join("");
 
@@ -682,7 +684,7 @@ function populateSubcategorySelect(catName, selectedSub) {
       cat.subcategories
         .map(
           (s) =>
-            `<option value="${s.name}" ${s.name === selectedSub ? "selected" : ""}>${s.name}</option>`,
+            `<option value="${escapeHtml(s.name)}" ${s.name === selectedSub ? "selected" : ""}>${escapeHtml(s.name)}</option>`,
         )
         .join("");
     field.style.display = "";
@@ -778,7 +780,8 @@ function escapeHtml(str) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function openManageCategoriesModal() {
@@ -1200,10 +1203,10 @@ function drawSagas() {
             .map(
               (b) => `
             <div class="saga-book-row">
-              <span class="saga-vol">${b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== "" ? `Vol. ${b.saga_order}` : "—"}</span>
+              <span class="saga-vol">${b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== "" ? `Vol. ${escapeHtml(b.saga_order)}` : "—"}</span>
               <div class="saga-book-info">
                 <span class="t">${escapeHtml(b.title)}</span>
-                <span class="a">${escapeHtml(b.author || "")} ${b.year ? `· ${b.year}` : ""}</span>
+                <span class="a">${escapeHtml(b.author || "")} ${b.year ? `· ${escapeHtml(b.year)}` : ""}</span>
               </div>
               ${badgeHtml(b.category, b.subcategory)}
               <span class="saga-book-status">${statusHtml(b.status)}</span>
@@ -1400,36 +1403,28 @@ async function deleteBook(id) {
 //  NEWS POPUP
 // ═══════════════════════════════════════════════════
 const NEWS_POPUP = {
-  version: "v6",                    // ← muda aqui a cada nova versão
-  expires: "2026-11-01",            // ← ajuste para 14 dias a partir do lançamento real
+  version: "v7",                    // Nova chave para exibir esta atualização.
+  expires: "2026-11-15",            // 14 dias a partir de 01/11/2026.
   title: "Novidades da Biblioteca Digital",
   items: [
     {
-      icon: "📲",
-      title: "Novo App Mobile (Android)",
-      desc: "Biblioteca Digital agora está disponível para dispositivos Android! Baixe o app e tenha" +
-        " acesso rápido ao seu acervo. Por enquanto, o app está disponivel apenas para usuários de android," +
-        " mas em breve teremos na Play Store e na Apple Store.",
+      icon: "🔔",
+      title: "Lembretes de leitura no Android",
+      desc: "Escolha os dias e o horário para lembrar de continuar suas leituras. Ative em Minha conta → Lembretes de leitura. O horário dos avisos pode variar conforme o Android.",
       cta: {
-        label: "⬇️ Baixar Biblioteca Digital APK",
+        label: "⬇️ Atualizar aplicativo Android",
         url: "https://github.com/vitorrcruzz/biblioteca-digital/releases/latest/download/biblioteca-digital.apk"
       }
     },
     {
-      icon: "📄",
-      title: "Minha Estante paginada",
-      desc: "A aba Minha Estante agora é paginada, deixando a navegação mais rápida" + 
-      " e organizada, mesmo com um acervo grande.",
-    },
-    {
-      icon: "📊",
-      title: "Exporte seus livros para Excel",
-      desc: "Nas configurações da conta, você já pode exportar uma planilha Excel com todos os livros registrados no sistema.",
-    },
-    {
       icon: "🎯",
-      title: "Edite e/ou exclua suas metas anuais",
-      desc: "Agora é possível editar ou excluir as metas dos anos já registrados, mantendo seu planejamento de leitura sempre atualizado.",
+      title: "Acompanhe suas metas além de 100%",
+      desc: "A porcentagem abaixo da barra mostra seu progresso completo, inclusive quando você supera a meta de leitura.",
+    },
+    {
+      icon: "📶",
+      title: "Nova tela de conexão no Android",
+      desc: "Quando não for possível conectar ao servidor, o aplicativo mostra uma tela própria com a opção de tentar novamente, substituindo a antiga página de erro do Android.",
     },
   ]
 };

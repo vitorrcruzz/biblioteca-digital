@@ -14,5 +14,6 @@ if (userPanelEl) userPanelEl.textContent = user.displayName || user.email;
 window.__getAuthToken = getToken;
 
 // Sinaliza que o auth está pronto
+window.__authUserId = user.uid;
 window.__authReady = true;
 window.dispatchEvent(new Event("authReady"));

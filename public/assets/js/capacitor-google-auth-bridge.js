@@ -1,6 +1,10 @@
 (() => {
+  var __create = Object.create;
   var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __esm = (fn, res, err) => function __init() {
     if (err) throw err[0];
     try {
@@ -20,6 +24,22 @@
     for (var name3 in all)
       __defProp(target, name3, { get: all[name3], enumerable: true });
   };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+    // If the importer is in node compatibility mode or this is not an ESM
+    // file that has been converted to a CommonJS file using a Babel-
+    // compatible transform (i.e. "__esModule" has not been set), then set
+    // "default" to the CommonJS "module.exports" for node compatibility.
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+    mod
+  ));
 
   // node_modules/@capacitor/core/dist/index.js
   var ExceptionCode, CapacitorException, getPlatformId, createCapacitor, initCapacitorGlobal, Capacitor, registerPlugin, WebPlugin, encode, decode, CapacitorCookiesPluginWeb, CapacitorCookies, readBlobAsBase64, normalizeHttpHeaders, buildUrlParams, buildRequestInit, CapacitorHttpPluginWeb, CapacitorHttp, SystemBarsStyle, SystemBarType, SystemBarsPluginWeb, SystemBars;
@@ -265,7 +285,9 @@
             return;
           }
           const index = listeners.indexOf(listenerFunc);
-          this.listeners[eventName].splice(index, 1);
+          if (index !== -1) {
+            this.listeners[eventName].splice(index, 1);
+          }
           if (!this.listeners[eventName].length) {
             this.removeWindowListener(this.windowListeners[eventName]);
           }
@@ -2165,7 +2187,7 @@
         }
       };
       name$q = "@firebase/app";
-      version$1 = "0.16.1";
+      version$1 = "0.16.2";
       logger = new Logger("@firebase/app");
       name$p = "@firebase/app-compat";
       name$o = "@firebase/analytics-compat";
@@ -2193,7 +2215,7 @@
       name$2 = "@firebase/ai";
       name$1 = "@firebase/firestore-compat";
       name = "firebase";
-      version = "12.18.0";
+      version = "12.19.0";
       DEFAULT_ENTRY_NAME2 = "[DEFAULT]";
       PLATFORM_LOG_STRING = {
         [name$q]: "fire-core",
@@ -2487,7 +2509,7 @@
     }
   });
 
-  // node_modules/@firebase/auth/dist/esm/index-CvXU3_1x.js
+  // node_modules/@firebase/auth/dist/esm/index-4NFEPWkC.js
   function _prodErrorMap() {
     return {
       [
@@ -3806,7 +3828,8 @@
   async function updateProfile$1(auth, request) {
     return _performApiRequest(auth, "POST", "/v1/accounts:update", request);
   }
-  async function updateProfile(user, { displayName, photoURL: photoUrl }) {
+  async function updateProfile(user, profile) {
+    const { displayName, photoURL: photoUrl } = profile;
     if (displayName === void 0 && photoUrl === void 0) {
       return;
     }
@@ -4801,8 +4824,8 @@
     return document.getElementsByTagName("head")?.[0] ?? document;
   }
   var prodErrorMap, _DEFAULT_AUTH_ERROR_FACTORY, logClient, Delay, FetchProvider, SERVER_ERROR_MAP, CookieAuthProxiedEndpoints, DEFAULT_API_TIMEOUT_MS, NetworkTimeout, RecaptchaConfig, ProactiveRefresh, UserMetadata, StsTokenManager, UserImpl, instanceCache, InMemoryPersistence, inMemoryPersistence, PersistenceUserManager, AuthMiddlewareQueue, MINIMUM_MIN_PASSWORD_LENGTH, PasswordPolicyImpl, AuthImpl, Subscription, externalJSProvider, _SOLVE_TIME_MS, _EXPIRATION_TIME_MS, _WIDGET_ID_START, MockReCaptcha, MockGreCAPTCHATopLevel, MockGreCAPTCHA, MockWidget, RECAPTCHA_ENTERPRISE_VERIFIER_TYPE, FAKE_TOKEN, RECAPTCHA_ENTERPRISE_ONLOAD_CALLBACK_NAME, RecaptchaEnterpriseVerifier, AuthCredential, EmailAuthCredential, IDP_REQUEST_URI$1, OAuthCredential, VERIFY_PHONE_NUMBER_FOR_EXISTING_ERROR_MAP_, PhoneAuthCredential, ActionCodeURL, EmailAuthProvider, FederatedAuthProvider, BaseOAuthProvider, OAuthProvider, FacebookAuthProvider, GoogleAuthProvider, GithubAuthProvider, TwitterAuthProvider, UserCredentialImpl, MultiFactorError, GenericAdditionalUserInfo, FederatedAdditionalUserInfoWithUsername, FacebookAdditionalUserInfo, GithubAdditionalUserInfo, GoogleAdditionalUserInfo, TwitterAdditionalUserInfo, STORAGE_AVAILABLE_KEY, BrowserPersistenceClass, _POLLING_INTERVAL_MS$1, IE10_LOCAL_STORAGE_SYNC_DELAY, BrowserLocalPersistence, browserLocalPersistence, POLLING_INTERVAL_MS, CookiePersistence, BrowserSessionPersistence, browserSessionPersistence, Receiver, Sender, DB_NAME2, DB_VERSION2, DB_OBJECTSTORE_NAME, DB_DATA_KEYPATH, DBPromise, _POLLING_INTERVAL_MS, _TRANSACTION_RETRY_COUNT, IndexedDBLocalPersistence, indexedDBLocalPersistence, _JSLOAD_CALLBACK, NETWORK_TIMEOUT_DELAY, ReCaptchaLoaderImpl, MockReCaptchaLoaderImpl, RECAPTCHA_VERIFIER_TYPE, DEFAULT_PARAMS, RecaptchaVerifier, ConfirmationResultImpl, PhoneAuthProvider, IdpCredential, AbstractPopupRedirectOperation, _POLL_WINDOW_CLOSE_TIMEOUT, PopupOperation, PENDING_REDIRECT_KEY, redirectOutcomeMap, RedirectAction, EVENT_DUPLICATION_CACHE_DURATION_MS, AuthEventManager, IP_ADDRESS_REGEX, HTTP_REGEX, NETWORK_TIMEOUT, cachedGApiLoader, PING_TIMEOUT, IFRAME_PATH, EMULATED_IFRAME_PATH, IFRAME_ATTRIBUTES, EID_FROM_APIHOST, BASE_POPUP_OPTIONS, DEFAULT_WIDTH, DEFAULT_HEIGHT, TARGET_BLANK, FIREFOX_EMPTY_URL, AuthPopup, WIDGET_PATH, EMULATOR_WIDGET_PATH, FIREBASE_APP_CHECK_FRAGMENT_ID, WEB_STORAGE_SUPPORT_KEY, BrowserPopupRedirectResolver, browserPopupRedirectResolver, MultiFactorAssertionImpl, PhoneMultiFactorAssertionImpl, PhoneMultiFactorGenerator, TotpMultiFactorGenerator, TotpMultiFactorAssertionImpl, TotpSecret, name2, version2, AuthInterop, DEFAULT_ID_TOKEN_MAX_AGE, authIdTokenMaxAge, lastPostedIdToken, mintCookieFactory;
-  var init_index_CvXU3_1x = __esm({
-    "node_modules/@firebase/auth/dist/esm/index-CvXU3_1x.js"() {
+  var init_index_4NFEPWkC = __esm({
+    "node_modules/@firebase/auth/dist/esm/index-4NFEPWkC.js"() {
       init_index_esm4();
       init_index_esm();
       init_index_esm3();
@@ -5674,7 +5697,10 @@
           this.fullUserKey = _persistenceKeyName(this.userKey, config.apiKey, name3);
           this.fullPersistenceKey = _persistenceKeyName("persistence", config.apiKey, name3);
           this.boundEventHandler = auth._onStorageEvent.bind(auth);
-          this.persistence._addListener(this.fullUserKey, this.boundEventHandler);
+          try {
+            this.persistence._addListener(this.fullUserKey, this.boundEventHandler);
+          } catch {
+          }
         }
         setCurrentUser(user) {
           return this.persistence._set(this.fullUserKey, user.toJSON());
@@ -5711,15 +5737,22 @@
           }
         }
         delete() {
-          this.persistence._removeListener(this.fullUserKey, this.boundEventHandler);
+          try {
+            this.persistence._removeListener(this.fullUserKey, this.boundEventHandler);
+          } catch {
+          }
         }
         static async create(auth, persistenceHierarchy, userKey = "authUser") {
           if (!persistenceHierarchy.length) {
             return new _PersistenceUserManager(_getInstance(inMemoryPersistence), auth, userKey);
           }
           const availablePersistences = (await Promise.all(persistenceHierarchy.map(async (persistence) => {
-            if (await persistence._isAvailable()) {
-              return persistence;
+            try {
+              if (await persistence._isAvailable()) {
+                return persistence;
+              }
+            } catch {
+              return void 0;
             }
             return void 0;
           }))).filter((persistence) => persistence);
@@ -5980,8 +6013,14 @@
             if (this._deleted) {
               return;
             }
-            this.persistenceManager = await PersistenceUserManager.create(this, persistenceHierarchy);
-            this._resolvePersistenceManagerAvailable?.();
+            try {
+              this.persistenceManager = await PersistenceUserManager.create(this, persistenceHierarchy);
+            } catch (e) {
+              _logWarn(`Failed to initialize persistence: ${e}`);
+              this.persistenceManager = await PersistenceUserManager.create(this, []);
+            } finally {
+              this._resolvePersistenceManagerAvailable?.();
+            }
             if (this._deleted) {
               return;
             }
@@ -5991,7 +6030,13 @@
               } catch (e) {
               }
             }
-            await this.initializeCurrentUser(popupRedirectResolver);
+            try {
+              await this.initializeCurrentUser(popupRedirectResolver);
+            } catch (e) {
+              _logWarn(`Failed to initialize current user: ${e}`);
+              await this.directlySetCurrentUser(null).catch(() => {
+              });
+            }
             this.lastNotifiedUid = this.currentUser?.uid || null;
             if (this._deleted) {
               return;
@@ -6353,6 +6398,17 @@
               return;
             }
             cb(this.currentUser);
+          }).catch((err) => {
+            if (isUnsubscribed) {
+              return;
+            }
+            if (typeof nextOrObserver !== "function" && nextOrObserver.error) {
+              nextOrObserver.error(err);
+            } else if (error) {
+              error(err);
+            } else {
+              throw err;
+            }
           });
           if (typeof nextOrObserver === "function") {
             const unsubscribe = subscription.addObserver(nextOrObserver, error, completed);
@@ -6381,10 +6437,19 @@
             user._startProactiveRefresh();
           }
           this.currentUser = user;
-          if (user) {
-            await this.assertedPersistence.setCurrentUser(user);
-          } else {
-            await this.assertedPersistence.removeCurrentUser();
+          if (this.persistenceManager) {
+            try {
+              if (user) {
+                await this.persistenceManager.setCurrentUser(user);
+              } else {
+                await this.persistenceManager.removeCurrentUser();
+              }
+            } catch (e) {
+              const originalMessage = e?.message || String(e);
+              const error = _errorWithCustomMessage(this, "internal-error", `An internal AuthError has occurred: ${originalMessage}`);
+              error.customData = { originalError: e };
+              throw error;
+            }
           }
         }
         queue(action) {
@@ -8171,9 +8236,6 @@
           });
         }
         async _openDb() {
-          if (this.isClosing) {
-            throw new Error("Database is closing");
-          }
           if (this.dbPromise) {
             return this.dbPromise;
           }
@@ -8190,16 +8252,17 @@
               const db = await this._openDb();
               return await op(db);
             } catch (e) {
-              if (this.isClosing) {
-                throw e;
-              }
               if (numAttempts++ > _TRANSACTION_RETRY_COUNT) {
                 throw e;
               }
               if (this.dbPromise) {
-                const db = await this.dbPromise;
-                db.close();
+                const dbPromise2 = this.dbPromise;
                 this.dbPromise = null;
+                try {
+                  const db = await dbPromise2;
+                  db.close();
+                } catch {
+                }
               }
             }
           }
@@ -9507,7 +9570,7 @@
         }
       };
       name2 = "@firebase/auth";
-      version2 = "1.13.5";
+      version2 = "1.13.6";
       AuthInterop = class {
         constructor(auth) {
           this.auth = auth;
@@ -9616,7 +9679,7 @@
   // node_modules/@firebase/auth/dist/esm/index.js
   var init_esm = __esm({
     "node_modules/@firebase/auth/dist/esm/index.js"() {
-      init_index_CvXU3_1x();
+      init_index_4NFEPWkC();
       init_index_esm4();
       init_index_esm();
       init_index_esm3();
@@ -10949,6 +11012,507 @@
     }
   });
 
+  // node_modules/@capacitor/local-notifications/dist/esm/definitions.js
+  var Weekday;
+  var init_definitions4 = __esm({
+    "node_modules/@capacitor/local-notifications/dist/esm/definitions.js"() {
+      (function(Weekday2) {
+        Weekday2[Weekday2["Sunday"] = 1] = "Sunday";
+        Weekday2[Weekday2["Monday"] = 2] = "Monday";
+        Weekday2[Weekday2["Tuesday"] = 3] = "Tuesday";
+        Weekday2[Weekday2["Wednesday"] = 4] = "Wednesday";
+        Weekday2[Weekday2["Thursday"] = 5] = "Thursday";
+        Weekday2[Weekday2["Friday"] = 6] = "Friday";
+        Weekday2[Weekday2["Saturday"] = 7] = "Saturday";
+      })(Weekday || (Weekday = {}));
+    }
+  });
+
+  // node_modules/@capacitor/local-notifications/dist/esm/web.js
+  var web_exports4 = {};
+  __export(web_exports4, {
+    LocalNotificationsWeb: () => LocalNotificationsWeb
+  });
+  var LocalNotificationsWeb;
+  var init_web4 = __esm({
+    "node_modules/@capacitor/local-notifications/dist/esm/web.js"() {
+      init_dist();
+      LocalNotificationsWeb = class extends WebPlugin {
+        constructor() {
+          super(...arguments);
+          this.pending = [];
+          this.deliveredNotifications = [];
+          this.hasNotificationSupport = () => {
+            if (!("Notification" in window) || !Notification.requestPermission) {
+              return false;
+            }
+            if (Notification.permission !== "granted") {
+              try {
+                new Notification("");
+              } catch (e) {
+                if (e instanceof Error && e.name === "TypeError") {
+                  return false;
+                }
+              }
+            }
+            return true;
+          };
+        }
+        async getDeliveredNotifications() {
+          const deliveredSchemas = [];
+          for (const notification of this.deliveredNotifications) {
+            const deliveredSchema = {
+              title: notification.title,
+              id: parseInt(notification.tag),
+              body: notification.body
+            };
+            deliveredSchemas.push(deliveredSchema);
+          }
+          return {
+            notifications: deliveredSchemas
+          };
+        }
+        async removeDeliveredNotifications(delivered) {
+          for (const toRemove of delivered.notifications) {
+            const found = this.deliveredNotifications.find((n) => n.tag === String(toRemove.id));
+            found === null || found === void 0 ? void 0 : found.close();
+            this.deliveredNotifications = this.deliveredNotifications.filter(() => !found);
+          }
+        }
+        async removeDeliveredNotificationsById(options) {
+          for (const id of options.ids) {
+            const found = this.deliveredNotifications.find((n) => n.tag === String(id));
+            found === null || found === void 0 ? void 0 : found.close();
+            this.deliveredNotifications = this.deliveredNotifications.filter((n) => n !== found);
+          }
+        }
+        async removeAllDeliveredNotifications() {
+          for (const notification of this.deliveredNotifications) {
+            notification.close();
+          }
+          this.deliveredNotifications = [];
+        }
+        async getByIds(options) {
+          const ids = options.ids.map((id) => String(id));
+          const scheduled = this.pending.filter((n) => ids.includes(String(n.id)));
+          const delivered = this.deliveredNotifications.filter((n) => ids.includes(n.tag)).map((n) => this.deliveredToSchema(n));
+          return { notifications: [...scheduled, ...delivered] };
+        }
+        async getAll(options) {
+          const scheduled = [...this.pending];
+          const delivered = this.deliveredNotifications.map((n) => this.deliveredToSchema(n));
+          if ((options === null || options === void 0 ? void 0 : options.state) === "SCHEDULED") {
+            return { notifications: scheduled };
+          }
+          if ((options === null || options === void 0 ? void 0 : options.state) === "TRIGGERED") {
+            return { notifications: delivered };
+          }
+          return { notifications: [...scheduled, ...delivered] };
+        }
+        deliveredToSchema(notification) {
+          return {
+            title: notification.title,
+            id: parseInt(notification.tag),
+            body: notification.body
+          };
+        }
+        async createChannel() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async deleteChannel() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async listChannels() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async schedule(options) {
+          if (!this.hasNotificationSupport()) {
+            throw this.unavailable("Notifications not supported in this browser.");
+          }
+          for (const notification of options.notifications) {
+            this.sendNotification(notification);
+          }
+          return {
+            notifications: options.notifications.map((notification) => ({
+              id: notification.id
+            }))
+          };
+        }
+        async update(options) {
+          if (!this.hasNotificationSupport()) {
+            throw this.unavailable("Notifications not supported in this browser.");
+          }
+          const updated = [];
+          for (const notification of options.notifications) {
+            const index = this.pending.findIndex((n) => n.id === notification.id);
+            if (index === -1) {
+              continue;
+            }
+            this.pending.splice(index, 1);
+            this.sendNotification(notification);
+            updated.push(notification);
+          }
+          return {
+            notifications: updated.map((notification) => ({ id: notification.id }))
+          };
+        }
+        async getPending() {
+          return {
+            notifications: this.pending
+          };
+        }
+        async cancelAll() {
+          this.pending = [];
+        }
+        async registerActionTypes() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async cancel(pending) {
+          this.pending = this.pending.filter((notification) => !pending.notifications.find((n) => n.id === notification.id));
+        }
+        async areEnabled() {
+          const { display } = await this.checkPermissions();
+          return {
+            value: display === "granted"
+          };
+        }
+        async changeExactNotificationSetting() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async checkExactNotificationSetting() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async requestPermissions() {
+          if (!this.hasNotificationSupport()) {
+            throw this.unavailable("Notifications not supported in this browser.");
+          }
+          const display = this.transformNotificationPermission(await Notification.requestPermission());
+          return { display };
+        }
+        async checkPermissions() {
+          if (!this.hasNotificationSupport()) {
+            throw this.unavailable("Notifications not supported in this browser.");
+          }
+          const display = this.transformNotificationPermission(Notification.permission);
+          return { display };
+        }
+        transformNotificationPermission(permission) {
+          switch (permission) {
+            case "granted":
+              return "granted";
+            case "denied":
+              return "denied";
+            default:
+              return "prompt";
+          }
+        }
+        sendPending() {
+          var _a;
+          const toRemove = [];
+          const now = (/* @__PURE__ */ new Date()).getTime();
+          for (const notification of this.pending) {
+            if (((_a = notification.schedule) === null || _a === void 0 ? void 0 : _a.at) && notification.schedule.at.getTime() <= now) {
+              this.buildNotification(notification);
+              toRemove.push(notification);
+            }
+          }
+          this.pending = this.pending.filter((notification) => !toRemove.find((n) => n === notification));
+        }
+        sendNotification(notification) {
+          var _a;
+          if ((_a = notification.schedule) === null || _a === void 0 ? void 0 : _a.at) {
+            const diff = notification.schedule.at.getTime() - (/* @__PURE__ */ new Date()).getTime();
+            this.pending.push(notification);
+            setTimeout(() => {
+              this.sendPending();
+            }, diff);
+            return;
+          }
+          this.buildNotification(notification);
+        }
+        buildNotification(notification) {
+          const localNotification = new Notification(notification.title, {
+            body: notification.body,
+            tag: String(notification.id)
+          });
+          localNotification.addEventListener("click", this.onClick.bind(this, notification), false);
+          localNotification.addEventListener("show", this.onShow.bind(this, notification), false);
+          localNotification.addEventListener("close", () => {
+            this.deliveredNotifications = this.deliveredNotifications.filter(() => !this);
+          }, false);
+          this.deliveredNotifications.push(localNotification);
+          return localNotification;
+        }
+        onClick(notification) {
+          const data = {
+            actionId: "tap",
+            notification
+          };
+          this.notifyListeners("localNotificationActionPerformed", data);
+        }
+        onShow(notification) {
+          this.notifyListeners("localNotificationReceived", notification);
+        }
+      };
+    }
+  });
+
+  // node_modules/@capacitor/local-notifications/dist/esm/index.js
+  var LocalNotifications;
+  var init_esm5 = __esm({
+    "node_modules/@capacitor/local-notifications/dist/esm/index.js"() {
+      init_dist();
+      init_definitions4();
+      LocalNotifications = registerPlugin("LocalNotifications", {
+        web: () => Promise.resolve().then(() => (init_web4(), web_exports4)).then((m) => new m.LocalNotificationsWeb())
+      });
+    }
+  });
+
+  // build/reading-reminders-core.js
+  function createReadingReminders({ notifications, storage, fetchCount }) {
+    const scheduleKey = "reading-reminders-schedule-v2";
+    const ownerKey = "reading-reminders-owner-v1";
+    const ids = Array.from({ length: 7 }, (_, i) => ({ id: 73100 + i + 1 }));
+    const key = (uid2) => `reading-reminders-v1:${uid2}`;
+    let uid = null, revision = 0, queue = Promise.resolve();
+    const enqueue = (action) => {
+      const task = queue.then(action);
+      queue = task.catch(() => {
+      });
+      return task;
+    };
+    function validate(value) {
+      if (typeof value.enabled !== "boolean" || !/^([01]\d|2[0-3]):[0-5]\d$/.test(value.time) || !Array.isArray(value.days)) throw Error("Escolha um hor\xE1rio v\xE1lido.");
+      const days = [...new Set(value.days)].sort((a, b) => a - b);
+      if (days.some((d) => !Number.isInteger(d) || d < 1 || d > 7) || value.enabled && !days.length) throw Error("Selecione pelo menos um dia da semana.");
+      return { enabled: value.enabled, time: value.time, days };
+    }
+    function settings() {
+      try {
+        return validate(JSON.parse(storage.getItem(key(uid))));
+      } catch {
+        return { enabled: false, time: "20:00", days: [1, 2, 3, 4, 5, 6, 7] };
+      }
+    }
+    async function cancel() {
+      storage.removeItem(scheduleKey);
+      await notifications.cancel({ notifications: ids });
+      const delivered = await notifications.getDeliveredNotifications();
+      const own = delivered.notifications.filter((n) => ids.some((i) => i.id === Number(n.id)));
+      if (own.length) await notifications.removeDeliveredNotifications({ notifications: own });
+    }
+    function assertCurrent(user, stamp) {
+      if (uid !== user || revision !== stamp) throw Error("A conta mudou. Abra novamente as configura\xE7\xF5es.");
+    }
+    async function apply(options, user, stamp, askPermission) {
+      assertCurrent(user, stamp);
+      if (storage.getItem(ownerKey) !== user) {
+        await cancel();
+        storage.setItem(ownerKey, user);
+      }
+      if (!options.enabled) {
+        await cancel();
+        return { state: "disabled", count: 0 };
+      }
+      let permission = await notifications.checkPermissions();
+      if (askPermission && permission.display !== "granted") permission = await notifications.requestPermissions();
+      assertCurrent(user, stamp);
+      if (permission.display !== "granted") {
+        await cancel();
+        throw Error("Notifica\xE7\xF5es n\xE3o permitidas. Ative-as nas configura\xE7\xF5es do Android para receber lembretes.");
+      }
+      const count = await fetchCount();
+      assertCurrent(user, stamp);
+      if (!Number.isSafeInteger(count) || count < 0) throw Error("N\xE3o foi poss\xEDvel verificar suas leituras.");
+      const signature = JSON.stringify({ user, options, count });
+      if (count && storage.getItem(scheduleKey) === signature) {
+        const pending = await notifications.getPending();
+        assertCurrent(user, stamp);
+        const expected = options.days.map((day) => 73100 + day);
+        const own = pending.notifications.filter((n) => ids.some((i) => i.id === Number(n.id)));
+        if (own.length === expected.length && expected.every((id) => own.some((n) => Number(n.id) === id))) {
+          return { state: "scheduled", count };
+        }
+      }
+      await cancel();
+      assertCurrent(user, stamp);
+      if (count) {
+        const [hour, minute] = options.time.split(":").map(Number);
+        await notifications.createChannel({ id: "reading-reminders", name: "Lembretes de leitura", description: "Lembretes para continuar suas leituras", importance: 3, visibility: 0 });
+        assertCurrent(user, stamp);
+        try {
+          await notifications.schedule({ notifications: options.days.map((day) => ({
+            id: 73100 + day,
+            title: "Que tal continuar sua leitura?",
+            body: count === 1 ? "Voc\xEA tem uma leitura em andamento. Reserve um momento para continuar." : `Voc\xEA tem ${count} leituras em andamento. Reserve um momento para continuar.`,
+            channelId: "reading-reminders",
+            smallIcon: "ic_reading_notification",
+            iconColor: "#E9B949",
+            schedule: { on: { weekday: day, hour, minute, second: 0 }, repeats: true, allowWhileIdle: true },
+            isExactNotification: false,
+            autoCancel: true,
+            extra: { kind: "reading-reminder" }
+          })) });
+        } catch (error) {
+          await cancel();
+          throw error;
+        }
+        assertCurrent(user, stamp);
+        storage.setItem(scheduleKey, signature);
+      }
+      return { state: count ? "scheduled" : "empty", count };
+    }
+    return {
+      settings,
+      setUser(user) {
+        uid = user;
+        const stamp = ++revision;
+        return enqueue(() => apply(settings(), user, stamp, false));
+      },
+      sync() {
+        if (!uid) return Promise.resolve(null);
+        const user = uid, stamp = revision;
+        return enqueue(() => apply(settings(), user, stamp, false));
+      },
+      save(value) {
+        if (!uid) return Promise.reject(Error("Entre na sua conta novamente."));
+        const options = validate(value), user = uid, stamp = revision;
+        return enqueue(async () => {
+          const result = await apply(options, user, stamp, true);
+          assertCurrent(user, stamp);
+          storage.setItem(key(user), JSON.stringify(options));
+          return result;
+        });
+      },
+      clearSession() {
+        uid = null;
+        ++revision;
+        return enqueue(async () => {
+          await cancel();
+          storage.removeItem(ownerKey);
+        });
+      }
+    };
+  }
+  var init_reading_reminders_core = __esm({
+    "build/reading-reminders-core.js"() {
+    }
+  });
+
+  // build/reading-reminders.js
+  var require_reading_reminders = __commonJS({
+    "build/reading-reminders.js"() {
+      init_dist();
+      init_esm5();
+      init_reading_reminders_core();
+      if (Capacitor.getPlatform() === "android" && Capacitor.isPluginAvailable("LocalNotifications")) {
+        let describe = function(result) {
+          if (!result) return;
+          hint(result.state === "disabled" ? "" : result.state === "empty" ? "Prefer\xEAncia salva. Os lembretes ser\xE3o agendados quando houver uma leitura em andamento." : `Lembretes ativos para ${result.count} leitura(s) em andamento. Hor\xE1rio aproximado, conforme o Android.`);
+        }, updateControls = function() {
+          const panel = document.getElementById("reading-reminders");
+          if (!panel) return;
+          const enabled = document.getElementById("reminder-enabled");
+          document.getElementById("reminder-options").hidden = !enabled.checked;
+          panel.querySelectorAll("input, button").forEach((input) => {
+            input.disabled = !ready || busy;
+          });
+        }, render = function() {
+          const panel = document.getElementById("reading-reminders");
+          if (!panel) return;
+          panel.hidden = false;
+          const settings = reminders.settings();
+          document.getElementById("reminder-enabled").checked = settings.enabled;
+          document.getElementById("reminder-time").value = settings.time;
+          document.getElementById("reminder-time").textContent = settings.time;
+          panel.querySelectorAll('[name="reminder-day"]').forEach((input) => {
+            input.checked = settings.days.includes(Number(input.value));
+          });
+          updateControls();
+        };
+        const reminders = createReadingReminders({
+          notifications: LocalNotifications,
+          storage: localStorage,
+          fetchCount: async () => {
+            const page = await window.apiRequest("/api/books?status=reading&page=1&pageSize=1", { signal: AbortSignal.timeout(15e3) });
+            return page.total;
+          }
+        });
+        window.ReadingReminders = reminders;
+        let ready = false, busy = false;
+        const hint = (text) => {
+          const el = document.getElementById("reminder-hint");
+          if (el) el.textContent = text;
+        };
+        async function saveOptions(options) {
+          busy = true;
+          updateControls();
+          try {
+            describe(await reminders.save(options));
+          } catch (error) {
+            hint(error.message || "N\xE3o foi poss\xEDvel salvar os lembretes.");
+          } finally {
+            busy = false;
+            render();
+          }
+        }
+        async function sync() {
+          if (!ready) return;
+          try {
+            describe(await reminders.sync());
+          } catch {
+            hint("N\xE3o foi poss\xEDvel atualizar os lembretes. Verifique a conex\xE3o e a permiss\xE3o de notifica\xE7\xF5es.");
+          }
+        }
+        async function initialize() {
+          if (!window.__authUserId) return;
+          ready = true;
+          busy = true;
+          render();
+          try {
+            describe(await reminders.setUser(window.__authUserId));
+          } catch (error) {
+            hint(error.message);
+          } finally {
+            busy = false;
+            render();
+          }
+          const enabled = document.getElementById("reminder-enabled");
+          if (enabled) enabled.onchange = async () => {
+            if (busy) return;
+            updateControls();
+            if (enabled.checked) {
+              hint("Escolha os dias e o hor\xE1rio e toque em Salvar lembretes.");
+            } else {
+              await saveOptions({ ...reminders.settings(), enabled: false });
+            }
+          };
+          const save = document.getElementById("reminder-save");
+          if (save) save.onclick = async () => {
+            if (busy) return;
+            const options = {
+              enabled: document.getElementById("reminder-enabled").checked,
+              time: document.getElementById("reminder-time").value,
+              days: [...document.querySelectorAll('[name="reminder-day"]:checked')].map((input) => Number(input.value))
+            };
+            await saveOptions(options);
+          };
+        }
+        window.addEventListener("authReady", initialize);
+        if (window.__authReady) initialize();
+        window.addEventListener("libraryChanged", sync);
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") sync();
+        });
+        LocalNotifications.addListener("localNotificationActionPerformed", (event) => {
+          if (event.notification.extra?.kind === "reading-reminder") window.location.href = "/";
+        }).catch(() => {
+        });
+      }
+    }
+  });
+
   // build/capacitor-google-auth-bridge.js
   var require_capacitor_google_auth_bridge = __commonJS({
     "build/capacitor-google-auth-bridge.js"() {
@@ -10956,6 +11520,7 @@
       init_esm2();
       init_esm3();
       init_esm4();
+      var import_reading_reminders = __toESM(require_reading_reminders());
       window.CapacitorGoogleAuth = { Capacitor, FirebaseAuthentication };
       window.LibraryFiles = { Capacitor, Filesystem, Directory, Share };
     }
@@ -11151,7 +11716,7 @@
    * limitations under the License.
    *)
 
-@firebase/auth/dist/esm/index-CvXU3_1x.js:
+@firebase/auth/dist/esm/index-4NFEPWkC.js:
   (**
    * @license
    * Copyright 2021 Google LLC
