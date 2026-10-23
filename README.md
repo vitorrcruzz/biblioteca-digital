@@ -1,13 +1,13 @@
 # 📚 Biblioteca Digital
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Node.js-20.x-339933?logo=node.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/Node.js-22%20%7C%2024-339933?logo=node.js&logoColor=white" />
   <img src="https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white" />
   <img src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white" />
   <img src="https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase&logoColor=white" />
   <img src="https://img.shields.io/badge/Android-APK-3DDC84?logo=android&logoColor=white" />
   <img src="https://img.shields.io/badge/Ubuntu-24.04%20LTS-E95420?logo=ubuntu&logoColor=white" />
-  <img src="https://img.shields.io/badge/Vers%C3%A3o-v5.0-2ea44f" />
+  <img src="https://img.shields.io/badge/Vers%C3%A3o-v5.1-2ea44f" />
 </p>
 
 <p align="center">
@@ -155,7 +155,7 @@ Adicione a chave de conta de serviço do Firebase Admin em `server/firebase-admi
 npm start
 ```
 
-Abra **http://localhost:3000**. Para desenvolver com reinicialização automática do servidor, use `npm run dev`.
+Abra **http://localhost:3000**. Para desenvolver com reinicialização automática do servidor, use `npm run dev` (modo de observação nativo do Node.js).
 
 ### Configuração do servidor
 
@@ -165,6 +165,12 @@ Abra **http://localhost:3000**. Para desenvolver com reinicialização automáti
 | `ALLOWED_ORIGINS` | Não definida | Origens aceitas pelo CORS, separadas por vírgula. Sem definição, o CORS fica aberto. |
 
 Defina as variáveis no ambiente que inicia o processo. Em uma instalação com PM2, alterações no ambiente podem ser aplicadas com `pm2 restart biblioteca-digital --update-env`, usando o nome atribuído à aplicação.
+
+### Manutenção das dependências
+
+Use `npm ci` após atualizar o código no servidor quando o `package-lock.json` mudar. Para conferir os avisos de segurança, execute `npm audit` (ou `npm audit --omit=dev` para as dependências de produção).
+
+Os `overrides` em `package.json` selecionam versões corrigidas de dependências internas do Firebase, ExcelJS e das ferramentas Android/iOS. Revise-os ao atualizar esses pacotes. A instalação também reaplica a correção de recorrência dos lembretes; uma atualização do plugin de notificações exige revisar `build/patch-reading-reminders.cjs`.
 
 <a id="gerar-o-apk"></a>
 ## Gerar o APK
