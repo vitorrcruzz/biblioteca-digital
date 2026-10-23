@@ -1403,36 +1403,28 @@ async function deleteBook(id) {
 //  NEWS POPUP
 // ═══════════════════════════════════════════════════
 const NEWS_POPUP = {
-  version: "v6",                    // ← muda aqui a cada nova versão
-  expires: "2026-11-01",            // ← ajuste para 14 dias a partir do lançamento real
+  version: "v7",                    // Nova chave para exibir esta atualização.
+  expires: "2026-11-15",            // 14 dias a partir de 01/11/2026.
   title: "Novidades da Biblioteca Digital",
   items: [
     {
-      icon: "📲",
-      title: "Novo App Mobile (Android)",
-      desc: "Biblioteca Digital agora está disponível para dispositivos Android! Baixe o app e tenha" +
-        " acesso rápido ao seu acervo. Por enquanto, o app está disponivel apenas para usuários de android," +
-        " mas em breve teremos na Play Store e na Apple Store.",
+      icon: "🔔",
+      title: "Lembretes de leitura no Android",
+      desc: "Escolha os dias e o horário para lembrar de continuar suas leituras. Ative em Minha conta → Lembretes de leitura. O horário dos avisos pode variar conforme o Android.",
       cta: {
-        label: "⬇️ Baixar Biblioteca Digital APK",
+        label: "⬇️ Atualizar aplicativo Android",
         url: "https://github.com/vitorrcruzz/biblioteca-digital/releases/latest/download/biblioteca-digital.apk"
       }
     },
     {
-      icon: "📄",
-      title: "Minha Estante paginada",
-      desc: "A aba Minha Estante agora é paginada, deixando a navegação mais rápida" + 
-      " e organizada, mesmo com um acervo grande.",
-    },
-    {
-      icon: "📊",
-      title: "Exporte seus livros para Excel",
-      desc: "Nas configurações da conta, você já pode exportar uma planilha Excel com todos os livros registrados no sistema.",
-    },
-    {
       icon: "🎯",
-      title: "Edite e/ou exclua suas metas anuais",
-      desc: "Agora é possível editar ou excluir as metas dos anos já registrados, mantendo seu planejamento de leitura sempre atualizado.",
+      title: "Acompanhe suas metas além de 100%",
+      desc: "A porcentagem abaixo da barra mostra seu progresso completo, inclusive quando você supera a meta de leitura.",
+    },
+    {
+      icon: "📶",
+      title: "Nova tela de conexão no Android",
+      desc: "Quando não for possível conectar ao servidor, o aplicativo mostra uma tela própria com a opção de tentar novamente, substituindo a antiga página de erro do Android.",
     },
   ]
 };
