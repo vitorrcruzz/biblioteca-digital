@@ -285,7 +285,9 @@
             return;
           }
           const index = listeners.indexOf(listenerFunc);
-          this.listeners[eventName].splice(index, 1);
+          if (index !== -1) {
+            this.listeners[eventName].splice(index, 1);
+          }
           if (!this.listeners[eventName].length) {
             this.removeWindowListener(this.windowListeners[eventName]);
           }
@@ -2185,7 +2187,7 @@
         }
       };
       name$q = "@firebase/app";
-      version$1 = "0.16.1";
+      version$1 = "0.16.2";
       logger = new Logger("@firebase/app");
       name$p = "@firebase/app-compat";
       name$o = "@firebase/analytics-compat";
@@ -2213,7 +2215,7 @@
       name$2 = "@firebase/ai";
       name$1 = "@firebase/firestore-compat";
       name = "firebase";
-      version = "12.18.0";
+      version = "12.19.0";
       DEFAULT_ENTRY_NAME2 = "[DEFAULT]";
       PLATFORM_LOG_STRING = {
         [name$q]: "fire-core",
@@ -2507,7 +2509,7 @@
     }
   });
 
-  // node_modules/@firebase/auth/dist/esm/index-CvXU3_1x.js
+  // node_modules/@firebase/auth/dist/esm/index-4NFEPWkC.js
   function _prodErrorMap() {
     return {
       [
@@ -3826,7 +3828,8 @@
   async function updateProfile$1(auth, request) {
     return _performApiRequest(auth, "POST", "/v1/accounts:update", request);
   }
-  async function updateProfile(user, { displayName, photoURL: photoUrl }) {
+  async function updateProfile(user, profile) {
+    const { displayName, photoURL: photoUrl } = profile;
     if (displayName === void 0 && photoUrl === void 0) {
       return;
     }
@@ -4821,8 +4824,8 @@
     return document.getElementsByTagName("head")?.[0] ?? document;
   }
   var prodErrorMap, _DEFAULT_AUTH_ERROR_FACTORY, logClient, Delay, FetchProvider, SERVER_ERROR_MAP, CookieAuthProxiedEndpoints, DEFAULT_API_TIMEOUT_MS, NetworkTimeout, RecaptchaConfig, ProactiveRefresh, UserMetadata, StsTokenManager, UserImpl, instanceCache, InMemoryPersistence, inMemoryPersistence, PersistenceUserManager, AuthMiddlewareQueue, MINIMUM_MIN_PASSWORD_LENGTH, PasswordPolicyImpl, AuthImpl, Subscription, externalJSProvider, _SOLVE_TIME_MS, _EXPIRATION_TIME_MS, _WIDGET_ID_START, MockReCaptcha, MockGreCAPTCHATopLevel, MockGreCAPTCHA, MockWidget, RECAPTCHA_ENTERPRISE_VERIFIER_TYPE, FAKE_TOKEN, RECAPTCHA_ENTERPRISE_ONLOAD_CALLBACK_NAME, RecaptchaEnterpriseVerifier, AuthCredential, EmailAuthCredential, IDP_REQUEST_URI$1, OAuthCredential, VERIFY_PHONE_NUMBER_FOR_EXISTING_ERROR_MAP_, PhoneAuthCredential, ActionCodeURL, EmailAuthProvider, FederatedAuthProvider, BaseOAuthProvider, OAuthProvider, FacebookAuthProvider, GoogleAuthProvider, GithubAuthProvider, TwitterAuthProvider, UserCredentialImpl, MultiFactorError, GenericAdditionalUserInfo, FederatedAdditionalUserInfoWithUsername, FacebookAdditionalUserInfo, GithubAdditionalUserInfo, GoogleAdditionalUserInfo, TwitterAdditionalUserInfo, STORAGE_AVAILABLE_KEY, BrowserPersistenceClass, _POLLING_INTERVAL_MS$1, IE10_LOCAL_STORAGE_SYNC_DELAY, BrowserLocalPersistence, browserLocalPersistence, POLLING_INTERVAL_MS, CookiePersistence, BrowserSessionPersistence, browserSessionPersistence, Receiver, Sender, DB_NAME2, DB_VERSION2, DB_OBJECTSTORE_NAME, DB_DATA_KEYPATH, DBPromise, _POLLING_INTERVAL_MS, _TRANSACTION_RETRY_COUNT, IndexedDBLocalPersistence, indexedDBLocalPersistence, _JSLOAD_CALLBACK, NETWORK_TIMEOUT_DELAY, ReCaptchaLoaderImpl, MockReCaptchaLoaderImpl, RECAPTCHA_VERIFIER_TYPE, DEFAULT_PARAMS, RecaptchaVerifier, ConfirmationResultImpl, PhoneAuthProvider, IdpCredential, AbstractPopupRedirectOperation, _POLL_WINDOW_CLOSE_TIMEOUT, PopupOperation, PENDING_REDIRECT_KEY, redirectOutcomeMap, RedirectAction, EVENT_DUPLICATION_CACHE_DURATION_MS, AuthEventManager, IP_ADDRESS_REGEX, HTTP_REGEX, NETWORK_TIMEOUT, cachedGApiLoader, PING_TIMEOUT, IFRAME_PATH, EMULATED_IFRAME_PATH, IFRAME_ATTRIBUTES, EID_FROM_APIHOST, BASE_POPUP_OPTIONS, DEFAULT_WIDTH, DEFAULT_HEIGHT, TARGET_BLANK, FIREFOX_EMPTY_URL, AuthPopup, WIDGET_PATH, EMULATOR_WIDGET_PATH, FIREBASE_APP_CHECK_FRAGMENT_ID, WEB_STORAGE_SUPPORT_KEY, BrowserPopupRedirectResolver, browserPopupRedirectResolver, MultiFactorAssertionImpl, PhoneMultiFactorAssertionImpl, PhoneMultiFactorGenerator, TotpMultiFactorGenerator, TotpMultiFactorAssertionImpl, TotpSecret, name2, version2, AuthInterop, DEFAULT_ID_TOKEN_MAX_AGE, authIdTokenMaxAge, lastPostedIdToken, mintCookieFactory;
-  var init_index_CvXU3_1x = __esm({
-    "node_modules/@firebase/auth/dist/esm/index-CvXU3_1x.js"() {
+  var init_index_4NFEPWkC = __esm({
+    "node_modules/@firebase/auth/dist/esm/index-4NFEPWkC.js"() {
       init_index_esm4();
       init_index_esm();
       init_index_esm3();
@@ -5694,7 +5697,10 @@
           this.fullUserKey = _persistenceKeyName(this.userKey, config.apiKey, name3);
           this.fullPersistenceKey = _persistenceKeyName("persistence", config.apiKey, name3);
           this.boundEventHandler = auth._onStorageEvent.bind(auth);
-          this.persistence._addListener(this.fullUserKey, this.boundEventHandler);
+          try {
+            this.persistence._addListener(this.fullUserKey, this.boundEventHandler);
+          } catch {
+          }
         }
         setCurrentUser(user) {
           return this.persistence._set(this.fullUserKey, user.toJSON());
@@ -5731,15 +5737,22 @@
           }
         }
         delete() {
-          this.persistence._removeListener(this.fullUserKey, this.boundEventHandler);
+          try {
+            this.persistence._removeListener(this.fullUserKey, this.boundEventHandler);
+          } catch {
+          }
         }
         static async create(auth, persistenceHierarchy, userKey = "authUser") {
           if (!persistenceHierarchy.length) {
             return new _PersistenceUserManager(_getInstance(inMemoryPersistence), auth, userKey);
           }
           const availablePersistences = (await Promise.all(persistenceHierarchy.map(async (persistence) => {
-            if (await persistence._isAvailable()) {
-              return persistence;
+            try {
+              if (await persistence._isAvailable()) {
+                return persistence;
+              }
+            } catch {
+              return void 0;
             }
             return void 0;
           }))).filter((persistence) => persistence);
@@ -6000,8 +6013,14 @@
             if (this._deleted) {
               return;
             }
-            this.persistenceManager = await PersistenceUserManager.create(this, persistenceHierarchy);
-            this._resolvePersistenceManagerAvailable?.();
+            try {
+              this.persistenceManager = await PersistenceUserManager.create(this, persistenceHierarchy);
+            } catch (e) {
+              _logWarn(`Failed to initialize persistence: ${e}`);
+              this.persistenceManager = await PersistenceUserManager.create(this, []);
+            } finally {
+              this._resolvePersistenceManagerAvailable?.();
+            }
             if (this._deleted) {
               return;
             }
@@ -6011,7 +6030,13 @@
               } catch (e) {
               }
             }
-            await this.initializeCurrentUser(popupRedirectResolver);
+            try {
+              await this.initializeCurrentUser(popupRedirectResolver);
+            } catch (e) {
+              _logWarn(`Failed to initialize current user: ${e}`);
+              await this.directlySetCurrentUser(null).catch(() => {
+              });
+            }
             this.lastNotifiedUid = this.currentUser?.uid || null;
             if (this._deleted) {
               return;
@@ -6373,6 +6398,17 @@
               return;
             }
             cb(this.currentUser);
+          }).catch((err) => {
+            if (isUnsubscribed) {
+              return;
+            }
+            if (typeof nextOrObserver !== "function" && nextOrObserver.error) {
+              nextOrObserver.error(err);
+            } else if (error) {
+              error(err);
+            } else {
+              throw err;
+            }
           });
           if (typeof nextOrObserver === "function") {
             const unsubscribe = subscription.addObserver(nextOrObserver, error, completed);
@@ -6401,10 +6437,19 @@
             user._startProactiveRefresh();
           }
           this.currentUser = user;
-          if (user) {
-            await this.assertedPersistence.setCurrentUser(user);
-          } else {
-            await this.assertedPersistence.removeCurrentUser();
+          if (this.persistenceManager) {
+            try {
+              if (user) {
+                await this.persistenceManager.setCurrentUser(user);
+              } else {
+                await this.persistenceManager.removeCurrentUser();
+              }
+            } catch (e) {
+              const originalMessage = e?.message || String(e);
+              const error = _errorWithCustomMessage(this, "internal-error", `An internal AuthError has occurred: ${originalMessage}`);
+              error.customData = { originalError: e };
+              throw error;
+            }
           }
         }
         queue(action) {
@@ -8191,9 +8236,6 @@
           });
         }
         async _openDb() {
-          if (this.isClosing) {
-            throw new Error("Database is closing");
-          }
           if (this.dbPromise) {
             return this.dbPromise;
           }
@@ -8210,16 +8252,17 @@
               const db = await this._openDb();
               return await op(db);
             } catch (e) {
-              if (this.isClosing) {
-                throw e;
-              }
               if (numAttempts++ > _TRANSACTION_RETRY_COUNT) {
                 throw e;
               }
               if (this.dbPromise) {
-                const db = await this.dbPromise;
-                db.close();
+                const dbPromise2 = this.dbPromise;
                 this.dbPromise = null;
+                try {
+                  const db = await dbPromise2;
+                  db.close();
+                } catch {
+                }
               }
             }
           }
@@ -9527,7 +9570,7 @@
         }
       };
       name2 = "@firebase/auth";
-      version2 = "1.13.5";
+      version2 = "1.13.6";
       AuthInterop = class {
         constructor(auth) {
           this.auth = auth;
@@ -9636,7 +9679,7 @@
   // node_modules/@firebase/auth/dist/esm/index.js
   var init_esm = __esm({
     "node_modules/@firebase/auth/dist/esm/index.js"() {
-      init_index_CvXU3_1x();
+      init_index_4NFEPWkC();
       init_index_esm4();
       init_index_esm();
       init_index_esm3();
@@ -11673,7 +11716,7 @@
    * limitations under the License.
    *)
 
-@firebase/auth/dist/esm/index-CvXU3_1x.js:
+@firebase/auth/dist/esm/index-4NFEPWkC.js:
   (**
    * @license
    * Copyright 2021 Google LLC
