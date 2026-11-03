@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "latestBuild": 9,
+  "latestVersion": "1.6.2",
+  "notifyLegacy": true,
+  "message": "Atualize para receber os avisos de novas versões diretamente no aplicativo.",
+  "downloadUrl": "https://github.com/vitorrcruzz/biblioteca-digital/releases/latest/download/biblioteca-digital.apk"
+}

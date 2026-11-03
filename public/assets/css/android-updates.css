@@ -1,0 +1,30 @@
+.android-update-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  width: min(420px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  border: 1px solid #303650;
+  border-radius: 22px;
+  padding: 28px 24px;
+  background: #191e2b;
+  color: #eef0f8;
+  font-family: inherit;
+  box-shadow: 0 24px 80px #0008;
+}
+.android-update-dialog::backdrop { background: #05070bbb; }
+.android-update-dialog .android-update-badge { color: #eabd49; font-size: 11px; letter-spacing: 1px; margin: 0 0 18px; }
+.android-update-dialog h2 { font-size: 23px; line-height: 1.3; margin: 0 0 12px; }
+.android-update-dialog p { font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.android-update-dialog .android-update-version { color: #eabd49; font-weight: 600; }
+.android-update-dialog .android-update-hint { color: #a9b1c7; font-size: 12px; margin: 22px 0 16px; }
+.android-update-dialog a, .android-update-dialog button {
+  box-sizing: border-box; display: block; width: 100%; min-height: 48px;
+  padding: 13px; border-radius: 12px; text-align: center; font: inherit;
+  font-size: 14px; cursor: pointer; text-decoration: none;
+}
+.android-update-dialog .android-update-download { background: #eabd49; color: #171a24; font-weight: 700; }
+.android-update-dialog button { background: transparent; border: 1px solid #363e56; color: #c4cadd; margin-top: 10px; }
+.android-update-dialog :focus-visible { outline: 3px solid #78a6ff; outline-offset: 3px; }

@@ -7,3 +7,4 @@ import { Share } from "@capacitor/share";
 window.LibraryFiles = { Capacitor, Filesystem, Directory, Share };
 
 import './reading-reminders.js';
+import './android-updates.js';

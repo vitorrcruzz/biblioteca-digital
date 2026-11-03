@@ -13,6 +13,9 @@
       "providers": [
         "google.com"
       ]
+    },
+    "App": {
+      "disableBackButtonHandler": true
     }
   }
 }

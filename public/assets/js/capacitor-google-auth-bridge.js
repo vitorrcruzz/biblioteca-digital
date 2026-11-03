@@ -11513,6 +11513,227 @@
     }
   });
 
+  // node_modules/@capacitor/app/dist/esm/definitions.js
+  var init_definitions5 = __esm({
+    "node_modules/@capacitor/app/dist/esm/definitions.js"() {
+    }
+  });
+
+  // node_modules/@capacitor/app/dist/esm/web.js
+  var web_exports5 = {};
+  __export(web_exports5, {
+    AppWeb: () => AppWeb
+  });
+  var AppWeb;
+  var init_web5 = __esm({
+    "node_modules/@capacitor/app/dist/esm/web.js"() {
+      init_dist();
+      AppWeb = class extends WebPlugin {
+        constructor() {
+          super();
+          this.handleVisibilityChange = () => {
+            const data = {
+              isActive: document.hidden !== true
+            };
+            this.notifyListeners("appStateChange", data);
+            if (document.hidden) {
+              this.notifyListeners("pause", null);
+            } else {
+              this.notifyListeners("resume", null);
+            }
+          };
+          document.addEventListener("visibilitychange", this.handleVisibilityChange, false);
+        }
+        exitApp() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async getInfo() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async getLaunchUrl() {
+          return { url: "" };
+        }
+        async getState() {
+          return { isActive: document.hidden !== true };
+        }
+        async minimizeApp() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async toggleBackButtonHandler() {
+          throw this.unimplemented("Not implemented on web.");
+        }
+        async getAppLanguage() {
+          return {
+            value: navigator.language.split("-")[0].toLowerCase()
+          };
+        }
+      };
+    }
+  });
+
+  // node_modules/@capacitor/app/dist/esm/index.js
+  var App;
+  var init_esm6 = __esm({
+    "node_modules/@capacitor/app/dist/esm/index.js"() {
+      init_dist();
+      init_definitions5();
+      App = registerPlugin("App", {
+        web: () => Promise.resolve().then(() => (init_web5(), web_exports5)).then((m) => new m.AppWeb())
+      });
+    }
+  });
+
+  // build/android-update-policy.cjs
+  var require_android_update_policy = __commonJS({
+    "build/android-update-policy.cjs"(exports, module) {
+      var DOWNLOAD_URL = "https://github.com/vitorrcruzz/biblioteca-digital/releases/latest/download/biblioteca-digital.apk";
+      var REMIND_AFTER = 24 * 60 * 60 * 1e3;
+      function updateOffer(policy, installedBuild, dismissedAt, now = Date.now()) {
+        if (!policy || policy.enabled !== true || !Number.isSafeInteger(policy.latestBuild) || policy.latestBuild < 1 || typeof policy.latestVersion !== "string" || !/^\d+\.\d+\.\d+$/.test(policy.latestVersion) || policy.downloadUrl !== DOWNLOAD_URL || typeof policy.message !== "string" || policy.message.length > 600) return null;
+        if (installedBuild === null) {
+          if (policy.notifyLegacy !== true) return null;
+        } else if (!Number.isSafeInteger(installedBuild) || installedBuild < 1 || installedBuild >= policy.latestBuild) return null;
+        if (Number.isFinite(dismissedAt) && dismissedAt > 0 && now >= dismissedAt && now - dismissedAt < REMIND_AFTER) return null;
+        return { version: policy.latestVersion, message: policy.message, url: DOWNLOAD_URL };
+      }
+      module.exports = { updateOffer, REMIND_AFTER };
+    }
+  });
+
+  // build/android-updates.js
+  var require_android_updates = __commonJS({
+    "build/android-updates.js"() {
+      init_dist();
+      init_esm6();
+      var import_android_update_policy = __toESM(require_android_update_policy());
+      if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
+        let releaseNews = function() {
+          if (checking || dialog?.open) return;
+          pending = false;
+          idleWaiters.splice(0).forEach((resolve2) => resolve2());
+        }, showOffer = function(offer, key) {
+          if (dialog?.open) return;
+          if (!document.getElementById("android-update-styles")) {
+            const css = document.createElement("link");
+            css.id = "android-update-styles";
+            css.rel = "stylesheet";
+            css.href = "/assets/css/android-updates.css";
+            document.head.appendChild(css);
+          }
+          const previousFocus = document.activeElement;
+          const currentDialog = document.createElement("dialog");
+          dialog = currentDialog;
+          dialog.className = "android-update-dialog";
+          dialog.setAttribute("aria-labelledby", "android-update-title");
+          dialog.setAttribute("aria-describedby", "android-update-description");
+          const badge = document.createElement("p");
+          badge.className = "android-update-badge";
+          badge.textContent = "BIBLIOTECA DIGITAL \u2022 ANDROID";
+          const title = document.createElement("h2");
+          title.id = "android-update-title";
+          title.textContent = "Uma nova vers\xE3o para sua biblioteca";
+          const version3 = document.createElement("p");
+          version3.className = "android-update-version";
+          version3.textContent = "Vers\xE3o " + offer.version + " dispon\xEDvel";
+          const description = document.createElement("p");
+          description.id = "android-update-description";
+          description.textContent = offer.message;
+          const hint = document.createElement("p");
+          hint.className = "android-update-hint";
+          hint.textContent = "Baixe o APK e confirme a atualiza\xE7\xE3o no Android.";
+          const download = document.createElement("a");
+          download.className = "android-update-download";
+          download.href = offer.url;
+          download.target = "_blank";
+          download.rel = "noopener noreferrer";
+          download.textContent = "Atualizar aplicativo";
+          const later = document.createElement("button");
+          later.type = "button";
+          later.textContent = "Agora n\xE3o";
+          const dismiss = () => {
+            remember(key);
+            currentDialog.close();
+          };
+          later.addEventListener("click", dismiss);
+          download.addEventListener("click", dismiss);
+          dialog.addEventListener("cancel", (event) => {
+            event.preventDefault();
+            dismiss();
+          });
+          dialog.addEventListener("close", () => {
+            currentDialog.remove();
+            previousFocus?.focus();
+            releaseNews();
+          });
+          dialog.append(badge, title, version3, description, hint, download, later);
+          document.body.appendChild(dialog);
+          dialog.showModal();
+        };
+        let checking = false;
+        let lastCheck = 0;
+        let dialog;
+        let pending = true;
+        const idleWaiters = [];
+        window.AndroidUpdates = {
+          whenIdle: () => pending ? new Promise((resolve2) => idleWaiters.push(resolve2)) : Promise.resolve()
+        };
+        const read = (key) => {
+          try {
+            return Number(localStorage.getItem(key));
+          } catch {
+            return 0;
+          }
+        };
+        const remember = (key) => {
+          try {
+            localStorage.setItem(key, String(Date.now()));
+          } catch {
+          }
+        };
+        async function check() {
+          if (checking || dialog?.open) return;
+          if (document.hidden || Date.now() - lastCheck < 5 * 60 * 1e3 || document.getElementById("news-popup-overlay")?.classList.contains("open")) {
+            releaseNews();
+            return;
+          }
+          checking = true;
+          pending = true;
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 8e3);
+          try {
+            let build = null;
+            if (Capacitor.isPluginAvailable("App")) {
+              const info = await App.getInfo();
+              build = Number(info.build);
+            }
+            const response = await fetch("/android-update.json", { cache: "no-store", signal: controller.signal });
+            if (!response.ok) return;
+            const policy = await response.json();
+            const key = "android-update-dismissed-" + policy.latestBuild;
+            const offer = (0, import_android_update_policy.updateOffer)(policy, build, read(key));
+            lastCheck = Date.now();
+            if (offer) showOffer(offer, key);
+          } catch {
+          } finally {
+            clearTimeout(timeout);
+            checking = false;
+            releaseNews();
+          }
+        }
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", check, { once: true });
+        else check();
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) check();
+        });
+        window.addEventListener("online", check);
+        if (Capacitor.isPluginAvailable("App")) App.addListener("appStateChange", ({ isActive }) => {
+          if (isActive) check();
+        }).catch(() => {
+        });
+      }
+    }
+  });
+
   // build/capacitor-google-auth-bridge.js
   var require_capacitor_google_auth_bridge = __commonJS({
     "build/capacitor-google-auth-bridge.js"() {
@@ -11521,6 +11742,7 @@
       init_esm3();
       init_esm4();
       var import_reading_reminders = __toESM(require_reading_reminders());
+      var import_android_updates = __toESM(require_android_updates());
       window.CapacitorGoogleAuth = { Capacitor, FirebaseAuthentication };
       window.LibraryFiles = { Capacitor, Filesystem, Directory, Share };
     }

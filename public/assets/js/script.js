@@ -1455,7 +1455,9 @@ function renderNewsPopup() {
   `).join("");
 }
 
-function openNewsPopup() {
+async function openNewsPopup() {
+  await window.AndroidUpdates?.whenIdle();
+  if (!shouldShowNewsPopup()) return;
   renderNewsPopup();
   document.getElementById("news-popup-overlay").classList.add("open");
 }
