@@ -70,7 +70,15 @@ function openConfirm(title, msg, onConfirm, confirmLabel = "Confirmar", icon = "
   document.getElementById("confirm-title").textContent = title;
   document.getElementById("confirm-msg").textContent = msg;
   document.getElementById("confirm-yes").textContent = confirmLabel;
-  document.getElementById("confirm-icon").textContent = icon;
+  const iconContainer = document.getElementById("confirm-icon");
+  // Only this known icon is rendered as an element; other values remain plain text.
+  iconContainer.textContent = icon === "logout" ? "" : icon;
+  if (icon === "logout") {
+    const element = document.createElement("i");
+    element.className = "fa-solid fa-door-open";
+    element.setAttribute("aria-hidden", "true");
+    iconContainer.appendChild(element);
+  }
   document.getElementById("confirm-yes").onclick = () => {
     closeConfirm();
     onConfirm();
@@ -89,7 +97,7 @@ function confirmLogout() {
     "Você precisará entrar novamente para acessar sua conta.",
     () => logout(),
     "Sim, sair",
-    '<i class="fa-solid fa-door-open"></i>'
+    "logout"
   );
 }
 
