@@ -1,0 +1,167 @@
+﻿/* Tema estático: fundos não interceptam cliques nem criam camadas fixas. */
+.christmas-theme {
+  --winter-border: #35495c;
+  --winter-flakes:
+    radial-gradient(circle at 18px 16px, #e8f3ff9c 0 1px, transparent 2px),
+    radial-gradient(circle at 112px 38px, #e8f3ff60 0 1px, transparent 2px),
+    radial-gradient(circle at 192px 12px, #e8f3ffb3 0 1.3px, transparent 2.3px),
+    radial-gradient(circle at 268px 68px, #e8f3ff40 0 1px, transparent 2px);
+}
+.christmas-theme body {
+  background-color: #101620;
+  background-image: var(--winter-flakes);
+  background-size: 310px 190px;
+}
+.christmas-theme #sidebar {
+  background-color: #171f2c;
+  border-right-color: var(--winter-border);
+}
+/* O personagem tem espaço próprio abaixo da marca, sem encobrir seu texto. */
+.christmas-theme #sidebar .brand {
+  position: relative;
+  min-height: 158px;
+  padding-bottom: 76px;
+  border-bottom-color: var(--winter-border);
+  background-image: url('../../images/christmas-snow.svg'), var(--winter-flakes);
+  background-position: bottom, top left, top left, top left, top left;
+  background-size: 100% 22px, 310px 190px, 310px 190px, 310px 190px, 310px 190px;
+  background-repeat: no-repeat, repeat, repeat, repeat, repeat;
+}
+.christmas-theme #sidebar .brand::after {
+  content: '';
+  position: absolute;
+  width: 64px;
+  height: 80px;
+  bottom: 5px;
+  right: 16px;
+  background: url('../../images/christmas-snowman.svg') center / contain no-repeat;
+  pointer-events: none;
+}
+.christmas-theme :is(#mobile-topbar, .year-panel-header) {
+  border-bottom-color: var(--winter-border);
+  background-image: var(--winter-flakes);
+  background-size: 310px 190px;
+}
+.christmas-theme #mobile-page-title::before {
+  content: '';
+  display: inline-block;
+  width: 27px;
+  height: 34px;
+  margin-right: 7px;
+  vertical-align: middle;
+  background: url('../../images/christmas-snowman.svg') center / contain no-repeat;
+}
+.christmas-theme :is(.stat-card, .chart-card, .goal-card, .saga-card, .account-card, .recent-books, .modal, .login-card) {
+  border-color: var(--winter-border);
+  background-image: linear-gradient(125deg, rgba(72, 112, 137, .09), transparent 60%);
+  box-shadow: inset 0 1px 0 rgba(211, 235, 250, .04);
+}
+/* Preserva as cores de perigo, seleção e botões dourados. */
+.christmas-theme .danger-card { border-color: rgba(224, 92, 106, .4); }
+.christmas-theme :is(.chart-card, .account-card, .saga-card, .modal) {
+  background-image:
+    radial-gradient(circle at calc(100% - 14px) 12px, #e8f3ff80 0 1px, transparent 2px),
+    radial-gradient(circle at calc(100% - 28px) 20px, #e8f3ff40 0 1px, transparent 2px),
+    linear-gradient(125deg, rgba(72, 112, 137, .09), transparent 60%);
+}
+.christmas-greeting {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 26px 30px;
+  margin-bottom: 24px;
+  border: 1px solid var(--winter-border);
+  border-radius: var(--radius, 12px);
+  background-color: #1a2631;
+  background-image: url('../../images/christmas-snow.svg'), var(--winter-flakes), linear-gradient(110deg, #1c3039, #191e29);
+  background-position: bottom, top left, top left, top left, top left, center;
+  background-size: 100% 18px, 310px 190px, 310px 190px, 310px 190px, 310px 190px, cover;
+  background-repeat: no-repeat, repeat, repeat, repeat, repeat, no-repeat;
+}
+.christmas-greeting[hidden] { display: none; }
+.christmas-greeting > div { min-width: 0; }
+.christmas-greeting-icon { font-size: 2.8rem; line-height: 1.2; flex-shrink: 0; }
+.christmas-greeting h3 { color: var(--gold); font-size: 1rem; line-height: 1.5; }
+.christmas-greeting p { color: #cbd7df; font-size: .85rem; line-height: 1.6; margin-top: 4px; }
+.christmas-theme .login-card {
+  background-image: url('../../images/christmas-snow.svg'), linear-gradient(135deg, #1c2b37, #181c27 60%);
+  background-size: 100% 16px, cover;
+  background-position: bottom, center;
+  background-repeat: no-repeat;
+  padding-bottom: 48px;
+}
+.christmas-theme .login-brand::before {
+  content: '';
+  display: block;
+  height: 76px;
+  margin-bottom: 12px;
+  background: url('../../images/christmas-snowman.svg') center / contain no-repeat;
+}
+.christmas-theme .login-brand .login-icon { display: none; }
+.christmas-theme :is(#app-footer, .auth-footer) { border-top-color: var(--winter-border); }
+
+/* Faixa decorativa própria: os enfeites ficam abaixo dos dados e dos gráficos. */
+.christmas-theme #page-dashboard :is(.stat-card, .goal-card, .chart-card) {
+  position: relative;
+  padding-bottom: 64px;
+}
+.christmas-theme #page-dashboard :is(.stat-card, .goal-card, .chart-card)::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 22px;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: url('../../images/christmas-snow.svg') bottom / 100% 100% no-repeat;
+  pointer-events: none;
+}
+.christmas-theme #page-dashboard :is(.stat-card, .goal-card, .chart-card)::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  bottom: 6px;
+  width: 65px;
+  height: 47px;
+  background: url('../../images/christmas-gifts.svg') center / contain no-repeat;
+  pointer-events: none;
+}
+.christmas-theme #page-dashboard .stat-card:nth-child(even)::after,
+.christmas-theme #page-dashboard .chart-card:nth-child(even)::after {
+  width: 45px;
+  height: 51px;
+  background-image: url('../../images/christmas-tree.svg');
+}
+.christmas-theme #page-dashboard .goal-card::after {
+  width: 42px;
+  height: 53px;
+  background-image: url('../../images/christmas-snowman.svg');
+}
+@media (max-width: 768px) {
+  .christmas-greeting { gap: 12px; padding: 18px 16px 28px; margin-bottom: 20px; }
+  .christmas-greeting-icon { font-size: 2.2rem; }
+  .christmas-greeting h3 { font-size: .94rem; }
+  .christmas-greeting p { font-size: .8rem; }
+  .christmas-theme .login-brand::before { height: 60px; }
+  .christmas-theme #page-dashboard :is(.stat-card, .goal-card, .chart-card) { padding-bottom: 56px; }
+  .christmas-theme #page-dashboard :is(.stat-card, .goal-card, .chart-card)::after {
+    right: 12px;
+    width: 50px;
+    height: 39px;
+  }
+  .christmas-theme #page-dashboard .stat-card:nth-child(even)::after,
+  .christmas-theme #page-dashboard .chart-card:nth-child(even)::after,
+  .christmas-theme #page-dashboard .goal-card::after { width: 34px; height: 43px; }
+}
+@media (max-width: 360px) {
+  .christmas-theme #mobile-page-title { font-size: .94rem; }
+  .christmas-theme #mobile-page-title::before { width: 22px; margin-right: 4px; }
+}
+@media (forced-colors: active) {
+  .christmas-theme #page-dashboard :is(.stat-card, .goal-card, .chart-card) { padding-bottom: 20px; }
+  .christmas-theme #page-dashboard :is(.stat-card, .goal-card, .chart-card)::before,
+  .christmas-theme #page-dashboard :is(.stat-card, .goal-card, .chart-card)::after,
+  .christmas-theme #mobile-page-title::before,
+  .christmas-theme #sidebar .brand::after,
+  .christmas-theme .login-brand::before { display: none; }
+  .christmas-theme .login-brand .login-icon { display: block; }
+}
