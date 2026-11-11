@@ -1417,28 +1417,24 @@ async function deleteBook(id) {
 //  NEWS POPUP
 // ═══════════════════════════════════════════════════
 const NEWS_POPUP = {
-  version: "v7",                    // Nova chave para exibir esta atualização.
-  expires: "2026-11-15",            // 14 dias a partir de 01/11/2026.
+  version: "v8",                    // Nova chave para exibir esta atualização.
+  expires: "2026-11-25",            // Período desta atualização de novidades.
   title: "Novidades da Biblioteca Digital",
   items: [
     {
-      icon: "🔔",
-      title: "Lembretes de leitura no Android",
-      desc: "Escolha os dias e o horário para lembrar de continuar suas leituras. Ative em Minha conta → Lembretes de leitura. O horário dos avisos pode variar conforme o Android.",
-      cta: {
-        label: "⬇️ Atualizar aplicativo Android",
-        url: "https://github.com/vitorrcruzz/biblioteca-digital/releases/latest/download/biblioteca-digital.apk"
-      }
+      icon: "🔄",
+      title: "Releituras mais fáceis",
+      desc: "Ao adicionar um livro, encontre títulos já registrados em qualquer ano e selecione um deles para começar uma nova leitura.",
     },
     {
-      icon: "🎯",
-      title: "Acompanhe suas metas além de 100%",
-      desc: "A porcentagem abaixo da barra mostra seu progresso completo, inclusive quando você supera a meta de leitura.",
+      icon: "📚",
+      title: "Sagas sem livros repetidos",
+      desc: "Leituras vinculadas ao mesmo livro aparecem uma única vez na saga, mantendo o histórico de cada ano.",
     },
     {
-      icon: "📶",
-      title: "Nova tela de conexão no Android",
-      desc: "Quando não for possível conectar ao servidor, o aplicativo mostra uma tela própria com a opção de tentar novamente, substituindo a antiga página de erro do Android.",
+      icon: "🔗",
+      title: "Organize suas leituras anteriores",
+      desc: "Em Editar livro → Gerenciar leituras, selecione registros do mesmo livro e reúna suas leituras. Páginas, datas e avaliações são preservadas.",
     },
   ]
 };
