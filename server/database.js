@@ -80,6 +80,8 @@ function getUserDb(uid) {
   // Garante que os livros existentes ganhem a coluna de subcategoria (migração idempotente)
   try { db.exec("ALTER TABLE books ADD COLUMN subcategory TEXT DEFAULT ''"); } catch (e) { }
 
+  require('./book-identities').migrateBookIdentities(db);
+
   // Pré-popula categorias padrão se ainda não existirem
   const catCount = db.prepare("SELECT COUNT(*) as c FROM categories WHERE parent_id IS NULL").get();
   if (catCount.c === 0) {

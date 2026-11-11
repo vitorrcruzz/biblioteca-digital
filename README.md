@@ -7,7 +7,6 @@
   <img src="https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase&logoColor=white" />
   <img src="https://img.shields.io/badge/Android-APK-3DDC84?logo=android&logoColor=white" />
   <img src="https://img.shields.io/badge/Ubuntu-24.04%20LTS-E95420?logo=ubuntu&logoColor=white" />
-  <img src="https://img.shields.io/badge/Vers%C3%A3o-v5.1-2ea44f" />
 </p>
 
 <p align="center">
@@ -46,6 +45,16 @@ A hospedagem foi pensada para um servidor próprio (*self-hosted*), com Node.js,
 | **Conta e acesso** | Login por e-mail/senha ou Google, recuperação de senha e gerenciamento de perfil. |
 
 A interface se adapta ao computador e ao celular. Livros, sagas e metas são armazenados em um banco SQLite dedicado a cada usuário.
+
+### Livros e releituras
+
+No botão **Adicionar livro**, digite o título e selecione um livro na lista para registrar uma releitura. As sugestões agrupam registros de anos diferentes pelo título, autor, saga e volume; páginas não diferenciam o livro, e edições com títulos diferentes continuam separadas. Após selecionar, a opção **Continuar leitura** permite abrir um registro ainda não concluído. Também é possível cadastrar outro livro.
+
+Cada livro tem uma identidade (`book_id`), e cada leitura mantém seu próprio registro (`id`), ano, páginas, datas, status, categoria e avaliação. Título, autor, saga e volume são compartilhados. A saga conta cada livro uma vez e o considera concluído quando pelo menos uma de suas leituras foi finalizada; a estante, as metas, os gráficos e a exportação continuam considerando as leituras individuais.
+
+Registros antigos recebem identidades individuais ao abrir o banco após a atualização, sem apagar nem juntar leituras automaticamente. Quando título e autor coincidem (ignorando maiúsculas, acentos e espaços repetidos), com a mesma saga e volumes compatíveis, aparece uma sugestão para **revisar o vínculo**. Páginas e ano não são critérios de identificação. Em **Gerenciar leituras**, selecione os registros do mesmo livro e confirme em **Vincular selecionados**. Todas as leituras dos grupos selecionados são reunidas com o livro aberto, preservando seus dados individuais e os vínculos anteriores. O formulário permite consultar o histórico e **Separar esta leitura** depois.
+
+Na implantação, faça um backup consistente dos bancos SQLite e reinicie o servidor com o código atualizado. A migração é transacional e pode ser executada novamente sem duplicar identidades. Esta funcionalidade não exige um novo APK.
 
 <a id="app-android"></a>
 ## App Android
@@ -181,13 +190,13 @@ A automação de release está disponível para **Windows com PowerShell e Andro
 - `android/keystore.properties` e a chave de assinatura referenciada nele.
 - `public/assets/js/firebase-config.js` — configuração web do Firebase.
 
-Antes de uma nova versão, ajuste `versionCode` e `versionName` em `android/app/build.gradle`. Confira também o endereço de produção em `capacitor.config.json`.
+Antes de uma nova versão Android, incremente `versionCode` e ajuste `versionName` em `android/app/build.gradle`. Confira também o endereço de produção em `capacitor.config.json` e execute `npm run release:check` para verificar a coerência das versões.
 
 ```bash
 npm run build:android
 ```
 
-O comando executa os testes presentes na máquina, gera a integração JavaScript, sincroniza o Capacitor e compila o release assinado. Depois verifica a assinatura, a versão e o endereço de produção dentro do APK.
+O comando confere a coerência das versões, executa os testes presentes na máquina, gera a integração JavaScript, sincroniza o Capacitor e compila o release assinado. Depois verifica a assinatura, a versão do APK contra o Gradle e o endereço de produção dentro do APK.
 
 Os arquivos para distribuição ficam em:
 

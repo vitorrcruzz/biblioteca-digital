@@ -2597,3 +2597,59 @@ nav a .ico {
   font-size: .8rem;
   color: var(--muted);
 }
+/* Book identity and reread choices inside the existing responsive form. */
+#book-search-help { color: var(--muted); line-height: 1.5; font-size: .78rem; }
+.book-management {
+  grid-column: 1 / -1;
+  min-width: 0;
+  border-top: 1px solid var(--border);
+  font-size: .82rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.book-management summary { padding: 12px 2px; cursor: pointer; min-height: 44px; box-sizing: border-box; }
+.book-management summary:hover, .book-management[open] summary { color: var(--text); }
+.book-management summary:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; border-radius: 6px; }
+.book-management p { margin: 0 0 10px; }
+.book-management .book-history { border: 0; padding: 0; }
+.book-identity, .book-suggestions, .book-history {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--border, #30374e);
+  border-radius: 12px;
+  font-size: .85rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.book-identity p, .book-suggestions p, .book-history p { margin: 5px 0; color: var(--muted); }
+.book-suggestion { padding: 12px 0; border-top: 1px solid var(--border, #30374e); margin-top: 10px; }
+.book-identity-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.book-identity-actions button, .book-suggestions > button, .book-history button {
+  white-space: normal;
+  min-height: 40px;
+  max-width: 100%;
+}
+.book-review-link { display: block; border: 0; background: none; padding: 6px 0; color: var(--gold, #efbc42); cursor: pointer; font: inherit; text-align: left; }
+.book-suggestions-compact { padding: 0; overflow: hidden; }
+.book-suggestions-compact > strong { display: block; padding: 10px 12px; color: var(--muted); font-size: .75rem; font-weight: 500; }
+.book-suggestions-compact .book-search-result {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; min-height: 60px; padding: 10px 12px; text-align: left;
+  background: transparent; border: 0; border-top: 1px solid var(--border);
+  color: var(--text); font: inherit; cursor: pointer;
+}
+.book-search-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; overflow-wrap: anywhere; }
+.book-search-copy strong { font-size: .85rem; }
+.book-search-copy small { color: var(--muted); font-size: .75rem; }
+.book-search-arrow { flex-shrink: 0; color: var(--gold); font-size: 1.4rem; }
+.book-search-result:hover { background: var(--surface2, #222738); }
+.book-search-result:focus-visible, .book-search-other:focus-visible { outline: 2px solid var(--gold); outline-offset: -3px; }
+.book-suggestions-compact .book-search-other { width: 100%; padding: 12px; background: transparent; border: 0; border-top: 1px solid var(--border); color: var(--gold); text-align: left; font: inherit; font-size: .8rem; cursor: pointer; }
+#modal-overlay .book-merge-choice { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; text-transform: none; letter-spacing: normal; margin: 0; }
+#modal-overlay .book-merge-choice input { width: 20px; height: 20px; min-height: 20px; padding: 0; flex: 0 0 20px; accent-color: var(--gold); }
+#modal-overlay input:disabled, #modal-overlay select:disabled { opacity: .75; }
+@media (max-width: 540px) {
+  .book-identity-actions { flex-direction: column; }
+  .book-identity-actions button { width: 100%; }
+}

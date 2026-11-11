@@ -25,6 +25,9 @@ Thumbs.db
 #Outros arquivos
 cloudflared.deb
 *.deb
+RELEASES.md
+AGENTS.md
+
 
 # Firebase Admin (chave privada — NUNCA subir)
 server/firebase-admin-key.json

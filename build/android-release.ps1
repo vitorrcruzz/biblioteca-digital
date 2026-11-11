@@ -9,6 +9,7 @@ function Invoke-Checked {
 }
 try {
     Set-Location -LiteralPath $projectRoot
+    Invoke-Checked 'node' @('build/check-release.cjs')
     foreach ($required in @('node_modules', 'android/keystore.properties', 'android/app/google-services.json', 'public/assets/js/firebase-config.js')) {
         if (-not (Test-Path -LiteralPath $required)) { throw "Arquivo ou pasta necessaria ausente: $required" }
     }
@@ -56,6 +57,7 @@ try {
     if (-not (Test-Path -LiteralPath $apk)) { throw 'APK release assinado nao foi gerado.' }
     $metadata = Get-Content -Raw -LiteralPath (Join-Path $releaseDir 'output-metadata.json') | ConvertFrom-Json
     $release = @($metadata.elements)[0]
+    Invoke-Checked 'node' @('build/check-release.cjs', '--metadata', (Join-Path $releaseDir 'output-metadata.json'))
     if ($metadata.variantName -ne 'release' -or $release.outputFile -ne 'app-release.apk' -or $release.versionName -match 'local|debug') {
         throw 'Metadados inesperados para um APK de producao.'
     }

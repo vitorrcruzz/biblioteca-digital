@@ -82,7 +82,22 @@ function dashboard(db, year) {
 
 function sagasPage(db, query) {
   return pageQuery(db, 'FROM sagas s', [], 's.name, s.id', query, 10,
-    `s.*, (SELECT COUNT(*) FROM books b WHERE b.saga_id = s.id) AS total,
-     (SELECT COUNT(*) FROM books b WHERE b.saga_id = s.id AND b.status = 'finished') AS finished`);
+    `s.*, (SELECT COUNT(DISTINCT book_id) FROM books b WHERE b.saga_id = s.id) AS total,
+     (SELECT COUNT(DISTINCT book_id) FROM books b WHERE b.saga_id = s.id AND b.status = 'finished') AS finished`);
 }
-module.exports = { pagination, booksPage, metadata, dashboard, sagasPage };
+
+function sagaBooksPage(db, sagaId, query) {
+  const data = pageQuery(db, 'FROM book_works w WHERE w.saga_id = ?', [sagaId],
+    '(w.saga_order IS NULL), w.saga_order, w.title, w.id', query, 50, 'w.*');
+  const { describeWork } = require('./book-identities');
+  data.items = data.items.map(w => {
+    const book = describeWork(db, w);
+    const possibleDuplicate = db.prepare(`SELECT 1 FROM book_works WHERE id != ? AND title_key = ? AND author_key = ?
+      AND saga_id IS ? AND (saga_order IS NULL OR ? IS NULL OR saga_order = ?) LIMIT 1`)
+      .get(w.id, w.title_key, w.author_key, w.saga_id, w.saga_order, w.saga_order);
+    return { ...book, possible_duplicate: !!possibleDuplicate,
+      status: book.finished_count ? 'finished' : book.unfinished?.status || book.status };
+  });
+  return data;
+}
+module.exports = { pagination, booksPage, metadata, dashboard, sagasPage, sagaBooksPage };

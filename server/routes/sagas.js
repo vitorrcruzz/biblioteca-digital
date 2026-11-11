@@ -1,7 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const { getUserDb } = require("../database");
-const { sagasPage } = require('../library-queries');
+const { sagasPage, sagaBooksPage } = require('../library-queries');
+
+router.get('/:id/books', (req, res) => {
+  const db = getUserDb(req.user.uid);
+  if (!db.prepare('SELECT id FROM sagas WHERE id = ?').get(req.params.id)) return res.status(404).json({ error: 'Saga não encontrada' });
+  res.json(sagaBooksPage(db, req.params.id, req.query));
+});
 
 // Lightweight options for the book form; never includes book payloads.
 router.get('/options', (req, res) => {

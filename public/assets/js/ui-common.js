@@ -35,7 +35,10 @@ async function apiRequest(fullPath, options = {}) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || `Erro ${res.status}`);
+    const error = new Error(err.error || `Erro ${res.status}`);
+    error.status = res.status;
+    error.matches = err.matches;
+    throw error;
   }
 
   const result = await (responseType === "blob" ? res.blob() : res.json());

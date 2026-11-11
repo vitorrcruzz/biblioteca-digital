@@ -236,8 +236,13 @@
       <h3 id="modal-title">Adicionar livro</h3>
       <div class="form-grid">
         <div class="field full">
-          <label>Título</label>
-          <input id="f-title" type="text" placeholder="Nome do livro" />
+          <label for="f-title">Título</label>
+          <input id="f-title" type="text" placeholder="Nome do livro" autocomplete="off" aria-describedby="book-search-help" />
+          <small id="book-search-help">Digite o título para encontrar livros de todos os anos e registrar uma releitura.</small>
+          <div id="book-identity" class="book-identity" hidden></div>
+          <div id="book-suggestion-slot">
+            <div id="book-suggestions" class="book-suggestions" aria-live="polite" hidden></div>
+          </div>
         </div>
         <div class="field">
           <label>Autor</label>
@@ -359,10 +364,16 @@
             </button>
           </div>
         </div>
+        <details id="book-management" class="book-management" hidden>
+          <summary>Gerenciar leituras</summary>
+          <div id="book-management-content"></div>
+          <div id="book-management-suggestions"></div>
+          <div id="book-history" class="book-history" hidden></div>
+        </details>
       </div>
       <div class="modal-actions">
         <button class="btn-outline" onclick="closeModal()">Cancelar</button>
-        <button class="btn-gold" onclick="saveBook()">💾 Salvar</button>
+        <button class="btn-gold" id="save-book-btn" onclick="saveBook()">💾 Salvar</button>
       </div>
     </div>
   </div>
@@ -481,6 +492,7 @@
   <script src="./assets/js/ui-common.js"></script>
   <script src="./assets/js/capacitor-google-auth-bridge.js"></script>
   <script src="./assets/js/script.js"></script>
+  <script src="./assets/js/book-readings.js"></script>
 </body>
 
 </html>

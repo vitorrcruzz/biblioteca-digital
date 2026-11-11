@@ -1206,11 +1206,13 @@ function drawSagas() {
               <span class="saga-vol">${b.saga_order !== null && b.saga_order !== undefined && b.saga_order !== "" ? `Vol. ${escapeHtml(b.saga_order)}` : "—"}</span>
               <div class="saga-book-info">
                 <span class="t">${escapeHtml(b.title)}</span>
-                <span class="a">${escapeHtml(b.author || "")} ${b.year ? `· ${escapeHtml(b.year)}` : ""}</span>
+                <span class="a">${escapeHtml(b.author || "")}</span>
+                ${b.finished_count && b.unfinished ? '<span class="a">Nova leitura em andamento</span>' : ''}
+                ${b.possible_duplicate ? `<button class="book-review-link" onclick="reviewBookReadings(${b.id})">Possível leitura repetida · revisar vínculo</button>` : ''}
               </div>
               ${badgeHtml(b.category, b.subcategory)}
               <span class="saga-book-status">${statusHtml(b.status)}</span>
-              <button class="btn-icon-sm" onclick="editBook(${b.id})" title="Editar livro">✏️</button>
+              <button class="btn-icon-sm" onclick="editBook(${b.id})" title="Ver ou editar leituras">✏️</button>
             </div>`,
             )
             .join("") ||
@@ -1235,7 +1237,7 @@ async function loadSagaBooks(id, page = 1) {
   sagaBookPages.set(id, pending);
   drawSagas();
   try {
-    const data = await apiFetch(`?saga_id=${id}&page=${page}&pageSize=50`);
+    const data = await apiRequest(`/api/sagas/${id}/books?page=${page}&pageSize=50`);
     if (sagaBookPages.get(id) !== pending) return;
     sagaBookPages.set(id, data);
   } catch (err) {
@@ -1258,7 +1260,10 @@ function toggleSagaCard(id) {
 //  MODAL
 // ═══════════════════════════════════════════════════
 async function openModal(id) {
+  if (savingReading) return;
   const request = ++modalRequest;
+  document.getElementById('modal-overlay').classList.remove('open');
+  resetBookIdentity(!!id);
   let book;
   if (id) {
     try { book = await apiFetch(`/${id}`); }
@@ -1315,12 +1320,14 @@ async function openModal(id) {
   }
 
   document.getElementById("modal-overlay").classList.add("open");
+  if (id) loadReadingIdentity(id, request);
 }
 
 // ═══════════════════════════════════════════════════
 //  CRUD (async)
 // ═══════════════════════════════════════════════════
 async function saveBook() {
+  if (savingReading) return;
   const title = document.getElementById("f-title").value.trim();
   if (!title) {
     alert("O título é obrigatório.");
@@ -1345,8 +1352,13 @@ async function saveBook() {
     saga_order: document.getElementById("f-saga-order").value !== ""
       ? parseFloat(document.getElementById("f-saga-order").value)
       : null,
+    ...(selectedBookWork ? { book_id: selectedBookWork.book_id } : {}),
+    create_separate: separateBookChoice,
   };
 
+  savingReading = true;
+  const saveModalRequest = modalRequest;
+  document.getElementById('save-book-btn').disabled = true;
   try {
     if (editingId) {
       await updateBook(editingId, payload);
@@ -1357,14 +1369,16 @@ async function saveBook() {
     }
 
     closeModal();
-    await loadLibraryMetadata();
-    renderYearList();
-    const active = document.querySelector(".page.active");
-    if (active?.id === "page-dashboard") renderDashboard();
-    if (active?.id === "page-acervo") renderAcervo();
-    if (active?.id === "page-sagas") renderSagas();
+    await refreshReadingViews();
   } catch (err) {
-    alert("Erro ao salvar: " + err.message);
+    if (err.status === 409 && err.matches) {
+      if (saveModalRequest !== modalRequest) return;
+      renderBookSuggestions(err.matches, true);
+      document.getElementById('book-suggestions').scrollIntoView({ block: 'nearest' });
+    } else alert("Erro ao salvar: " + err.message);
+  } finally {
+    savingReading = false;
+    document.getElementById('save-book-btn').disabled = false;
   }
 }
 
@@ -1382,7 +1396,7 @@ async function deleteBook(id) {
 
   openConfirm(
     "Excluir permanentemente?",
-    `"${book.title}" será removido do acervo e não poderá ser recuperado.`,
+    `Esta leitura de "${book.title}" (${book.year}) será removida e não poderá ser recuperada. Outras leituras do mesmo livro serão preservadas.`,
     async () => {
       try {
         await removeBook(id);
